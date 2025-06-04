@@ -27,7 +27,7 @@ const Header: React.FC = () => {
             <div className="bg-red-600 px-2 py-1 rounded font-bold text-white text-sm">
               Manga
             </div>
-            <span className="text-xl font-bold text-red-400 hidden sm:block">Reader</span>
+            <span className="text-xl font-bold text-red-400 hidden sm:block">Ken</span>
           </Link>
 
           {/* Search Bar - Center */}

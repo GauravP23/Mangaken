@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-white">
               <Book className="h-8 w-8" />
-              <span className="text-xl font-bold">MangaReader</span>
+              <span className="text-xl font-bold">MangaKen</span>
             </div>
             <p className="text-gray-400 text-sm">
               Your ultimate destination for reading manga online. Discover thousands of manga titles and stay updated with the latest chapters.
@@ -58,7 +58,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400 text-sm">
-            © 2024 MangaReader. All rights reserved. This is a demo project for educational purposes.
+            © 2024 MangaKen. All rights reserved. This is a demo project for educational purposes.
           </p>
         </div>
       </div>
