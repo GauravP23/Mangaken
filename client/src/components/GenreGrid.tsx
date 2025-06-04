@@ -1,5 +1,6 @@
-import { genres } from '@/data/mangaData';
-import { Button } from '@/components/ui/button';
+import { genres } from '../data/mangaData';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 interface GenreGridProps {
   onGenreClick?: (genre: string) => void;

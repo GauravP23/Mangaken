@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import HeroSlider from '@/components/HeroSlider';
-import MangaSection from '@/components/MangaSection';
-import MangaCard from '@/components/MangaCard';
-import GenreGrid from '@/components/GenreGrid';
-import Footer from '@/components/Footer';
-import { topManga, latestUpdates, trendingManga } from '@/data/mangaData';
+import Header from '../components/Header';
+import HeroSlider from '../components/HeroSlider';
+import MangaSection from '../components/MangaSection';
+import MangaCard from '../components/MangaCard';
+import GenreGrid from '../components/GenreGrid';
+import Footer from '../components/Footer';
+import { topManga, latestUpdates, trendingManga } from '../data/mangaData';
 import { getLatestManga, getPopularManga } from '../services/mangaApi';
 import { Manga } from '../types';
 

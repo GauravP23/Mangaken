@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Eye } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Manga } from '@/data/mangaData';
+import { Badge } from './ui/badge';
+import { Manga } from '../data/mangaData';
 
 interface MangaCardProps {
   manga: Manga;

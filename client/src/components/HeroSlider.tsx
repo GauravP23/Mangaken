@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star, Play, Bookmark } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { trendingManga } from '@/data/mangaData';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { trendingManga } from '../data/mangaData';
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

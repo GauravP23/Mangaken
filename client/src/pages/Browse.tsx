@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '@/components/Header';
-import MangaCard from '@/components/MangaCard';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import Header from '../components/Header';
+import MangaCard from '../components/MangaCard';
+import Footer from '../components/Footer';
+import { Button } from '../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Badge } from '../components/ui/badge';
 import { X } from 'lucide-react';
-import { topManga, latestUpdates, trendingManga, genres } from '@/data/mangaData';
+import { genres, topManga, latestUpdates, trendingManga } from '../data/mangaData';
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();

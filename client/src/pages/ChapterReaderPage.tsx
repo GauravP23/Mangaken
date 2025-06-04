@@ -1,16 +1,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Home, List, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
 import { getChapterPages } from '../services/mangaApi';
-// import { AtHomeServerResponse } from '../types';
+import { AtHomeServerResponse } from '../types';
 import './ChapterReaderPage.css';
+
+// Helper type for local UI state
+interface ChapterReaderServerInfo extends AtHomeServerResponse {
+  mangaId: string;
+  mangaTitle: string;
+  chapterId: number;
+  totalChapters: number;
+}
 
 const ChapterReaderPage: React.FC = () => {
     const { chapterId } = useParams<{ chapterId: string }>();
     const navigate = useNavigate();
     const [pages, setPages] = useState<string[]>([]);
-    const [serverInfo, setServerInfo] = useState<AtHomeServerResponse | null>(null);
+    const [serverInfo, setServerInfo] = useState<ChapterReaderServerInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -26,7 +34,14 @@ const ChapterReaderPage: React.FC = () => {
 
         getChapterPages(chapterId)
             .then(data => {
-                setServerInfo(data);
+                // You may need to fetch or pass these values from parent or mock for now
+                setServerInfo({
+                  ...data,
+                  mangaId: "mock-manga-id", // TODO: Replace with real mangaId
+                  mangaTitle: "Mock Manga Title", // TODO: Replace with real mangaTitle
+                  chapterId: Number(chapterId),
+                  totalChapters: 10 // TODO: Replace with real totalChapters
+                });
                 const imageUrls = data.chapter.data.map(fileName =>
                     `${data.baseUrl}/data/${data.chapter.hash}/${fileName}`
                 );
@@ -63,7 +78,7 @@ const ChapterReaderPage: React.FC = () => {
     }, [currentImageIndex, readingMode]);
 
     const goToChapter = (chapter: number) => {
-        if (chapter >= 1 && chapter <= (serverInfo?.chapter?.totalPages || 1)) {
+        if (chapter >= 1 && chapter <= (serverInfo?.totalChapters || 1)) {
             navigate(`/manga/${serverInfo?.mangaId}/chapter/${chapter}`);
         }
     };
@@ -71,6 +86,9 @@ const ChapterReaderPage: React.FC = () => {
     const toggleControls = () => {
         setShowControls(!showControls);
     };
+
+    // Add a derived value for currentChapter
+    const currentChapter = serverInfo?.chapterId ?? 1;
 
     if (loading) return <p>Loading chapter...</p>;
     if (error) return <p style={{ color: 'red' }}>{error}</p>;

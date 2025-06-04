@@ -1,11 +1,11 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Eye, Calendar, User, BookOpen, Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { trendingManga, topManga, latestUpdates } from '@/data/mangaData';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { trendingManga, topManga, latestUpdates } from '../data/mangaData';
 
 const MangaDetail = () => {
   const { id } = useParams();

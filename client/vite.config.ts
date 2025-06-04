@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
+// Remove @tailwindcss/vite, use standard Vite config for Tailwind
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-  ],
+  // No need for tailwindcss() in plugins, Tailwind is handled via postcss config
+  plugins: [],
 })

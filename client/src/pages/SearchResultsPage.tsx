@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '@/components/Header';
-import MangaCard from '@/components/MangaCard';
-import Footer from '@/components/Footer';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import Header from '../components/Header';
+import MangaCard from '../components/MangaCard';
+import Footer from '../components/Footer';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Badge } from '../components/ui/badge';
 import { Search as SearchIcon, X } from 'lucide-react';
-import { topManga, latestUpdates, trendingManga, genres } from '@/data/mangaData';
+import { topManga, latestUpdates, trendingManga, genres } from '../data/mangaData';
 
 const SearchResultsPage: React.FC = () => {
     const [searchParams] = useSearchParams();

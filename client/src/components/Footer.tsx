@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Book, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 const Footer = () => {
   return (
