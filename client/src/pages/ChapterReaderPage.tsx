@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getChapterPages } from '../services/mangaApi';
-import { AtHomeServerResponse } from '../types';
+// import { AtHomeServerResponse } from '../types';
 import './ChapterReaderPage.css';
 
 const ChapterReaderPage: React.FC = () => {
