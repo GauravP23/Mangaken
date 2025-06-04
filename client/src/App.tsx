@@ -1,32 +1,39 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import HomePage from './pages/HomePage'; // Homepage with manga lists
-import MangaDetails from "./pages/MangaDetails";
-import ChapterReaderPage from './pages/ChapterReaderPage'; // Manga chapter reader
-import SearchResultsPage from './pages/SearchResultsPage'; // Search results
-import NotFoundPage from './pages/NotFoundPage'; // 404 page
-import Header from './components/Layout/Header'; // Navigation and search
-import Footer from './components/Layout/Footer'; // Footer
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import Browse from './pages/Browse';
+import Search from './pages/Search';
+import MangaDetail from './pages/MangaDetail';
+import ChapterReader from './pages/ChapterReader';
+import NotFound from './pages/NotFound';
 import './App.css'; // Global styles
 import './styles/global.css'; // Additional global styles
 
+const queryClient = new QueryClient();
+
 function App() {
     return (
-        <Router>
-            <div className="app-container">
-                <Header />
-                <main className="main-content">
+        <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
                     <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/manga/:mangaId" element={<MangaDetails />} />
-                        <Route path="/chapter/:chapterId" element={<ChapterReaderPage />} />
-                        <Route path="/search" element={<SearchResultsPage />} />
-                        <Route path="*" element={<NotFoundPage />} />
+                        <Route path="/" element={<Index />} />
+                        <Route path="/browse" element={<Browse />} />
+                        <Route path="/search" element={<Search />} />
+                        <Route path="/manga/:id" element={<MangaDetail />} />
+                        <Route path="/manga/:id/chapter/:chapterId" element={<ChapterReader />} />
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
-                </main>
-                <Footer />
-            </div>
-        </Router>
+                </BrowserRouter>
+            </TooltipProvider>
+        </QueryClientProvider>
     );
 }
 
