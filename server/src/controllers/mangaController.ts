@@ -76,3 +76,16 @@ export const getChapterPagesController: RequestHandler = async (req, res, next) 
         next(error);
     }
 };
+
+export const listMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        // Accept limit, offset, and order params from query
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+        const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+        // Pass all query params to the service (for order, includes, etc)
+        const data = await mangadexService.listManga({ ...req.query, limit, offset });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};

@@ -31,7 +31,10 @@ const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loaded
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: [
+        'http://localhost:3000', // React default
+        'http://localhost:5173'  // Vite default
+    ],
     credentials: true
 }));
 app.use(express.json());

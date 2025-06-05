@@ -3,6 +3,9 @@ import * as mangaController from '../controllers/mangaController';
 
 const router = Router();
 
+// GET /api/manga?limit=10&offset=0&order[followedCount]=desc
+router.get('/', mangaController.listMangaController);
+
 // GET /api/manga/search?title=...
 router.get('/search', mangaController.searchMangaController);
 

@@ -15,7 +15,15 @@ export const getLatestManga = async (limit: number = 20, offset: number = 0): Pr
 
 // Get most popular manga
 export const getPopularManga = async (limit: number = 20, offset: number = 0): Promise<Manga[]> => {
-    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga/popular', { params: { limit, offset } });
+    // Use the generic /manga endpoint with order[followedCount] or order[relevance] as a fallback for popularity
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+        params: {
+            limit,
+            offset,
+            'includes[]': ['cover_art', 'author', 'artist'],
+            'order[followedCount]': 'desc', // Sort by most followed (proxy for popularity)
+        }
+    });
     return response.data.data;
 };
 

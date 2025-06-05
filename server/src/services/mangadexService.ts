@@ -82,3 +82,16 @@ export const getChapterPages = async (chapterId: string): Promise<AtHomeServerRe
         throw error;
     }
 };
+
+export const listManga = async (query: any): Promise<MangaDexResponse<Manga>> => {
+    try {
+        // Pass all query params directly to MangaDex /manga endpoint
+        const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+            params: query
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error listing manga:', error);
+        throw error;
+    }
+};
