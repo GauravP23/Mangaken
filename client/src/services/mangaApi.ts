@@ -9,7 +9,15 @@ export const searchManga = async (title: string, limit: number = 20, offset: num
 
 // Get latest updated manga
 export const getLatestManga = async (limit: number = 20, offset: number = 0): Promise<Manga[]> => {
-    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga/latest', { params: { limit, offset } });
+    // Use the generic /manga endpoint with order[latestUploadedChapter]=desc for latest updates
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+        params: {
+            limit,
+            offset,
+            'includes[]': ['cover_art', 'author', 'artist'],
+            'order[latestUploadedChapter]': 'desc',
+        }
+    });
     return response.data.data;
 };
 
@@ -41,6 +49,6 @@ export const getMangaFeed = async (mangaId: string): Promise<Chapter[]> => {
 
 // Get pages for a chapter
 export const getChapterPages = async (chapterId: string): Promise<AtHomeServerResponse> => {
-    const response = await apiClient.get<AtHomeServerResponse>(`/chapter/${chapterId}/pages`);
+    const response = await apiClient.get<AtHomeServerResponse>(`/manga/chapter/${chapterId}/pages`);
     return response.data;
 };

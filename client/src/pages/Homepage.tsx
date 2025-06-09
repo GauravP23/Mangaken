@@ -11,6 +11,16 @@ import { Manga } from '../types';
 
 const PAGE_SIZE = 10;
 
+// Utility to deduplicate manga by id
+function uniqueManga(mangaList: Manga[]): Manga[] {
+    const seen = new Set();
+    return mangaList.filter((manga) => {
+        if (seen.has(manga.id)) return false;
+        seen.add(manga.id);
+        return true;
+    });
+}
+
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
     const [latestManga, setLatestManga] = useState<Manga[]>([]);
@@ -63,11 +73,24 @@ const HomePage: React.FC = () => {
             .finally(() => setLoading((l) => ({ ...l, trending: false })));
     }, []);
 
+    // Hero Section: Alternate top 5 highest rated and top 5 trending (total 10, unique)
+    const topRated = popularManga.slice(0, 5);
+    const topTrending = trendingManga.slice(0, 5);
+    // Alternate the two lists
+    const heroMangaList: Manga[] = [];
+    for (let i = 0; i < 5; i++) {
+        if (topRated[i]) heroMangaList.push(topRated[i]);
+        if (topTrending[i]) heroMangaList.push(topTrending[i]);
+    }
+    // Deduplicate by id
+    const uniqueHeroMangaList = uniqueManga(heroMangaList);
+
     // Most viewed and completed series are derived from popular/trending for now
     // Since 'views' and 'status' do not exist, just show a unique, shuffled, or sliced list
-    const uniqueManga = (arr: Manga[]) => Array.from(new Map(arr.map(m => [m.id, m])).values());
     const mostViewed = uniqueManga([...popularManga, ...trendingManga]).slice(0, 6);
     const completedSeries = uniqueManga([...popularManga, ...trendingManga, ...latestManga]).slice(0, 6);
+    // For Latest Updates, combine latestManga and popularManga (or trendingManga) and deduplicate
+    const latestUpdates = uniqueManga([...latestManga, ...popularManga, ...trendingManga]).slice(0, 10);
 
     const handleGenreClick = (genre: string) => {
         navigate(`/browse?genre=${encodeURIComponent(genre)}`);
@@ -81,23 +104,21 @@ const HomePage: React.FC = () => {
         <div className="min-h-screen bg-gray-950">
             <Header />
             {/* Hero Section */}
-            <HeroSlider />
+            <HeroSlider mangaList={uniqueHeroMangaList} />
             <div className="container mx-auto px-4 py-16 bg-gray-950">
                 {/* Trending Now Section */}
                 <MangaSection 
                     title="Trending Now" 
-                    onViewAll={() => handleViewAll('trending')}
+                    showViewAll={false}
                 >
                     {loading.trending ? (
                         <div className="text-center py-8">Loading...</div>
                     ) : error.trending ? (
                         <div className="text-center text-red-500 py-8">{error.trending}</div>
                     ) : (
-                        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                            {trendingManga.map((manga) => (
-                                <div key={manga.id} className="flex-shrink-0">
-                                    <MangaCard manga={manga} size="medium" />
-                                </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                            {trendingManga.slice(0, 12).map((manga) => (
+                                <MangaCard key={manga.id} manga={manga} size="medium" />
                             ))}
                         </div>
                     )}
@@ -109,7 +130,7 @@ const HomePage: React.FC = () => {
                 {/* Latest Updates Section */}
                 <MangaSection 
                     title="Latest Updates"
-                    onViewAll={() => handleViewAll('latest')}
+                    showViewAll={false}
                 >
                     {loading.latest ? (
                         <div className="text-center py-8">Loading...</div>
@@ -117,7 +138,7 @@ const HomePage: React.FC = () => {
                         <div className="text-center text-red-500 py-8">{error.latest}</div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {latestManga.map((manga) => (
+                            {latestUpdates.slice(0, 12).map((manga) => (
                                 <MangaCard key={manga.id} manga={manga} size="medium" />
                             ))}
                         </div>

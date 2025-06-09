@@ -12,21 +12,54 @@ export interface MangaCardProps {
 }
 
 // Helper to map API Manga to UI MangaCard shape
-function mapApiMangaToUICard(manga: ApiManga | Manga): Manga {
+export function mapApiMangaToUICard(manga: ApiManga | Manga): Manga {
   if ((manga as any).attributes) {
     const apiManga = manga as ApiManga;
+    // Extract cover art filename from relationships
+    let coverFileName = '';
+    const coverRel = (apiManga.relationships || []).find(rel => rel.type === 'cover_art');
+    if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
+      coverFileName = coverRel.attributes.fileName;
+    } else if (coverRel && coverRel.attributes && coverRel.attributes.filename) {
+      coverFileName = coverRel.attributes.filename;
+    }
+    // Build MangaDex cover URL if possible
+    const image = coverFileName ?
+      `https://uploads.mangadex.org/covers/${apiManga.id}/${coverFileName}.256.jpg` :
+      '';
+    // Extract author name
+    let author = '';
+    const authorRel = (apiManga.relationships || []).find(rel => rel.type === 'author');
+    if (authorRel && authorRel.attributes && authorRel.attributes.name) {
+      author = authorRel.attributes.name;
+    }
+    // Extract rating (from attributes if present, fallback to 0)
+    let rating = 0;
+    if (apiManga.attributes && typeof (apiManga.attributes as any).bayesianRating === 'number') {
+      rating = (apiManga.attributes as any).bayesianRating;
+    } else if (apiManga.attributes && typeof (apiManga.attributes as any).averageRating === 'number') {
+      rating = (apiManga.attributes as any).averageRating;
+    }
+    // Extract views (followedCount)
+    let views = 0;
+    if (apiManga.attributes && typeof (apiManga.attributes as any).followedCount === 'number') {
+      views = (apiManga.attributes as any).followedCount;
+    }
+    // Extract type
+    const type = (apiManga as any).type || 'manga';
     return {
       id: apiManga.id,
       title: apiManga.attributes.title?.en || Object.values(apiManga.attributes.title)[0] || 'No Title',
       description: apiManga.attributes.description?.en || Object.values(apiManga.attributes.description)[0] || '',
-      image: '', // You may want to extract cover art from relationships
+      image,
       genres: (apiManga.attributes.tags || []).map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || ''),
-      rating: 0, // Not available from API by default
+      rating,
       status: (apiManga.attributes.status as 'ongoing' | 'completed') || 'ongoing',
       chapters: 0, // Not available from API by default
-      views: 0, // Not available from API by default
-      author: '', // Not available from API by default
+      views,
+      author,
       lastUpdate: '', // Not available from API by default
+      // type is not in UI Manga type, so omit it
     };
   }
   // Already UI shape
