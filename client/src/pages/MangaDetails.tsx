@@ -7,12 +7,13 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { mapApiMangaToUICard } from '../components/MangaCard';
 import { Manga } from '../types';
-import { getMangaDetails, getMangaFeed } from '../services/mangaApi';
+import { getMangaDetails, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
 
 const MangaDetail = () => {
   const { id } = useParams();
   const [manga, setManga] = useState<any>(null);
   const [chapters, setChapters] = useState<any[]>([]);
+  const [chapterCount, setChapterCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -21,11 +22,13 @@ const MangaDetail = () => {
     setLoading(true);
     Promise.all([
       getMangaDetails(id),
-      getMangaFeed(id)
+      getMangaFeed(id),
+      getMangaChapterCount(id)
     ])
-      .then(([data, feed]) => {
+      .then(([data, feed, count]) => {
         setManga(mapApiMangaToUICard(data));
         setChapters(feed);
+        setChapterCount(count);
         setError('');
       })
       .catch(() => setError('Manga not found'))
@@ -91,7 +94,7 @@ const MangaDetail = () => {
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">
                 <BookOpen className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{chapters.length > 0 ? chapters.length : 'N/A'}</div>
+                <div className="text-2xl font-bold text-white">{chapterCount !== null ? chapterCount : 'N/A'}</div>
                 <div className="text-gray-400 text-sm">Chapters</div>
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">

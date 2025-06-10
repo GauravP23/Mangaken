@@ -1,20 +1,57 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star, Play, Bookmark } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Manga } from '../types';
 import { mapApiMangaToUICard } from './MangaCard';
 import { useNavigate } from 'react-router-dom';
-import { getMangaFeed } from '../services/mangaApi';
+import { searchManga, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
+import type { Manga as UIManga } from '../data/mangaData';
 
-interface HeroSliderProps {
-  mangaList: Manga[];
-}
+const HERO_MANGA_TITLES = [
+  'Hunter x Hunter',
+  'One-Punch Man',
+  'One Piece',
+  'Steel Ball Run',
+  'Vagabond',
+  'Tokyo Ghoul',
+  'Kokou no Hito',
+  'Fire Punch',
+  'Billy Bat',
+  'Planetes',
+  'The Fragrant Flower Blooms With Dignity',
+];
 
-const HeroSlider = ({ mangaList }: HeroSliderProps) => {
+const HeroSlider = () => {
+  const [mangaList, setMangaList] = useState<UIManga[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const navigate = useNavigate();
   const [loadingReadNow, setLoadingReadNow] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      const fetched = await Promise.all(
+        HERO_MANGA_TITLES.map(async (title) => {
+          try {
+            const results = await searchManga(title, 1, 0);
+            if (results && results.length > 0) {
+              const uiManga = mapApiMangaToUICard(results[0]);
+              // Fetch real chapter count
+              const chapterCount = await getMangaChapterCount(uiManga.id);
+              return { ...uiManga, chapters: chapterCount };
+            }
+            return null;
+          } catch {
+            return null;
+          }
+        })
+      );
+      if (isMounted) {
+        setMangaList(fetched.filter(Boolean) as UIManga[]);
+      }
+    })();
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     if (!mangaList.length) return;
@@ -24,10 +61,16 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
     return () => clearInterval(timer);
   }, [mangaList.length]);
 
-  if (!mangaList.length) return null;
-  const currentManga = mapApiMangaToUICard(mangaList[currentSlide]);
+  if (!mangaList.length) {
+    return (
+      <div className="h-[80vh] flex items-center justify-center bg-gray-900 text-white text-xl">
+        Loading featured manga...
+      </div>
+    );
+  }
 
-  // Truncate description to 3 lines (about 240 chars, word boundary)
+  const currentManga = mangaList[currentSlide];
+
   function truncateDescription(desc: string, maxLen = 240) {
     if (!desc) return '';
     if (desc.length <= maxLen) return desc;
@@ -46,9 +89,7 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
   const handleReadNow = async () => {
     setLoadingReadNow(true);
     try {
-      // Fetch chapter feed for this manga
       const chapters = await getMangaFeed(currentManga.id);
-      // Sort chapters by chapter number (as number), fallback to order
       const sorted = [...chapters].sort((a, b) => {
         const aNum = parseFloat(a.attributes?.chapter || '0');
         const bNum = parseFloat(b.attributes?.chapter || '0');
@@ -77,16 +118,14 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
   return (
     <div className="relative h-[80vh] overflow-hidden bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
       {/* Background Image with Dark Overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
         style={{
           backgroundImage: `url(${currentManga.image})`,
           filter: 'brightness(0.3) blur(2px)',
         }}
       />
-      {/* Dark Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent" />
-      {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-between">
         {/* Details Left */}
         <div className="flex flex-col justify-center max-w-xl pl-12 pr-4 py-12">
@@ -100,7 +139,7 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
             {truncateDescription(currentManga.description)}
           </p>
           <div className="flex flex-wrap gap-2 mb-6">
-            {currentManga.genres.slice(0, 4).map((genre) => (
+            {currentManga.genres?.slice(0, 4).map((genre) => (
               <Badge key={genre} className="bg-gray-700/80 text-gray-200 border-gray-600">
                 {genre}
               </Badge>
@@ -133,11 +172,11 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
               alt={currentManga.title}
               className="object-cover w-full h-full rounded-xl shadow-lg"
               draggable={false}
+              onError={e => (e.currentTarget.src = '/placeholder.svg')}
             />
           </div>
         </div>
       </div>
-
       {/* Navigation Arrows */}
       <Button
         variant="ghost"
@@ -155,7 +194,6 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
       >
         <ChevronRight className="w-6 h-6" />
       </Button>
-
       {/* Slide Indicators */}
       <div className="absolute bottom-8 right-8 z-20 flex items-center gap-4">
         <span className="text-white text-lg font-medium">

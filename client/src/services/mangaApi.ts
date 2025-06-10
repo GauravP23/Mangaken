@@ -58,3 +58,30 @@ export const getChapterPages = async (chapterId: string): Promise<AtHomeServerRe
     const response = await apiClient.get<AtHomeServerResponse>(`/manga/chapter/${chapterId}/pages`);
     return response.data;
 };
+
+// Utility to fetch the total number of chapters for a manga, handling pagination
+export const getMangaChapterCount = async (mangaId: string): Promise<number> => {
+    let total = 0;
+    let offset = 0;
+    const limit = 500; // MangaDex API max limit per request
+    let hasMore = true;
+    while (hasMore) {
+        const response = await apiClient.get<MangaDexResponse<Chapter>>(`/manga/${mangaId}/feed`, {
+            params: {
+                limit,
+                offset,
+                'order[chapter]': 'asc',
+                'translatedLanguage[]': ['en'],
+                'includeFutureUpdates': 0,
+            }
+        });
+        const chapters = response.data.data;
+        total += chapters.length;
+        if (chapters.length < limit) {
+            hasMore = false;
+        } else {
+            offset += limit;
+        }
+    }
+    return total;
+};

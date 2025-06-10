@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import MangaCard from '../components/MangaCard';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { X } from 'lucide-react';
 import { genres, topManga, latestUpdates, trendingManga } from '../data/mangaData';
+import { getMangaChapterCount } from '../services/mangaApi';
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,8 +17,22 @@ const Browse = () => {
   );
   const [sortBy, setSortBy] = useState('rating');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [chapterCounts, setChapterCounts] = useState<{ [id: string]: number }>({});
 
   const allManga = [...trendingManga, ...topManga, ...latestUpdates];
+
+  useEffect(() => {
+    // Fetch chapter counts for all manga in Browse page
+    const ids = allManga.map(m => m.id);
+    Promise.all(ids.map(async (id) => {
+      const count = await getMangaChapterCount(id).catch(() => 0);
+      return { id, count };
+    })).then(results => {
+      const counts: { [id: string]: number } = {};
+      results.forEach(({ id, count }) => { counts[id] = count; });
+      setChapterCounts(counts);
+    });
+  }, [allManga.length]);
 
   const filteredAndSortedManga = useMemo(() => {
     let filtered = allManga.filter(manga => {
@@ -52,8 +67,9 @@ const Browse = () => {
       }
     });
 
-    return filtered;
-  }, [selectedGenres, sortBy, statusFilter]);
+    // Add real chapter count to each manga
+    return filtered.map(manga => ({ ...manga, chapters: chapterCounts[manga.id] ?? manga.chapters }));
+  }, [allManga, selectedGenres, statusFilter, sortBy, chapterCounts]);
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev => 

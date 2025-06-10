@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { getMangaDetails, searchManga, getMangaFeed } from '../services/mangaApi';
+import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
 import { Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
@@ -26,8 +26,7 @@ const SearchResultsPage: React.FC = () => {
             let chapters = 0;
             let author = '';
             try {
-              const feed = await getMangaFeed(manga.id, 500, 0);
-              chapters = feed.length;
+              chapters = await getMangaChapterCount(manga.id);
             } catch {}
             try {
               const details = await getMangaDetails(manga.id);

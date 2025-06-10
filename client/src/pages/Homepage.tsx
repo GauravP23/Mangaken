@@ -6,7 +6,7 @@ import MangaSection from '../components/MangaSection';
 import MangaCard from '../components/MangaCard';
 import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
-import { getLatestManga, getPopularManga } from '../services/mangaApi';
+import { getLatestManga, getPopularManga, getMangaChapterCount } from '../services/mangaApi';
 import { Manga } from '../types';
 
 const PAGE_SIZE = 10;
@@ -42,8 +42,13 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         setLoading((l) => ({ ...l, latest: true }));
         getLatestManga(PAGE_SIZE, (latestPage - 1) * PAGE_SIZE)
-            .then((data) => {
-                setLatestManga(data);
+            .then(async (data) => {
+                // Fetch real chapter counts for each manga
+                const withChapters = await Promise.all(data.map(async (manga) => {
+                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
+                    return { ...manga, chapters };
+                }));
+                setLatestManga(withChapters);
                 setError((e) => ({ ...e, latest: '' }));
             })
             .catch(() => setError((e) => ({ ...e, latest: 'Failed to load latest manga.' })))
@@ -53,8 +58,13 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         setLoading((l) => ({ ...l, popular: true }));
         getPopularManga(PAGE_SIZE, (popularPage - 1) * PAGE_SIZE)
-            .then((data) => {
-                setPopularManga(data);
+            .then(async (data) => {
+                // Fetch real chapter counts for each manga
+                const withChapters = await Promise.all(data.map(async (manga) => {
+                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
+                    return { ...manga, chapters };
+                }));
+                setPopularManga(withChapters);
                 setError((e) => ({ ...e, popular: '' }));
             })
             .catch(() => setError((e) => ({ ...e, popular: 'Failed to load popular manga.' })))
@@ -65,8 +75,13 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         setLoading((l) => ({ ...l, trending: true }));
         getPopularManga(PAGE_SIZE, 0)
-            .then((data) => {
-                setTrendingManga(data);
+            .then(async (data) => {
+                // Fetch real chapter counts for each manga
+                const withChapters = await Promise.all(data.map(async (manga) => {
+                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
+                    return { ...manga, chapters };
+                }));
+                setTrendingManga(withChapters);
                 setError((e) => ({ ...e, trending: '' }));
             })
             .catch(() => setError((e) => ({ ...e, trending: 'Failed to load trending manga.' })))
@@ -104,7 +119,7 @@ const HomePage: React.FC = () => {
         <div className="min-h-screen bg-gray-950">
             <Header />
             {/* Hero Section */}
-            <HeroSlider mangaList={uniqueHeroMangaList} />
+            <HeroSlider />
             <div className="container mx-auto px-4 py-16 bg-gray-950">
                 {/* Trending Now Section */}
                 <MangaSection 
