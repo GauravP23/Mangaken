@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Home, List, Settings, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
+console.log('Button component:', Button);
 import { getChapterPages, getMangaFeed } from '../services/mangaApi';
 import { AtHomeServerResponse } from '../types';
 import './ChapterReaderPage.css';
@@ -26,36 +27,58 @@ const ChapterReaderPage: React.FC = () => {
     const [showControls, setShowControls] = useState(true);
     const [chapterList, setChapterList] = useState<any[]>([]);
     const [selectedChapter, setSelectedChapter] = useState<any>(null);
+    const [showBottomBar, setShowBottomBar] = useState(false);
+    const bottomBarTimeout = useRef<NodeJS.Timeout | null>(null);
     const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
     useEffect(() => {
         if (!mangaId) return;
-        // Fetch chapter list for the manga
         getMangaFeed(mangaId)
             .then(feed => {
-                // Filter for English chapters with valid IDs and not external
                 const filtered = feed.filter(
                     ch => ch.id && ch.attributes?.translatedLanguage === 'en' && !(ch.attributes && 'externalUrl' in ch.attributes && ch.attributes.externalUrl)
                 );
                 setChapterList(filtered);
-                // If chapterId is present, select the correct chapter
+                if (filtered.length === 0) {
+                    setError('No readable chapters found for this manga.');
+                    setSelectedChapter(null);
+                    return;
+                }
+                // Only update selectedChapter if it actually changes
                 const found = filtered.find(ch => ch.id === chapterId) || filtered[0];
-                setSelectedChapter(found);
+                if (found) {
+                    setSelectedChapter(prev => (prev?.id !== found?.id ? found : prev));
+                } else {
+                    setError('No matching chapter found.');
+                    setSelectedChapter(null);
+                }
             })
             .catch(() => setError('Could not load chapter list.'));
     }, [mangaId, chapterId]);
 
     useEffect(() => {
-        if (!selectedChapter) return;
+        if (!selectedChapter || !selectedChapter.id) return;
         setLoading(true);
         setError(null);
         setPages([]);
+        console.log('Fetching pages for chapter:', selectedChapter.id);
         getChapterPages(selectedChapter.id)
             .then(data => {
+                // Always use English manga/chapter title if available
+                let title = '';
+                if (selectedChapter.attributes?.title) {
+                  if (typeof selectedChapter.attributes.title === 'object') {
+                    title = selectedChapter.attributes.title['en'] || Object.values(selectedChapter.attributes.title)[0] || '';
+                  } else {
+                    title = selectedChapter.attributes.title;
+                  }
+                } else {
+                  title = `Chapter ${selectedChapter.attributes?.chapter || ''}`;
+                }
                 setServerInfo({
                   ...data,
                   mangaId: mangaId || '',
-                  mangaTitle: selectedChapter.attributes?.title || `Chapter ${selectedChapter.attributes?.chapter || ''}`,
+                  mangaTitle: title,
                   chapterId: selectedChapter.id,
                   totalChapters: chapterList.length
                 });
@@ -93,6 +116,42 @@ const ChapterReaderPage: React.FC = () => {
             imageRefs.current[currentImageIndex]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }, [currentImageIndex, readingMode]);
+
+    // Show bottom bar on last page (long-strip mode) or on hover near bottom
+    useEffect(() => {
+      if (readingMode === 'long-strip') {
+        const handleScroll = () => {
+          const scrollY = window.scrollY || window.pageYOffset;
+          const windowHeight = window.innerHeight;
+          const docHeight = document.documentElement.scrollHeight;
+          // Show if user is within 120px of bottom
+          if (windowHeight + scrollY >= docHeight - 120) {
+            setShowBottomBar(true);
+          } else {
+            setShowBottomBar(false);
+          }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }
+    }, [readingMode, pages.length]);
+
+    // Show bottom bar on hover (for both modes)
+    const handleBottomBarMouseEnter = () => {
+      setShowBottomBar(true);
+      if (bottomBarTimeout.current) clearTimeout(bottomBarTimeout.current);
+    };
+    const handleBottomBarMouseLeave = () => {
+      if (bottomBarTimeout.current) clearTimeout(bottomBarTimeout.current);
+      bottomBarTimeout.current = setTimeout(() => setShowBottomBar(false), 600);
+    };
+
+    // For single-page mode, show on last page
+    useEffect(() => {
+      if (readingMode === 'single-page') {
+        setShowBottomBar(currentImageIndex === pages.length - 1);
+      }
+    }, [readingMode, currentImageIndex, pages.length]);
 
     const currentChapterIndex = chapterList.findIndex(ch => ch.id === (selectedChapter?.id || chapterId));
     const goToChapter = (index: number) => {
@@ -216,35 +275,40 @@ const ChapterReaderPage: React.FC = () => {
                     ))}
                 </div>
                 {/* End of Chapter Navigation (Bottom Bar) */}
-                <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-gray-800">
-                    <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                        <Button
-                            variant="outline"
-                            disabled={currentChapterIndex <= 0}
-                            onClick={() => goToChapter(currentChapterIndex - 1)}
-                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
-                        >
-                            <ChevronLeft className="w-4 h-4 mr-1" />
-                            Previous
-                        </Button>
-                        <div className="text-center flex-1 flex flex-col items-center">
-                            <span className="text-white text-lg font-semibold">Rate this Chapter</span>
-                            <div className="flex gap-1 mt-1">
-                                {[1,2,3,4,5].map(star => (
-                                    <Star key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" />
-                                ))}
-                            </div>
+                <div
+                  className={`fixed bottom-0 left-0 right-0 z-50 transition-opacity duration-300 ${showBottomBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                  onMouseEnter={handleBottomBarMouseEnter}
+                  onMouseLeave={handleBottomBarMouseLeave}
+                  style={{background: 'rgba(24,24,27,0.95)', borderTop: '1px solid #27272a'}}
+                >
+                  <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                    <Button
+                        variant="outline"
+                        disabled={currentChapterIndex <= 0}
+                        onClick={() => goToChapter(currentChapterIndex - 1)}
+                        className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
+                    >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        Previous
+                    </Button>
+                    <div className="text-center flex-1 flex flex-col items-center">
+                        <span className="text-white text-lg font-semibold">Rate this Chapter</span>
+                        <div className="flex gap-1 mt-1">
+                            {[1,2,3,4,5].map(star => (
+                                <Star key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" />
+                            ))}
                         </div>
-                        <Button
-                            variant="outline"
-                            disabled={currentChapterIndex >= chapterList.length - 1}
-                            onClick={() => goToChapter(currentChapterIndex + 1)}
-                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4 ml-1" />
-                        </Button>
                     </div>
+                    <Button
+                        variant="outline"
+                        disabled={currentChapterIndex >= chapterList.length - 1}
+                        onClick={() => goToChapter(currentChapterIndex + 1)}
+                        className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
+                    >
+                        Next
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
                 </div>
             </div>
         </div>

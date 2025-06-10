@@ -1,21 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import { searchManga } from '../services/mangaApi';
 import './Header.css'; // For styling
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      // Always go to search results page on enter
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowDropdown(false);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    const value = e.target.value;
+    if (!value.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const results = await searchManga(value, 10, 0); // limit 10 for dropdown
+        setSearchResults(results);
+        setShowDropdown(true);
+      } catch {
+        setSearchResults([]);
+        setShowDropdown(false);
+      }
+    }, 250);
+  };
+
+  const handleResultClick = (mangaId: string) => {
+    navigate(`/manga/${mangaId}`);
+    setShowDropdown(false);
+  };
+
+  // Top bar filter handlers
+  const handleGenres = () => {
+    navigate('/browse');
+  };
+  const handleNew = () => {
+    navigate('/browse?sortBy=latest');
+  };
+  const handleOngoing = () => {
+    navigate('/browse?status=ongoing');
   };
 
   return (
@@ -31,16 +74,35 @@ const Header: React.FC = () => {
           </Link>
 
           {/* Search Bar - Center */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8 relative">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search manga..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleInputChange}
+                onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                 className="w-full pl-10 pr-4 bg-gray-800/80 border-gray-700 text-white placeholder:text-gray-400 focus:border-red-400 focus:ring-red-400/20 rounded-full"
               />
+              {showDropdown && searchResults.length > 0 && (
+                <div className="absolute left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
+                  {searchResults.map((manga) => (
+                    <div
+                      key={manga.id}
+                      className="px-4 py-2 hover:bg-gray-800 cursor-pointer flex items-center gap-3"
+                      onMouseDown={() => handleResultClick(manga.id)}
+                    >
+                      <img src={manga.relationships?.find(r => r.type === 'cover_art')?.attributes?.fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${manga.relationships.find(r => r.type === 'cover_art').attributes.fileName}.256.jpg` : '/placeholder.svg'} alt={manga.attributes?.title?.en || 'No Title'} className="w-8 h-12 object-cover rounded shadow" />
+                      <span className="text-white font-medium line-clamp-1">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
+                    </div>
+                  ))}
+                  {searchResults.length === 0 && (
+                    <div className="px-4 py-2 text-gray-400">No results found.</div>
+                  )}
+                </div>
+              )}
             </div>
           </form>
 
@@ -50,15 +112,7 @@ const Header: React.FC = () => {
               variant="ghost"
               size="sm"
               className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
-            >
-              <Filter className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
-              FILTER
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              onClick={handleGenres}
             >
               <Grid3X3 className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
               GENRES
@@ -68,6 +122,7 @@ const Header: React.FC = () => {
               variant="ghost"
               size="sm"
               className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              onClick={handleNew}
             >
               <Star className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
               NEW
@@ -77,6 +132,7 @@ const Header: React.FC = () => {
               variant="ghost"
               size="sm"
               className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              onClick={handleOngoing}
             >
               <TrendingUp className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
               ONGOING

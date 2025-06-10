@@ -42,8 +42,14 @@ export const getMangaDetails = async (mangaId: string): Promise<Manga> => {
 };
 
 // Get chapter feed for a manga
-export const getMangaFeed = async (mangaId: string): Promise<Chapter[]> => {
-    const response = await apiClient.get<MangaDexResponse<Chapter>>(`/manga/${mangaId}/feed`);
+export const getMangaFeed = async (mangaId: string, limit: number = 500, offset: number = 0): Promise<Chapter[]> => {
+    const response = await apiClient.get<MangaDexResponse<Chapter>>(`/manga/${mangaId}/feed`, {
+        params: {
+            limit,
+            offset,
+            'order[chapter]': 'asc',
+        }
+    });
     return response.data.data;
 };
 

@@ -4,6 +4,8 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Manga } from '../types';
 import { mapApiMangaToUICard } from './MangaCard';
+import { useNavigate } from 'react-router-dom';
+import { getMangaFeed } from '../services/mangaApi';
 
 interface HeroSliderProps {
   mangaList: Manga[];
@@ -11,6 +13,8 @@ interface HeroSliderProps {
 
 const HeroSlider = ({ mangaList }: HeroSliderProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
+  const [loadingReadNow, setLoadingReadNow] = useState(false);
 
   useEffect(() => {
     if (!mangaList.length) return;
@@ -37,6 +41,37 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + mangaList.length) % mangaList.length);
+  };
+
+  const handleReadNow = async () => {
+    setLoadingReadNow(true);
+    try {
+      // Fetch chapter feed for this manga
+      const chapters = await getMangaFeed(currentManga.id);
+      // Sort chapters by chapter number (as number), fallback to order
+      const sorted = [...chapters].sort((a, b) => {
+        const aNum = parseFloat(a.attributes?.chapter || '0');
+        const bNum = parseFloat(b.attributes?.chapter || '0');
+        if (isNaN(aNum) && isNaN(bNum)) return 0;
+        if (isNaN(aNum)) return 1;
+        if (isNaN(bNum)) return -1;
+        return aNum - bNum;
+      });
+      const firstChapter = sorted[0];
+      if (firstChapter) {
+        navigate(`/manga/${currentManga.id}/chapter/${firstChapter.id}`);
+      } else {
+        alert('No chapters found for this manga.');
+      }
+    } catch (e) {
+      alert('Failed to fetch chapters.');
+    } finally {
+      setLoadingReadNow(false);
+    }
+  };
+
+  const handleViewInfo = () => {
+    navigate(`/manga/${currentManga.id}`);
   };
 
   return (
@@ -72,10 +107,20 @@ const HeroSlider = ({ mangaList }: HeroSliderProps) => {
             ))}
           </div>
           <div className="flex gap-4">
-            <Button size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-3 text-lg font-semibold">
-              Read Now
+            <Button
+              size="lg"
+              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-3 text-lg font-semibold"
+              onClick={handleReadNow}
+              disabled={loadingReadNow}
+            >
+              {loadingReadNow ? 'Loading...' : 'Read Now'}
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-400 text-white hover:bg-gray-800 px-8 py-3 text-lg font-semibold">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-gray-400 text-white hover:bg-gray-800 px-8 py-3 text-lg font-semibold"
+              onClick={handleViewInfo}
+            >
               View Info
             </Button>
           </div>
