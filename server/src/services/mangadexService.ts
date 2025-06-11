@@ -10,6 +10,10 @@ if (!MANGADEX_API_BASE_URL) {
 
 const apiClient = axios.create({
     baseURL: MANGADEX_API_BASE_URL,
+    headers: {
+        'User-Agent': 'MangaKen/1.0 (https://github.com/your-repo)',
+        'Accept': 'application/json'
+    }
 });
 
 export const searchManga = async (title: string, limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {

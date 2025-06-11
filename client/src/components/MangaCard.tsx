@@ -81,18 +81,21 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
     large: 'text-lg'
   };
 
+  const [imgSrc, setImgSrc] = React.useState(uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover');
+
   return (
     <Link to={`/manga/${uiManga.id}`} className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
-      <div className="relative overflow-hidden rounded-lg shadow-lg">
+      <div className="relative overflow-hidden shadow-lg rounded-2xl">
         <img
-          src={uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover'}
+          src={imgSrc}
           alt={uiManga.title}
-          className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110`}
+          className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110 rounded-2xl`}
+          onError={() => setImgSrc('/placeholder.svg')}
         />
         
         {/* Status Badge */}
         <Badge 
-          className={`absolute top-2 right-2 ${
+          className={`absolute top-2 right-4 ${
             uiManga.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
           } text-white`}
         >
