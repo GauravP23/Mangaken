@@ -36,7 +36,6 @@ const HeroSlider = () => {
             const results = await searchManga(title, 1, 0);
             if (results && results.length > 0) {
               const uiManga = mapApiMangaToUICard(results[0]);
-              // Fetch real chapter count
               const chapterCount = await getMangaChapterCount(uiManga.id);
               return { ...uiManga, chapters: chapterCount };
             }
@@ -63,7 +62,7 @@ const HeroSlider = () => {
 
   if (!mangaList.length) {
     return (
-      <div className="h-[80vh] flex items-center justify-center bg-gray-900 text-white text-xl">
+      <div className="h-[100vh] flex items-center justify-center bg-gray-900 text-white text-xl">
         Loading featured manga...
       </div>
     );
@@ -93,10 +92,7 @@ const HeroSlider = () => {
       const sorted = [...chapters].sort((a, b) => {
         const aNum = parseFloat(a.attributes?.chapter || '0');
         const bNum = parseFloat(b.attributes?.chapter || '0');
-        if (isNaN(aNum) && isNaN(bNum)) return 0;
-        if (isNaN(aNum)) return 1;
-        if (isNaN(bNum)) return -1;
-        return aNum - bNum;
+        return (isNaN(aNum) ? 1 : aNum) - (isNaN(bNum) ? 1 : bNum);
       });
       const firstChapter = sorted[0];
       if (firstChapter) {
@@ -104,7 +100,7 @@ const HeroSlider = () => {
       } else {
         alert('No chapters found for this manga.');
       }
-    } catch (e) {
+    } catch {
       alert('Failed to fetch chapters.');
     } finally {
       setLoadingReadNow(false);
@@ -116,26 +112,25 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[80vh] overflow-hidden bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
-      {/* Background Image with Dark Overlay */}
+    <div className="relative min-h-[100vh] overflow-hidden text-white">
       <div
-        className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+        className="absolute inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url(${currentManga.image})`,
           filter: 'brightness(0.3) blur(2px)',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent" />
-      <div className="relative z-10 h-full flex items-center justify-between">
-        {/* Details Left */}
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent z-0" />
+
+      <div className="relative z-10 flex items-center justify-between min-h-[100vh]">
         <div className="flex flex-col justify-center max-w-xl pl-12 pr-4 py-12">
           <div className="mb-2 text-yellow-300 font-semibold text-lg">
             Chapters: {currentManga.chapters || 'N/A'}
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 leading-tight line-clamp-2">
+          <h1 className="text-4xl md:text-5xl font-bold mb-2 leading-tight">
             {currentManga.title}
           </h1>
-          <p className="text-gray-200 text-base md:text-lg mb-4 line-clamp-3 max-w-lg">
+          <p className="text-gray-200 text-base md:text-lg mb-4 max-w-lg">
             {truncateDescription(currentManga.description)}
           </p>
           <div className="flex flex-wrap gap-2 mb-6">
@@ -148,7 +143,7 @@ const HeroSlider = () => {
           <div className="flex gap-4">
             <Button
               size="lg"
-              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-3 text-lg font-semibold"
+              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg font-semibold"
               onClick={handleReadNow}
               disabled={loadingReadNow}
             >
@@ -164,20 +159,20 @@ const HeroSlider = () => {
             </Button>
           </div>
         </div>
-        {/* Cover Card Right */}
+
         <div className="flex items-center justify-end h-full pr-16">
           <div className="relative w-56 h-80 rounded-xl shadow-2xl overflow-hidden border-4 border-white/10 bg-gray-900/80">
             <img
               src={currentManga.image}
               alt={currentManga.title}
-              className="object-cover w-full h-full rounded-xl shadow-lg"
-              draggable={false}
+              className="object-cover w-full h-full rounded-xl"
               onError={e => (e.currentTarget.src = '/placeholder.svg')}
+              draggable={false}
             />
           </div>
         </div>
       </div>
-      {/* Navigation Arrows */}
+
       <Button
         variant="ghost"
         size="sm"
@@ -194,7 +189,7 @@ const HeroSlider = () => {
       >
         <ChevronRight className="w-6 h-6" />
       </Button>
-      {/* Slide Indicators */}
+
       <div className="absolute bottom-8 right-8 z-20 flex items-center gap-4">
         <span className="text-white text-lg font-medium">
           {currentSlide + 1} / {mangaList.length}

@@ -117,7 +117,7 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
                 <Eye className="w-3 h-3" />
                 <span>{(uiManga.views / 1000000).toFixed(1)}M</span>
               </div>
-              <span>{uiManga.chapters} ch</span>
+              <span className="text-red-500 font-semibold">{uiManga.chapters} ch</span>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
         </h3>
         <div className="flex flex-wrap gap-1">
           {uiManga.genres.slice(0, 2).map((genre) => (
-            <Badge key={genre} variant="outline" className="text-xs border-gray-600 text-gray-400">
+            <Badge key={genre} variant="outline" className="text-xs text-white bg-transparent">
               {genre}
             </Badge>
           ))}
