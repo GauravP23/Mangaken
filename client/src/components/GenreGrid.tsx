@@ -12,7 +12,7 @@ const GenreGrid = ({ onGenreClick }: GenreGridProps) => {
       {genres.map((genre) => (
         <button
           key={genre}
-          className="text-lg font-semibold w-full p-3  rounded-lg border-2 border-red-400 text-red-400 bg-[#13131a] transition-all duration-200 hover:shadow-[0_0_16px_2px_rgba(239,68,68,0.5)] hover:border-red-500 hover:text-red-400"
+          className="text-lg md:text-xl font-bold w-full h-16 md:h-14 px-8 py-3 border border-white text-white bg-[#0b101a] transition-all duration-200 hover:bg-[#13131a] hover:border-red-500 hover:text-red-400 shadow-none flex items-center justify-center"
           onClick={() => onGenreClick?.(genre)}
         >
           {genre}
