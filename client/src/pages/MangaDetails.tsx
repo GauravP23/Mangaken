@@ -15,6 +15,7 @@ const MangaDetail = () => {
   const [chapterCount, setChapterCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -84,7 +85,7 @@ const MangaDetail = () => {
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">
                 <Eye className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{typeof manga.views === 'number' ? (manga.views / 1000000).toFixed(1) + 'M' : 'N/A'}</div>
+                <div className="text-2xl font-bold text-white">{typeof manga.follows === 'number' ? manga.follows : 'N/A'}</div>
                 <div className="text-gray-400 text-sm">Views</div>
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">
@@ -102,11 +103,14 @@ const MangaDetail = () => {
             <div>
               <h3 className="text-xl font-semibold text-white mb-2">Synopsis</h3>
               <p className="text-gray-300 leading-relaxed">
-                {manga.description && manga.description.length > 300
+                {manga.description && manga.description.length > 300 && !showFullDescription
                   ? <>
-                      {manga.description.slice(0, 300)}... <span className="text-red-400 cursor-pointer">See more</span>
+                      {manga.description.slice(0, 300)}... <span className="text-red-400 cursor-pointer" onClick={() => setShowFullDescription(true)}>See more</span>
                     </>
                   : manga.description}
+                {manga.description && manga.description.length > 300 && showFullDescription && (
+                  <span className="text-red-400 cursor-pointer ml-2" onClick={() => setShowFullDescription(false)}>See less</span>
+                )}
               </p>
             </div>
             {/* Type and Author Row */}
