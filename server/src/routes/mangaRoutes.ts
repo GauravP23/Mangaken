@@ -21,4 +21,7 @@ router.get('/chapter/:chapterId/pages', mangaController.getChapterPagesControlle
 // GET /api/manga/complete/:id
 router.get('/complete/:id', mangaController.getCompleteMangaInfoController);
 
+// GET /api/manga/statistics/:id
+router.get('/statistics/:id', mangaController.getMangaStatisticsController);
+
 export default router;

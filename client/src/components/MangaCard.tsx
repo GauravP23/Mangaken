@@ -1,10 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Star, Eye } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Star, Eye, BookOpen, Info, BookOpen as ReadIcon } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import { Manga } from '../data/mangaData';
 // Accept both API and UI Manga types
 import { Manga as ApiManga, UIManga } from '../types';
+import { getMangaFeed } from '../services/mangaApi';
 
 export interface MangaCardProps {
   manga: UIManga | ApiManga;
@@ -14,7 +16,7 @@ export interface MangaCardProps {
 // Helper to map API Manga to UI MangaCard shape
 export function mapApiMangaToUICard(manga: any): UIManga {
   // If new complete info shape (from backend)
-  if (manga && manga.rating !== undefined && (manga.follows !== undefined || manga.views !== undefined) && (manga.totalChapters !== undefined || manga.chapters !== undefined)) {
+  if (manga && (manga.rating !== undefined || manga.follows !== undefined || manga.views !== undefined || manga.totalChapters !== undefined || manga.chapters !== undefined)) {
     return {
       ...manga,
       views: manga.follows ?? manga.views ?? 0,
@@ -27,6 +29,8 @@ export function mapApiMangaToUICard(manga: any): UIManga {
       title: manga.title ?? '',
       description: manga.description ?? '',
       id: manga.id,
+      lastUpdate: manga.lastUpdate ?? '',
+      type: manga.type ?? 'manga',
     };
   }
 
@@ -83,8 +87,20 @@ export function mapApiMangaToUICard(manga: any): UIManga {
   return manga as Manga;
 }
 
+// Helper to format large numbers with K/M suffixes
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
+};
+
 const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
   const uiManga = mapApiMangaToUICard(manga);
+  const navigate = useNavigate();
+  const [loadingReadNow, setLoadingReadNow] = React.useState(false);
 
   const sizeClasses = {
     small: 'w-32 h-44',
@@ -98,62 +114,127 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
     large: 'text-lg'
   };
 
-  const [imgSrc, setImgSrc] = React.useState(uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover');
+  const [imgSrc, setImgSrc] = React.useState(uiManga.coverImage || uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover');
+  
+  // Handle Read Now button click
+  const handleReadNow = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the Link wrapper from navigating
+    e.stopPropagation();
+    
+    setLoadingReadNow(true);
+    try {
+      const chapters = await getMangaFeed(uiManga.id);
+      const sorted = [...chapters].sort((a, b) => {
+        const aNum = parseFloat(a.attributes?.chapter || '0');
+        const bNum = parseFloat(b.attributes?.chapter || '0');
+        return (isNaN(aNum) ? 1 : aNum) - (isNaN(bNum) ? 1 : bNum);
+      });
+      const firstChapter = sorted[0];
+      if (firstChapter) {
+        navigate(`/manga/${uiManga.id}/chapter/${firstChapter.id}`);
+      } else {
+        alert('No chapters found for this manga.');
+      }
+    } catch {
+      console.error('Failed to fetch chapters');
+    } finally {
+      setLoadingReadNow(false);
+    }
+  };
+  
+  // Handle Info button click
+  const handleViewInfo = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the Link wrapper from navigating
+    e.stopPropagation();
+    navigate(`/manga/${uiManga.id}`);
+  };
 
   return (
-    <Link to={`/manga/${uiManga.id}`} className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
-      <div className="relative overflow-hidden shadow-lg rounded-2xl">
-        <img
-          src={imgSrc}
-          alt={uiManga.title}
-          className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110 rounded-2xl`}
-          onError={() => setImgSrc('/placeholder.svg')}
-        />
-        
-        {/* Status Badge */}
-        <Badge 
-          className={`absolute top-2 right-4 ${
-            uiManga.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
-          } text-white`}
-        >
-          {uiManga.status === 'completed' ? 'Complete' : 'Ongoing'}
-        </Badge>
-
-        {/* Rating */}
-        <div className="absolute top-2 left-2 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-white text-xs">
-          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          <span>{uiManga.rating}</span>
-        </div>
-
-        {/* Overlay on Hover */}
-        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
-          <div className="text-white">
-            <p className="text-xs mb-2 line-clamp-3">{uiManga.description}</p>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                <span>{(uiManga.views / 1000000).toFixed(1)}M</span>
+    <div className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
+      <Link to={`/manga/${uiManga.id}`} className="block">
+        <div className="relative overflow-hidden shadow-lg rounded-2xl">
+          <img
+            src={imgSrc}
+            alt={uiManga.title}
+            className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110 rounded-2xl`}
+            onError={() => setImgSrc('/placeholder.svg')}
+          />
+          
+          {/* Status Badge */}
+          <Badge 
+            className={`absolute top-2 right-4 ${
+              uiManga.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
+            } text-white`}
+          >
+            {uiManga.status === 'completed' ? 'Complete' : 'Ongoing'}
+          </Badge>
+          
+          {/* Rating */}
+          <div className="absolute top-2 left-2 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-white text-xs">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span>{uiManga.rating !== undefined ? Number(uiManga.rating).toFixed(1) : 'N/A'}</span>
+          </div>
+          
+          {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3">
+            {/* Action Buttons in Center - Stacked vertically */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10">
+              <Button
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/50 transition-transform hover:scale-105 w-24"
+                onClick={handleReadNow}
+                disabled={loadingReadNow}
+              >
+                {loadingReadNow ? 'Loading...' : (
+                  <>
+                    <ReadIcon className="w-3 h-3" />
+                    Read Now
+                  </>
+                )}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-gray-400 text-white hover:bg-gray-800 font-semibold shadow-lg shadow-white/20 transition-transform hover:scale-105 w-24"
+                onClick={handleViewInfo}
+              >
+                <Info className="w-3 h-3" />
+                Info
+              </Button>
+            </div>
+            
+            {/* Simple Stats at bottom */}
+            <div className="text-white mt-auto">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3 text-blue-400" />
+                  <span>{formatNumber(uiManga.views)}</span>
+                </div>
+                
+                <div className="flex items-center gap-1 justify-end">
+                  <BookOpen className="w-3 h-3 text-green-400" />
+                  <span className="text-red-500 font-semibold">{uiManga.chapters} ch</span>
+                </div>
               </div>
-              <span className="text-red-500 font-semibold">{uiManga.chapters} ch</span>
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
-      {/* Title and Info */}
+      {/* Title and Genres below the card */}
       <div className="mt-2 space-y-1">
         <h3 className={`${textSizes[size]} font-semibold text-white line-clamp-2 group-hover:text-red-400 transition-colors`}>
           {uiManga.title}
         </h3>
         <div className="flex flex-wrap gap-1">
-          {uiManga.genres.slice(0, 2).map((genre) => (
+          {uiManga.genres.slice(0, 3).map((genre) => (
             <Badge key={genre} variant="outline" className="text-xs text-white bg-transparent">
               {genre}
             </Badge>
           ))}
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

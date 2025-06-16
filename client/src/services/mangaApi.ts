@@ -91,3 +91,14 @@ export const getCompleteMangaInfo = async (mangaId: string) => {
     const response = await apiClient.get(`/manga/complete/${mangaId}`);
     return response.data;
 };
+
+// Add: Get manga statistics (rating, follows)
+export const getMangaStatistics = async (mangaId: string) => {
+  try {
+    const response = await apiClient.get(`/manga/statistics/${mangaId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching statistics for manga ${mangaId}:`, error);
+    return { rating: 0, follows: 0 };
+  }
+};

@@ -3,8 +3,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
-import { Star } from 'lucide-react';
+import { Star, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import axios from 'axios';
 
 const SearchResultsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -25,6 +26,8 @@ const SearchResultsPage: React.FC = () => {
           data.map(async (manga: any) => {
             let chapters = 0;
             let author = '';
+            let follows = 0;
+            let rating = 0;
             try {
               chapters = await getMangaChapterCount(manga.id);
             } catch {}
@@ -32,8 +35,15 @@ const SearchResultsPage: React.FC = () => {
               const details = await getMangaDetails(manga.id);
               const authorRel = details.relationships?.find((r: any) => r.type === 'author');
               author = authorRel?.attributes?.name || '';
+              // Fetch statistics for rating and follows
+              const statsRes = await axios.get(`/api/manga/statistics/${manga.id}`);
+              if (statsRes.data && statsRes.data.statistics && statsRes.data.statistics[manga.id]) {
+                const stat = statsRes.data.statistics[manga.id];
+                rating = typeof stat.rating === 'object' ? (stat.rating.bayesian ?? stat.rating.average ?? 0) : stat.rating ?? 0;
+                follows = stat.follows ?? 0;
+              }
             } catch {}
-            return { ...manga, chapters, author };
+            return { ...manga, chapters, author, rating, follows };
           })
         );
         setResults(withDetails);
@@ -73,7 +83,9 @@ const SearchResultsPage: React.FC = () => {
                   <p className="text-gray-300 text-sm mb-2 line-clamp-2">{description}</p>
                   <div className="flex items-center gap-2 mb-2">
                     <Star className="w-4 h-4 text-yellow-400" />
-                    <span className="text-white font-semibold text-sm">{rating}</span>
+                    <span className="text-white font-semibold text-sm">{manga.rating !== undefined ? Number(manga.rating).toFixed(1) : 'N/A'}</span>
+                    <Eye className="w-4 h-4 text-blue-400 ml-2" />
+                    <span className="text-white font-semibold text-sm">{typeof manga.follows === 'number' ? manga.follows : 'N/A'}</span>
                   </div>
                   <div className="text-gray-400 text-xs mb-1">Author: {manga.author || 'N/A'}</div>
                   <div className="text-gray-400 text-xs">Chapters: {manga.chapters || 0}</div>

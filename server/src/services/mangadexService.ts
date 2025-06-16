@@ -204,3 +204,25 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
     throw error;
   }
 };
+
+export const getMangaStatistics = async (mangaId: string) => {
+  try {
+    await removeTokens(1);
+    const response = await apiClient.get(`/statistics/manga/${mangaId}`);
+    // Extract just the statistics for this manga
+    if (response.data && response.data.statistics && response.data.statistics[mangaId]) {
+      const stats = response.data.statistics[mangaId];
+      // Return a simplified statistics object
+      return {
+        rating: typeof stats.rating === 'object' ? 
+          (stats.rating.bayesian ?? stats.rating.average ?? 0) : 
+          stats.rating ?? 0,
+        follows: stats.follows ?? 0
+      };
+    }
+    return { rating: 0, follows: 0 };
+  } catch (error) {
+    console.error(`Error fetching manga statistics for ID ${mangaId}:`, error);
+    return { rating: 0, follows: 0 };
+  }
+};

@@ -6,7 +6,7 @@ import MangaSection from '../components/MangaSection';
 import MangaCard from '../components/MangaCard';
 import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
-import { getLatestManga, getPopularManga, getMangaChapterCount } from '../services/mangaApi';
+import { getLatestManga, getPopularManga, getMangaChapterCount, getMangaStatistics } from '../services/mangaApi';
 import { Manga } from '../types';
 
 const PAGE_SIZE = 10;
@@ -20,6 +20,19 @@ function uniqueManga(mangaList: Manga[]): Manga[] {
         return true;
     });
 }
+
+// Helper function to extract cover image from manga relationships
+const extractCoverImage = (manga: Manga): string => {
+    if (!manga.relationships) return '';
+    
+    const coverRel = manga.relationships.find(rel => rel.type === 'cover_art');
+    if (!coverRel || !coverRel.attributes) return '';
+    
+    const fileName = coverRel.attributes.fileName || (coverRel.attributes as any).filename;
+    if (!fileName) return '';
+    
+    return `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
+};
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
@@ -37,51 +50,69 @@ const HomePage: React.FC = () => {
         trending: '',
     });
     const [latestPage, setLatestPage] = useState(1);
-    const [popularPage, setPopularPage] = useState(1);
-
-    useEffect(() => {
+    const [popularPage, setPopularPage] = useState(1);    useEffect(() => {
         setLoading((l) => ({ ...l, latest: true }));
         getLatestManga(PAGE_SIZE, (latestPage - 1) * PAGE_SIZE)
             .then(async (data) => {
-                // Fetch real chapter counts for each manga
-                const withChapters = await Promise.all(data.map(async (manga) => {
+                // Fetch real chapter counts and statistics for each manga
+                const withDetails = await Promise.all(data.map(async (manga) => {
                     const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    return { ...manga, chapters };
+                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const coverImage = extractCoverImage(manga);
+                    return { 
+                        ...manga, 
+                        chapters,
+                        rating: stats.rating || 0,
+                        follows: stats.follows || 0,
+                        coverImage,
+                    };
                 }));
-                setLatestManga(withChapters);
+                setLatestManga(withDetails);
                 setError((e) => ({ ...e, latest: '' }));
             })
             .catch(() => setError((e) => ({ ...e, latest: 'Failed to load latest manga.' })))
             .finally(() => setLoading((l) => ({ ...l, latest: false })));
-    }, [latestPage]);
-
-    useEffect(() => {
+    }, [latestPage]);    useEffect(() => {
         setLoading((l) => ({ ...l, popular: true }));
         getPopularManga(PAGE_SIZE, (popularPage - 1) * PAGE_SIZE)
             .then(async (data) => {
-                // Fetch real chapter counts for each manga
-                const withChapters = await Promise.all(data.map(async (manga) => {
+                // Fetch real chapter counts and statistics for each manga
+                const withDetails = await Promise.all(data.map(async (manga) => {
                     const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    return { ...manga, chapters };
+                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const coverImage = extractCoverImage(manga);
+                    return { 
+                        ...manga, 
+                        chapters,
+                        rating: stats.rating || 0,
+                        follows: stats.follows || 0,
+                        coverImage,
+                    };
                 }));
-                setPopularManga(withChapters);
+                setPopularManga(withDetails);
                 setError((e) => ({ ...e, popular: '' }));
             })
             .catch(() => setError((e) => ({ ...e, popular: 'Failed to load popular manga.' })))
             .finally(() => setLoading((l) => ({ ...l, popular: false })));
-    }, [popularPage]);
-
-    // For trending, use getPopularManga as a placeholder if no trending endpoint exists
+    }, [popularPage]);    // For trending, use getPopularManga as a placeholder if no trending endpoint exists
     useEffect(() => {
         setLoading((l) => ({ ...l, trending: true }));
         getPopularManga(PAGE_SIZE, 0)
             .then(async (data) => {
-                // Fetch real chapter counts for each manga
-                const withChapters = await Promise.all(data.map(async (manga) => {
+                // Fetch real chapter counts and statistics for each manga
+                const withDetails = await Promise.all(data.map(async (manga) => {
                     const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    return { ...manga, chapters };
+                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const coverImage = extractCoverImage(manga);
+                    return { 
+                        ...manga, 
+                        chapters,
+                        rating: stats.rating || 0,
+                        follows: stats.follows || 0,
+                        coverImage,
+                    };
                 }));
-                setTrendingManga(withChapters);
+                setTrendingManga(withDetails);
                 setError((e) => ({ ...e, trending: '' }));
             })
             .catch(() => setError((e) => ({ ...e, trending: 'Failed to load trending manga.' })))

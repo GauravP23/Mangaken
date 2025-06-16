@@ -103,3 +103,17 @@ export const getCompleteMangaInfoController: RequestHandler = async (req, res, n
         next(error);
     }
 };
+
+export const getMangaStatisticsController: RequestHandler = async (req, res, next) => {
+    try {
+        const mangaId = req.params.id;
+        if (!mangaId) {
+            res.status(400).json({ message: 'Manga ID parameter is required' });
+            return;
+        }
+        const data = await mangadexService.getMangaStatistics(mangaId);
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
