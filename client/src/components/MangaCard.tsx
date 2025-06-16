@@ -4,15 +4,32 @@ import { Star, Eye } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Manga } from '../data/mangaData';
 // Accept both API and UI Manga types
-import { Manga as ApiManga } from '../types';
+import { Manga as ApiManga, UIManga } from '../types';
 
 export interface MangaCardProps {
-  manga: Manga | ApiManga;
+  manga: UIManga | ApiManga;
   size?: 'small' | 'medium' | 'large';
 }
 
 // Helper to map API Manga to UI MangaCard shape
-export function mapApiMangaToUICard(manga: ApiManga | Manga): Manga {
+export function mapApiMangaToUICard(manga: any): UIManga {
+  // If new complete info shape (from backend)
+  if (manga && manga.rating !== undefined && (manga.follows !== undefined || manga.views !== undefined) && (manga.totalChapters !== undefined || manga.chapters !== undefined)) {
+    return {
+      ...manga,
+      views: manga.follows ?? manga.views ?? 0,
+      chapters: manga.totalChapters ?? manga.chapters ?? 0,
+      rating: manga.rating ?? 0,
+      status: manga.status ?? 'ongoing',
+      author: manga.author ?? '',
+      genres: manga.genres ?? [],
+      image: manga.coverImage ?? manga.image ?? '',
+      title: manga.title ?? '',
+      description: manga.description ?? '',
+      id: manga.id,
+    };
+  }
+
   if ((manga as any).attributes) {
     const apiManga = manga as ApiManga;
     // Extract cover art filename from relationships

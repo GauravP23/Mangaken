@@ -5,13 +5,12 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { mapApiMangaToUICard } from '../components/MangaCard';
-import { Manga } from '../types';
-import { getMangaDetails, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
+import { getCompleteMangaInfo } from '../services/mangaApi';
+import { UIManga } from '../types';
 
 const MangaDetail = () => {
   const { id } = useParams();
-  const [manga, setManga] = useState<any>(null);
+  const [manga, setManga] = useState<UIManga | null>(null);
   const [chapters, setChapters] = useState<any[]>([]);
   const [chapterCount, setChapterCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,15 +19,11 @@ const MangaDetail = () => {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    Promise.all([
-      getMangaDetails(id),
-      getMangaFeed(id),
-      getMangaChapterCount(id)
-    ])
-      .then(([data, feed, count]) => {
-        setManga(mapApiMangaToUICard(data));
-        setChapters(feed);
-        setChapterCount(count);
+    getCompleteMangaInfo(id)
+      .then((data) => {
+        setManga(data);
+        setChapters(data.chapters || []);
+        setChapterCount(data.totalChapters || data.chapters?.length || null);
         setError('');
       })
       .catch(() => setError('Manga not found'))
@@ -71,7 +66,7 @@ const MangaDetail = () => {
           {/* Cover Image */}
           <div className="lg:col-span-1">
             <img
-              src={manga.image}
+              src={manga.coverImage || manga.image || '/placeholder.svg'}
               alt={manga.title}
               className="w-full max-w-sm mx-auto rounded-lg shadow-2xl"
             />
@@ -84,12 +79,12 @@ const MangaDetail = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-900 p-4 rounded-lg text-center">
                 <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{manga.rating !== undefined ? manga.rating : 'N/A'}</div>
+                <div className="text-2xl font-bold text-white">{manga.rating !== undefined ? manga.rating.toFixed(1) : 'N/A'}</div>
                 <div className="text-gray-400 text-sm">Rating</div>
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">
                 <Eye className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{manga.views !== undefined ? (manga.views / 1000000).toFixed(1) + 'M' : 'N/A'}</div>
+                <div className="text-2xl font-bold text-white">{typeof manga.views === 'number' ? (manga.views / 1000000).toFixed(1) + 'M' : 'N/A'}</div>
                 <div className="text-gray-400 text-sm">Views</div>
               </div>
               <div className="bg-gray-900 p-4 rounded-lg text-center">
@@ -106,7 +101,13 @@ const MangaDetail = () => {
             {/* Description/Synopsis */}
             <div>
               <h3 className="text-xl font-semibold text-white mb-2">Synopsis</h3>
-              <p className="text-gray-300 leading-relaxed">{manga.description}</p>
+              <p className="text-gray-300 leading-relaxed">
+                {manga.description && manga.description.length > 300
+                  ? <>
+                      {manga.description.slice(0, 300)}... <span className="text-red-400 cursor-pointer">See more</span>
+                    </>
+                  : manga.description}
+              </p>
             </div>
             {/* Type and Author Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

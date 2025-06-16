@@ -18,4 +18,7 @@ router.get('/:id/feed', mangaController.getMangaFeedController);
 // GET /api/manga/chapter/:chapterId/pages
 router.get('/chapter/:chapterId/pages', mangaController.getChapterPagesController);
 
+// GET /api/manga/complete/:id
+router.get('/complete/:id', mangaController.getCompleteMangaInfoController);
+
 export default router;

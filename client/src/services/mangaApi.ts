@@ -85,3 +85,9 @@ export const getMangaChapterCount = async (mangaId: string): Promise<number> => 
     }
     return total;
 };
+
+// Add: Get complete manga info (all details, stats, chapters)
+export const getCompleteMangaInfo = async (mangaId: string) => {
+    const response = await apiClient.get(`/manga/complete/${mangaId}`);
+    return response.data;
+};
