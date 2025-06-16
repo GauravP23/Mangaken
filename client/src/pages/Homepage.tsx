@@ -174,9 +174,13 @@ const HomePage: React.FC = () => {
                             ))}
                         </div>
                     )}
-                </MangaSection>
-                {/* Explore Genres Section */}
-                <MangaSection title="Explore Genres" showViewAll={false}>
+                </MangaSection>                {/* Explore Genres Section */}
+                <MangaSection 
+                    title="Explore Genres" 
+                    subtitle="Discover manga by your favorite genre categories" 
+                    showViewAll={false}
+                    variant="highlight"
+                >
                     <GenreGrid onGenreClick={handleGenreClick} />
                 </MangaSection>
                 {/* Latest Updates Section */}
