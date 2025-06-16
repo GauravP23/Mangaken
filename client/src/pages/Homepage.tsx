@@ -162,9 +162,13 @@ const HomePage: React.FC = () => {
                     ) : error.trending ? (
                         <div className="text-center text-red-500 py-8">{error.trending}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {trendingManga.slice(0, 12).map((manga) => (
-                                <MangaCard key={manga.id} manga={manga} size="medium" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">                            {trendingManga.slice(0, 12).map((manga, index) => (
+                                <MangaCard 
+                                    key={manga.id} 
+                                    manga={manga} 
+                                    size="medium"
+                                    showLanguageBadge={index % 3 === 0} // Show language badge for every 3rd manga
+                                />
                             ))}
                         </div>
                     )}
@@ -183,9 +187,13 @@ const HomePage: React.FC = () => {
                     ) : error.latest ? (
                         <div className="text-center text-red-500 py-8">{error.latest}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {latestUpdates.slice(0, 12).map((manga) => (
-                                <MangaCard key={manga.id} manga={manga} size="medium" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">                            {latestUpdates.slice(0, 12).map((manga, index) => (
+                                <MangaCard 
+                                    key={manga.id} 
+                                    manga={manga} 
+                                    size="medium"
+                                    showLanguageBadge={index % 4 === 0} // Show language badge for every 4th manga
+                                />
                             ))}
                         </div>
                     )}
@@ -200,9 +208,13 @@ const HomePage: React.FC = () => {
                     ) : error.popular ? (
                         <div className="text-center text-red-500 py-8">{error.popular}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {mostViewed.slice(0, 6).map((manga) => (
-                                <MangaCard key={manga.id} manga={manga} size="medium" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">                            {mostViewed.slice(0, 6).map((manga, index) => (
+                                <MangaCard 
+                                    key={manga.id} 
+                                    manga={manga} 
+                                    size="medium"
+                                    showLanguageBadge={index % 2 === 0} // Show language badge for every 2nd manga
+                                />
                             ))}
                         </div>
                     )}
@@ -217,9 +229,13 @@ const HomePage: React.FC = () => {
                     ) : error.popular && error.latest && error.trending ? (
                         <div className="text-center text-red-500 py-8">{error.popular || error.latest || error.trending}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                            {completedSeries.slice(0, 6).map((manga) => (
-                                <MangaCard key={manga.id} manga={manga} size="medium" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">                            {completedSeries.slice(0, 6).map((manga, index) => (
+                                <MangaCard 
+                                    key={manga.id} 
+                                    manga={manga} 
+                                    size="medium"
+                                    showLanguageBadge={index === 1 || index === 4} // Show language badge for specific manga
+                                />
                             ))}
                         </div>
                     )}

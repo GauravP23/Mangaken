@@ -11,6 +11,7 @@ import { getMangaFeed } from '../services/mangaApi';
 export interface MangaCardProps {
   manga: UIManga | ApiManga;
   size?: 'small' | 'medium' | 'large';
+  showLanguageBadge?: boolean;
 }
 
 // Helper to map API Manga to UI MangaCard shape
@@ -67,8 +68,7 @@ export function mapApiMangaToUICard(manga: any): UIManga {
       views = (apiManga.attributes as any).followedCount;
     }
     // Extract type
-    const type = (apiManga as any).type || 'manga';
-    return {
+    const type = (apiManga as any).type || 'manga';    return {
       id: apiManga.id,
       title: apiManga.attributes.title?.en || Object.values(apiManga.attributes.title)[0] || 'No Title',
       description: apiManga.attributes.description?.en || Object.values(apiManga.attributes.description)[0] || '',
@@ -80,7 +80,9 @@ export function mapApiMangaToUICard(manga: any): UIManga {
       views,
       author,
       lastUpdate: '', // Not available from API by default
-      // type is not in UI Manga type, so omit it
+      type: type || 'manga',
+      // Store original title data for alternative displays
+      originalTitle: apiManga.attributes.title,
     };
   }
   // Already UI shape
@@ -97,15 +99,14 @@ const formatNumber = (num: number): string => {
   return num.toString();
 };
 
-const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
+const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaCardProps) => {
   const uiManga = mapApiMangaToUICard(manga);
   const navigate = useNavigate();
   const [loadingReadNow, setLoadingReadNow] = React.useState(false);
-
   const sizeClasses = {
     small: 'w-32 h-44',
-    medium: 'w-40 h-56',
-    large: 'w-48 h-64'
+    medium: 'w-40 h-60',
+    large: 'w-48 h-68'
   };
 
   const textSizes = {
@@ -149,45 +150,47 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
     navigate(`/manga/${uiManga.id}`);
   };
 
-  return (
-    <div className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
+  return (    <div className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
       <Link to={`/manga/${uiManga.id}`} className="block">
-        <div className="relative overflow-hidden shadow-lg rounded-2xl">
+        <div className="relative overflow-hidden shadow-lg rounded-md">
           <img
             src={imgSrc}
             alt={uiManga.title}
-            className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110 rounded-2xl`}
+            className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110`}
             onError={() => setImgSrc('/placeholder.svg')}
           />
-          
-          {/* Status Badge */}
+            {/* Status Badge - Updated to match reference images */}
           <Badge 
-            className={`absolute top-2 right-4 ${
+            className={`absolute top-0 right-0 rounded-bl-md rounded-tr-md px-3 py-1 ${
               uiManga.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
-            } text-white`}
+            } text-white text-xs font-medium`}
           >
             {uiManga.status === 'completed' ? 'Complete' : 'Ongoing'}
-          </Badge>
+          </Badge>          {/* Language Badge - Similar to second reference image */}
+          {showLanguageBadge && (
+            <Badge className="absolute top-0 left-0 bg-lime-400 text-black text-xs font-bold rounded-tr-md rounded-bl-md px-2 py-1 z-10">
+              EN/JA
+            </Badge>
+          )}
           
-          {/* Rating */}
-          <div className="absolute top-2 left-2 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-white text-xs">
+          {/* Rating - Positioned to not overlap with language badge */}
+          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-white text-xs`}>
             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
             <span>{uiManga.rating !== undefined ? Number(uiManga.rating).toFixed(1) : 'N/A'}</span>
           </div>
-          
-          {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
+            {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3">
             {/* Action Buttons in Center - Stacked vertically */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
               <Button
                 size="sm"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/50 transition-transform hover:scale-105 w-24"
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/50 transition-transform hover:scale-105 w-28"
                 onClick={handleReadNow}
                 disabled={loadingReadNow}
               >
                 {loadingReadNow ? 'Loading...' : (
                   <>
-                    <ReadIcon className="w-3 h-3" />
+                    <ReadIcon className="w-3 h-3 mr-1" />
                     Read Now
                   </>
                 )}
@@ -195,10 +198,10 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
               <Button
                 size="sm"
                 variant="outline"
-                className="border-gray-400 text-white hover:bg-gray-800 font-semibold shadow-lg shadow-white/20 transition-transform hover:scale-105 w-24"
+                className="border-gray-400 text-white hover:bg-gray-800 font-semibold shadow-lg shadow-white/20 transition-transform hover:scale-105 w-28"
                 onClick={handleViewInfo}
               >
-                <Info className="w-3 h-3" />
+                <Info className="w-3 h-3 mr-1" />
                 Info
               </Button>
             </div>
@@ -218,20 +221,14 @@ const MangaCard = ({ manga, size = 'medium' }: MangaCardProps) => {
               </div>
             </div>
           </div>
-        </div>
-      </Link>
-
-      {/* Title and Genres below the card */}
-      <div className="mt-2 space-y-1">
-        <h3 className={`${textSizes[size]} font-semibold text-white line-clamp-2 group-hover:text-red-400 transition-colors`}>
+        </div>      </Link>
+      {/* Title and Genres below the card - Updated layout to match reference images */}
+      <div className="mt-3 space-y-1">
+        <h3 className={`${textSizes[size]} font-semibold text-white line-clamp-2 transition-colors`}>
           {uiManga.title}
         </h3>
-        <div className="flex flex-wrap gap-1">
-          {uiManga.genres.slice(0, 3).map((genre) => (
-            <Badge key={genre} variant="outline" className="text-xs text-white bg-transparent">
-              {genre}
-            </Badge>
-          ))}
+        <div className="text-xs text-gray-400">
+          {uiManga.genres.slice(0, 3).join(', ')}
         </div>
       </div>
     </div>

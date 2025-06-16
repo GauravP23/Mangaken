@@ -65,4 +65,5 @@ export interface UIManga {
     follows?: number;
     totalChapters?: number;
     coverImage?: string; // Add coverImage to UIManga type
+    originalTitle?: { [lang: string]: string }; // Store original title data for alternative displays
 }
