@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { MangaDexResponse, MangaDexSingleResponse, Manga, ChapterFeedResponse, AtHomeServerResponse } from '../types/mangadex';
+import { RateLimiter } from 'limiter';
 
 const MANGADEX_API_BASE_URL = process.env.MANGADEX_API_BASE_URL;
 
@@ -16,8 +17,15 @@ const apiClient = axios.create({
     }
 });
 
+const limiter = new RateLimiter({ tokensPerInterval: 10, interval: 'second' });
+
+async function removeTokens(total: number) {
+  await limiter.removeTokens(total);
+}
+
 export const searchManga = async (title: string, limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {
     try {
+        await removeTokens(1);
         const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
             params: {
                 title,
@@ -36,6 +44,7 @@ export const searchManga = async (title: string, limit: number = 20, offset: num
 
 export const getMangaDetails = async (mangaId: string): Promise<MangaDexSingleResponse<Manga>> => {
     try {
+        await removeTokens(1);
         const response = await apiClient.get<MangaDexSingleResponse<Manga>>(`/manga/${mangaId}`, {
             params: {
                 "includes[]": ["cover_art", "author", "artist"]
@@ -55,6 +64,7 @@ export const getMangaFeed = async (
     offset: number = 0
 ): Promise<ChapterFeedResponse> => { // Using simplified ChapterFeedResponse
     try {
+        await removeTokens(1);
         // The order parameters are objects, so we need to pass them correctly
         const orderParams: { [key: string]: 'asc' | 'desc' } = {};
         orderParams['volume'] = 'asc';
@@ -79,6 +89,7 @@ export const getMangaFeed = async (
 
 export const getChapterPages = async (chapterId: string): Promise<AtHomeServerResponse> => {
     try {
+        await removeTokens(1);
         const response = await apiClient.get<AtHomeServerResponse>(`/at-home/server/${chapterId}`);
         return response.data;
     } catch (error) {
@@ -89,6 +100,7 @@ export const getChapterPages = async (chapterId: string): Promise<AtHomeServerRe
 
 export const listManga = async (query: any): Promise<MangaDexResponse<Manga>> => {
     try {
+        await removeTokens(1);
         // Pass all query params directly to MangaDex /manga endpoint
         const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
             params: query
