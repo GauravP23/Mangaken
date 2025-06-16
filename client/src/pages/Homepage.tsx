@@ -8,6 +8,8 @@ import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
 import { getLatestManga, getPopularManga, getMangaChapterCount, getMangaStatistics } from '../services/mangaApi';
 import { Manga } from '../types';
+import { UIManga } from '../types';
+
 
 const PAGE_SIZE = 10;
 
