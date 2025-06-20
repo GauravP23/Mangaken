@@ -35,24 +35,36 @@ A modern, fullstack Manga reader web application built with Vite, React, TypeScr
    ```
 
 2. **Install dependencies:**
-   ```sh
-   cd client
-   npm install
-   cd ../server
-   npm install
-   ```
-
-3. **Start the development servers:**
-   - In one terminal, start the backend:
+   - To install all dependencies (client, server, and root) with a single command:
      ```sh
-     cd server
-     npm run dev
+     # From the root directory
+     npm run install-all
      ```
-   - In another terminal, start the frontend:
+   - Or install them separately:
      ```sh
      cd client
+     npm install
+     cd ../server
+     npm install
+     ```
+
+3. **Start the development servers:**
+   - To run both client and server concurrently with a single command:
+     ```sh
+     # From the root directory
      npm run dev
      ```
+   - Or run them separately:
+     - In one terminal, start the backend:
+       ```sh
+       cd server
+       npm run dev
+       ```
+     - In another terminal, start the frontend:
+       ```sh
+       cd client
+       npm run dev
+       ```
 
 4. **Open the app:**
    - Visit [http://localhost:5173](http://localhost:5173) in your browser.
