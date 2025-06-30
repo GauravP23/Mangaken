@@ -112,7 +112,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative min-h-[100vh] overflow-hidden text-white">
+    <div className="relative min-h-[75vh] overflow-hidden text-white">
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
@@ -122,12 +122,12 @@ const HeroSlider = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-transparent z-0" />
 
-      <div className="relative z-10 flex items-center justify-between min-h-[100vh]">
+      <div className="relative z-10 flex items-center justify-between min-h-[75vh]">
         <div className="flex flex-col justify-center max-w-xl pl-12 pr-4 py-12">
           <div className="mb-2 text-yellow-300 font-semibold text-lg">
             Chapters: {currentManga.chapters || 'N/A'}
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 leading-tight">
             {currentManga.title}
           </h1>
           <p className="text-gray-200 text-base md:text-lg mb-4 max-w-lg">
@@ -161,7 +161,7 @@ const HeroSlider = () => {
         </div>
 
         <div className="flex items-center justify-end h-full pr-16">
-          <div className="relative w-56 h-80 rounded-xl shadow-2xl overflow-hidden border-4 border-white/10 bg-gray-900/80">
+          <div className="relative w-48 h-64 rounded-xl shadow-2xl overflow-hidden border-4 border-white/10 bg-gray-900/80">
             <img
               src={currentManga.image}
               alt={currentManga.title}
