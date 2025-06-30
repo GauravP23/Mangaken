@@ -3,19 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import HeroSlider from '../components/HeroSlider';
 import MangaSection from '../components/MangaSection';
-import MangaCard from '../components/MangaCard';
+import MangaCard, { mapApiMangaToUICard } from '../components/MangaCard';
 import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
 import { getLatestManga, getPopularManga, getMangaChapterCount, getMangaStatistics } from '../services/mangaApi';
-import { Manga } from '../types';
-import { UIManga } from '../types';
+import { Manga, UIManga } from '../types';
 
 
 const PAGE_SIZE = 10;
 
-// Utility to deduplicate manga by id
-function uniqueManga(mangaList: Manga[]): Manga[] {
-    const seen = new Set();
+// Utility to deduplicate manga by id, works for any object with an id
+function uniqueManga<T extends { id: string }>(mangaList: T[]): T[] {
+    const seen = new Set<string>();
     return mangaList.filter((manga) => {
         if (seen.has(manga.id)) return false;
         seen.add(manga.id);
@@ -38,9 +37,9 @@ const extractCoverImage = (manga: Manga): string => {
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
-    const [latestManga, setLatestManga] = useState<Manga[]>([]);
-    const [popularManga, setPopularManga] = useState<Manga[]>([]);
-    const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
+    const [latestManga, setLatestManga] = useState<UIManga[]>([]);
+    const [popularManga, setPopularManga] = useState<UIManga[]>([]);
+    const [trendingManga, setTrendingManga] = useState<UIManga[]>([]);
     const [loading, setLoading] = useState({
         latest: true,
         popular: true,
@@ -56,17 +55,18 @@ const HomePage: React.FC = () => {
         setLoading((l) => ({ ...l, latest: true }));
         getLatestManga(PAGE_SIZE, (latestPage - 1) * PAGE_SIZE)
             .then(async (data) => {
-                // Fetch real chapter counts and statistics for each manga
-                const withDetails = await Promise.all(data.map(async (manga) => {
-                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
-                    const coverImage = extractCoverImage(manga);
-                    return { 
-                        ...manga, 
+                // Map to UI shape and fetch additional details
+                const withDetails = await Promise.all(data.map(async (apiManga) => {
+                    const baseUI = mapApiMangaToUICard(apiManga);
+                    const chapters = await getMangaChapterCount(apiManga.id).catch(() => 0);
+                    const stats = await getMangaStatistics(apiManga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const image = extractCoverImage(apiManga) || baseUI.image;
+                    return {
+                        ...baseUI,
                         chapters,
                         rating: stats.rating || 0,
-                        follows: stats.follows || 0,
-                        coverImage,
+                        views: stats.follows || 0,
+                        coverImage: image,
                     };
                 }));
                 setLatestManga(withDetails);
@@ -78,17 +78,17 @@ const HomePage: React.FC = () => {
         setLoading((l) => ({ ...l, popular: true }));
         getPopularManga(PAGE_SIZE, (popularPage - 1) * PAGE_SIZE)
             .then(async (data) => {
-                // Fetch real chapter counts and statistics for each manga
-                const withDetails = await Promise.all(data.map(async (manga) => {
-                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
-                    const coverImage = extractCoverImage(manga);
-                    return { 
-                        ...manga, 
+                const withDetails = await Promise.all(data.map(async (apiManga) => {
+                    const baseUI = mapApiMangaToUICard(apiManga);
+                    const chapters = await getMangaChapterCount(apiManga.id).catch(() => 0);
+                    const stats = await getMangaStatistics(apiManga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const image = extractCoverImage(apiManga) || baseUI.image;
+                    return {
+                        ...baseUI,
                         chapters,
                         rating: stats.rating || 0,
-                        follows: stats.follows || 0,
-                        coverImage,
+                        views: stats.follows || 0,
+                        coverImage: image,
                     };
                 }));
                 setPopularManga(withDetails);
@@ -101,17 +101,17 @@ const HomePage: React.FC = () => {
         setLoading((l) => ({ ...l, trending: true }));
         getPopularManga(PAGE_SIZE, 0)
             .then(async (data) => {
-                // Fetch real chapter counts and statistics for each manga
-                const withDetails = await Promise.all(data.map(async (manga) => {
-                    const chapters = await getMangaChapterCount(manga.id).catch(() => 0);
-                    const stats = await getMangaStatistics(manga.id).catch(() => ({ rating: 0, follows: 0 }));
-                    const coverImage = extractCoverImage(manga);
-                    return { 
-                        ...manga, 
+                const withDetails = await Promise.all(data.map(async (apiManga) => {
+                    const baseUI = mapApiMangaToUICard(apiManga);
+                    const chapters = await getMangaChapterCount(apiManga.id).catch(() => 0);
+                    const stats = await getMangaStatistics(apiManga.id).catch(() => ({ rating: 0, follows: 0 }));
+                    const image = extractCoverImage(apiManga) || baseUI.image;
+                    return {
+                        ...baseUI,
                         chapters,
                         rating: stats.rating || 0,
-                        follows: stats.follows || 0,
-                        coverImage,
+                        views: stats.follows || 0,
+                        coverImage: image,
                     };
                 }));
                 setTrendingManga(withDetails);
@@ -125,7 +125,7 @@ const HomePage: React.FC = () => {
     const topRated = popularManga.slice(0, 5);
     const topTrending = trendingManga.slice(0, 5);
     // Alternate the two lists
-    const heroMangaList: Manga[] = [];
+    const heroMangaList: UIManga[] = [];
     for (let i = 0; i < 5; i++) {
         if (topRated[i]) heroMangaList.push(topRated[i]);
         if (topTrending[i]) heroMangaList.push(topTrending[i]);
@@ -135,10 +135,10 @@ const HomePage: React.FC = () => {
 
     // Most viewed and completed series are derived from popular/trending for now
     // Since 'views' and 'status' do not exist, just show a unique, shuffled, or sliced list
-    const mostViewed = uniqueManga([...popularManga, ...trendingManga]).slice(0, 6);
-    const completedSeries = uniqueManga([...popularManga, ...trendingManga, ...latestManga]).slice(0, 6);
+    const mostViewed: UIManga[] = uniqueManga([...popularManga, ...trendingManga]).slice(0, 6);
+    const completedSeries: UIManga[] = uniqueManga([...popularManga, ...trendingManga, ...latestManga]).slice(0, 6);
     // For Latest Updates, combine latestManga and popularManga (or trendingManga) and deduplicate
-    const latestUpdates = uniqueManga([...latestManga, ...popularManga, ...trendingManga]).slice(0, 10);
+    const latestUpdates: UIManga[] = uniqueManga([...latestManga, ...popularManga, ...trendingManga]).slice(0, 10);
 
     const handleGenreClick = (genre: string) => {
         navigate(`/browse?genre=${encodeURIComponent(genre)}`);
