@@ -2,27 +2,21 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { mapApiMangaToUICard } from './MangaCard';
+import { getHeroManga, getMangaFeed } from '../services/mangaApi';
 import { useNavigate } from 'react-router-dom';
-import { searchManga, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
-import type { Manga as UIManga } from '../data/mangaData';
 
-const HERO_MANGA_TITLES = [
-  'Hunter x Hunter',
-  'One-Punch Man',
-  'One Piece',
-  'Steel Ball Run',
-  'Vagabond',
-  'Tokyo Ghoul',
-  'Kokou no Hito',
-  'Fire Punch',
-  'Billy Bat',
-  'Planetes',
-  'The Fragrant Flower Blooms With Dignity',
-];
+// Type for hero slider items
+interface HeroManga {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  genres: string[];
+  chapters: number;
+}
 
 const HeroSlider = () => {
-  const [mangaList, setMangaList] = useState<UIManga[]>([]);
+  const [mangaList, setMangaList] = useState<HeroManga[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loadingReadNow, setLoadingReadNow] = useState(false);
   const navigate = useNavigate();
@@ -30,23 +24,13 @@ const HeroSlider = () => {
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      const fetched = await Promise.all(
-        HERO_MANGA_TITLES.map(async (title) => {
-          try {
-            const results = await searchManga(title, 1, 0);
-            if (results && results.length > 0) {
-              const uiManga = mapApiMangaToUICard(results[0]);
-              const chapterCount = await getMangaChapterCount(uiManga.id);
-              return { ...uiManga, chapters: chapterCount };
-            }
-            return null;
-          } catch {
-            return null;
-          }
-        })
-      );
-      if (isMounted) {
-        setMangaList(fetched.filter(Boolean) as UIManga[]);
+      try {
+        const list = await getHeroManga();
+        if (isMounted) {
+          setMangaList(list);
+        }
+      } catch (error) {
+        console.error('Failed to fetch hero manga:', error);
       }
     })();
     return () => { isMounted = false; };

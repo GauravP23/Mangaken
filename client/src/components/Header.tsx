@@ -1,13 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { searchManga } from '../services/mangaApi';
+import { AuthContext } from '../contexts/AuthContext';
 import './Header.css'; // For styling
 
 const Header: React.FC = () => {
+  const { user, logout } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -139,11 +141,33 @@ const Header: React.FC = () => {
             </Button>
           </nav>
 
-          {/* User Avatar */}
-          <div className="hidden md:flex items-center flex-shrink-0 ml-2">
-            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-              en
-            </div>
+          {/* User Avatar / Auth Links */}
+          <div className="hidden md:flex items-center flex-shrink-0 ml-2 space-x-2">
+            {user ? (
+              <>
+                <button
+                  onClick={logout}
+                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

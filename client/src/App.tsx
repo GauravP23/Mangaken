@@ -9,17 +9,23 @@ import SearchResultsPage from './pages/SearchResultsPage';
 import MangaDetails from './pages/MangaDetails';
 import ChapterReaderPage from './pages/ChapterReaderPage';
 import NotFound from './pages/NotFound';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import './App.css'; // Global styles
 import './styles/global.css'; // Additional global styles
+import { AuthProvider } from './contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
 function App() {
     return (
         <QueryClientProvider client={queryClient}>
+            <AuthProvider>
             <TooltipProvider>
                 <Sonner />
                 <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/" element={<Homepage />} />
                     <Route path="/browse" element={<Browse />} />
                     <Route path="/search" element={<SearchResultsPage />} />
@@ -29,6 +35,7 @@ function App() {
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </TooltipProvider>
+            </AuthProvider>
         </QueryClientProvider>
     );
 }

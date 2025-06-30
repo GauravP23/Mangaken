@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path'; // Keep if you still want explicit path, but usually not needed
+import passport from './config/passport'; // Import Passport config
 
 // Load environment variables
 // Default dotenv.config() should work if .env is in the CWD (server/)
@@ -25,8 +26,13 @@ if (!process.env.MONGODB_URI) {
 
 import mangaRoutes from './routes/mangaRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import authRoutes from './routes/authRoutes';
+import heroRoutes from './routes/heroRoutes';
 
 const app = express();
+
+// Initialize Passport middleware
+app.use(passport.initialize());
 const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loaded
 
@@ -49,6 +55,10 @@ mongoose.connect(MONGODB_URI) // MONGODB_URI is already checked
 app.get('/api/health', (req: Request, res: Response) => {
     res.json({ status: 'Server is healthy and running!' });
 });
+// Authentication routes
+app.use('/api/auth', authRoutes);
+// Batch hero manga endpoint
+app.use('/api/hero', heroRoutes);
 app.use('/api/manga', mangaRoutes);
 
 app.use(errorHandler);

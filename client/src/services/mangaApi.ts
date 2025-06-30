@@ -102,3 +102,16 @@ export const getMangaStatistics = async (mangaId: string) => {
     return { rating: 0, follows: 0 };
   }
 };
+
+// Get batch hero manga data for homepage hero slider
+export const getHeroManga = async (): Promise<{
+    id: string;
+    title: string;
+    description: string;
+    image: string;
+    genres: string[];
+    chapters: number;
+}[]> => {
+    const response = await apiClient.get('/hero');
+    return response.data;
+};
