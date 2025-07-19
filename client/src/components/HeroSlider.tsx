@@ -97,7 +97,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[60vh] min-h-[400px] overflow-hidden text-white bg-black w-full">
+    <div className="relative h-[60vh] min-h-[400px] overflow-hidden text-white bg-black w-full group">
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
@@ -107,100 +107,83 @@ const HeroSlider = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent z-0" />
 
-      <div className="px-4 mx-auto relative z-10 flex items-center justify-between h-full container">
-        <div className="flex flex-col justify-center max-w-xl py-8">
-          <div className="mb-2 text-gray-300 font-semibold text-sm">
-            Chapters: {currentManga.chapters || 'N/A'}
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight text-white">
-            {currentManga.title}
-          </h1>
-          <p className="text-gray-300 text-sm md:text-base mb-4 max-w-lg">
-            {truncateDescription(currentManga.description, 150)}
-          </p>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {currentManga.genres?.slice(0, 4).map((genre) => (
-              <Badge key={genre} className="bg-gray-800/80 text-gray-300 border-gray-600">
-                {genre}
-              </Badge>
-            ))}
-          </div>
-          <div className="flex gap-3">
-            <Button
-              size="default"
-              className="btn-primary px-6 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none"
-              onClick={handleReadNow}
-              disabled={loadingReadNow}
-            >
-              {loadingReadNow ? (
-                <>
-                  <span className="loading mr-2"></span>
-                  Loading...
-                </>
-              ) : (
-                'Read Now'
-              )}
-            </Button>
-            <Button
-              size="default"
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-800 px-6 py-2 text-sm font-semibold"
-              onClick={handleViewInfo}
-            >
-              View Info
-            </Button>
-          </div>
+    <div className="px-8 mx-auto relative z-10 flex items-center justify-between h-full container">
+      <div className="flex flex-col justify-center max-w-xl h-full py-4 md:py-10 overflow-hidden" style={{ marginLeft: '2.5rem' }}>
+        <div className="mb-2 text-gray-300 font-semibold text-sm flex-shrink-0">
+          Chapters: {currentManga.chapters || 'N/A'}
         </div>
-
-        <div className="flex items-center justify-end h-full">
-          <div className="relative w-32 h-44 md:w-40 md:h-56 rounded-lg shadow-2xl overflow-hidden border-2 border-gray-600 bg-black/80 film-poster">
-            <img
-              src={currentManga.image}
-              alt={currentManga.title}
-              className="object-cover w-full h-full rounded-lg film-poster-img"
-              onError={e => (e.currentTarget.src = '/placeholder.svg')}
-              draggable={false}
-            />
-          </div>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight text-white flex-shrink-0">
+          {currentManga.title}
+        </h1>
+        <p className="text-gray-300 text-sm md:text-base mb-4 max-w-lg overflow-hidden line-clamp-3">
+          {truncateDescription(currentManga.description, 180)}
+        </p>
+        <div className="flex flex-wrap gap-2 mb-6 flex-shrink-0">
+          {currentManga.genres?.slice(0, 4).map((genre) => (
+            <Badge key={genre} className="bg-gray-800/80 text-gray-300 border-gray-600">
+              {genre}
+            </Badge>
+          ))}
+        </div>
+        <div className="flex gap-3 flex-shrink-0">
+          <Button
+            size="default"
+            className="btn-primary px-6 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none"
+            onClick={handleReadNow}
+            disabled={loadingReadNow}
+          >
+            {loadingReadNow ? (
+              <>
+                <span className="loading mr-2"></span>
+                Loading...
+              </>
+            ) : (
+              'Read Now'
+            )}
+          </Button>
+          <Button
+            size="default"
+            variant="outline"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 px-6 py-2 text-sm font-semibold"
+            onClick={handleViewInfo}
+          >
+            View Info
+          </Button>
         </div>
       </div>
 
-      {/* Navigation Controls */}
-      <div className="px-4 mx-auto relative z-20">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white border-none w-10 h-10 rounded-full"
-          onClick={prevSlide}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white border-none w-10 h-10 rounded-full"
-          onClick={nextSlide}
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Button>
-
-        <div className="absolute bottom-4 right-4 flex items-center gap-3">
-          <span className="text-white text-sm font-medium">
-            {currentSlide + 1} / {mangaList.length}
-          </span>
-          <div className="flex gap-1">
-            {mangaList.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'bg-blue-500 w-6' : 'bg-white/30 hover:bg-white/50'
-                }`}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
+      <div className="flex items-center justify-end h-full" style={{ marginRight: '2.5rem' }}>
+        <div className="relative w-32 h-44 md:w-40 md:h-56 rounded-lg shadow-2xl overflow-hidden border-2 border-gray-600 bg-black/80 film-poster">
+          <img
+            src={currentManga.image}
+            alt={currentManga.title}
+            className="object-cover w-full h-full rounded-lg film-poster-img"
+            onError={e => (e.currentTarget.src = '/placeholder.svg')}
+            draggable={false}
+          />
         </div>
       </div>
+    </div>
+
+      {/* Navigation Controls - side arrows, only visible on hover */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="hidden group-hover:flex items-center justify-center absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white border-none w-12 h-12 rounded-full z-20 transition-opacity duration-200"
+        onClick={prevSlide}
+        aria-label="Previous Slide"
+      >
+        <ChevronLeft className="w-6 h-6" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="hidden group-hover:flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white border-none w-12 h-12 rounded-full z-20 transition-opacity duration-200"
+        onClick={nextSlide}
+        aria-label="Next Slide"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </Button>
     </div>
   );
 };
