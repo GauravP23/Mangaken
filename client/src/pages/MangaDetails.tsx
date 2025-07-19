@@ -52,7 +52,7 @@ const MangaDetail = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="container mx-auto px-4 py-20 text-center">
             <h1 className="text-2xl text-white">Manga not found</h1>
-            <Link to="/" className="text-red-400 hover:text-red-300 mt-4 inline-block">
+            <Link to="/" className="text-clickable hover:text-primary mt-4 inline-block transition-colors">
               Return to Home
             </Link>
           </div>
@@ -110,11 +110,11 @@ const MangaDetail = () => {
                 <p className="text-gray-300 leading-relaxed">
                   {manga.description && manga.description.length > 300 && !showFullDescription
                     ? <>
-                        {manga.description.slice(0, 300)}... <span className="text-red-400 cursor-pointer" onClick={() => setShowFullDescription(true)}>See more</span>
+                {manga.description.slice(0, 300)}... <span className="text-primary cursor-pointer hover:underline" onClick={() => setShowFullDescription(true)}>See more</span>
                       </>
                     : manga.description}
                   {manga.description && manga.description.length > 300 && showFullDescription && (
-                    <span className="text-red-400 cursor-pointer ml-2" onClick={() => setShowFullDescription(false)}>See less</span>
+                  <span className="text-primary cursor-pointer ml-2 hover:underline" onClick={() => setShowFullDescription(false)}>See less</span>
                   )}
                 </p>
               </div>
@@ -133,24 +133,24 @@ const MangaDetail = () => {
               {/* Action Buttons */}
               <div className="flex gap-4">
                 <Link to={`/manga/${manga.id}/chapter/1`}>
-                  <Button className="bg-red-600 hover:bg-red-700 text-white">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                     <Play className="w-4 h-4 mr-2" />
                     Start Reading
                   </Button>
                 </Link>
-                <Button variant="outline" className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                   Add to Library
                 </Button>
               </div>
             </div>
           </div>
           {/* Chapters List */}
-          <div className="bg-gray-900 rounded-lg p-6">
+          <div className="bg-[#151c27] rounded-xl p-6">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <span className="w-1 h-8 bg-red-600 rounded"></span>
+              <span className="w-1 h-8 bg-primary rounded"></span>
               Chapters
             </h2>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-3 max-h-96 overflow-y-auto">
               {chapters.length === 0 ? (
                 <div className="text-gray-400 text-center">No chapters found.</div>
               ) : (
@@ -158,10 +158,18 @@ const MangaDetail = () => {
                   <Link
                     key={chapter.id}
                     to={`/manga/${manga.id}/chapter/${chapter.id}`}
-                    className="flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors group"
+                    className={
+                      `flex items-center justify-between p-4 bg-[#232b39] rounded-lg transition-colors group` +
+                      (chapter.attributes?.title === 'Into the Fray' ? ' bg-[#353c4a]' : '')
+                    }
                   >
                     <div className="flex items-center gap-3">
-                      <div className="text-white font-medium group-hover:text-red-400 transition-colors">
+                      <div
+                        className={
+                          `font-medium transition-colors group-hover:text-blue-400 ` +
+                          (chapter.attributes?.title === 'Into the Fray' ? 'text-primary' : 'text-white')
+                        }
+                      >
                         {chapter.attributes?.title || `Chapter ${chapter.attributes?.chapter || chapter.id}`}
                       </div>
                     </div>

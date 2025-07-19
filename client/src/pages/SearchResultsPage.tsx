@@ -58,9 +58,10 @@ const SearchResultsPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [query]);
 
-  return (
-    <div className="main-content-frame bg-gray-950 min-h-screen">
-      <Header />
+return (
+  <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
+    <Header />
+    <div className="flex-1">
       <div className="container mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold text-white mb-6">Search Results for "{query}"</h1>
         {loading && <div className="text-white">Loading...</div>}
@@ -101,9 +102,10 @@ const SearchResultsPage: React.FC = () => {
           })}
         </div>
       </div>
-      <Footer />
     </div>
-  );
+    <Footer />
+  </div>
+);
 };
 
 export default SearchResultsPage;
