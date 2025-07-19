@@ -1,92 +1,18 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Star, Eye, BookOpen, Info, BookOpen as ReadIcon } from 'lucide-react';
+
+import { UIManga, Manga as ApiManga } from '../types';
+import { mapApiMangaToUICard } from '../utils';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Manga } from '../data/mangaData';
-// Accept both API and UI Manga types
-import { Manga as ApiManga, UIManga } from '../types';
 import { getMangaFeed } from '../services/mangaApi';
 
+// Props for MangaCard
 export interface MangaCardProps {
   manga: UIManga | ApiManga;
   size?: 'small' | 'medium' | 'large';
   showLanguageBadge?: boolean;
-}
-
-// Helper to map API Manga to UI MangaCard shape
-export function mapApiMangaToUICard(manga: any): UIManga {
-  // If new complete info shape (from backend)
-  if (manga && (manga.rating !== undefined || manga.follows !== undefined || manga.views !== undefined || manga.totalChapters !== undefined || manga.chapters !== undefined)) {
-    return {
-      ...manga,
-      views: manga.follows ?? manga.views ?? 0,
-      chapters: manga.totalChapters ?? manga.chapters ?? 0,
-      rating: manga.rating ?? 0,
-      status: manga.status ?? 'ongoing',
-      author: manga.author ?? '',
-      genres: manga.genres ?? [],
-      image: manga.coverImage ?? manga.image ?? '',
-      title: manga.title ?? '',
-      description: manga.description ?? '',
-      id: manga.id,
-      lastUpdate: manga.lastUpdate ?? '',
-      type: manga.type ?? 'manga',
-    };
-  }
-
-  if ((manga as any).attributes) {
-    const apiManga = manga as ApiManga;
-    // Extract cover art filename from relationships
-    let coverFileName = '';
-    const coverRel = (apiManga.relationships || []).find(rel => rel.type === 'cover_art');
-    if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
-      coverFileName = coverRel.attributes.fileName;
-    } else if (coverRel && coverRel.attributes && coverRel.attributes.filename) {
-      coverFileName = coverRel.attributes.filename;
-    }
-    // Build MangaDex cover URL if possible
-    const image = coverFileName ?
-      `https://uploads.mangadex.org/covers/${apiManga.id}/${coverFileName}.256.jpg` :
-      '';
-    // Extract author name
-    let author = '';
-    const authorRel = (apiManga.relationships || []).find(rel => rel.type === 'author');
-    if (authorRel && authorRel.attributes && authorRel.attributes.name) {
-      author = authorRel.attributes.name;
-    }
-    // Extract rating (from attributes if present, fallback to 0)
-    let rating = 0;
-    if (apiManga.attributes && typeof (apiManga.attributes as any).bayesianRating === 'number') {
-      rating = (apiManga.attributes as any).bayesianRating;
-    } else if (apiManga.attributes && typeof (apiManga.attributes as any).averageRating === 'number') {
-      rating = (apiManga.attributes as any).averageRating;
-    }
-    // Extract views (followedCount)
-    let views = 0;
-    if (apiManga.attributes && typeof (apiManga.attributes as any).followedCount === 'number') {
-      views = (apiManga.attributes as any).followedCount;
-    }
-    // Extract type
-    const type = (apiManga as any).type || 'manga';    return {
-      id: apiManga.id,
-      title: apiManga.attributes.title?.en || Object.values(apiManga.attributes.title)[0] || 'No Title',
-      description: apiManga.attributes.description?.en || Object.values(apiManga.attributes.description)[0] || '',
-      image,
-      genres: (apiManga.attributes.tags || []).map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || ''),
-      rating,
-      status: (apiManga.attributes.status as 'ongoing' | 'completed') || 'ongoing',
-      chapters: 0, // Not available from API by default
-      views,
-      author,
-      lastUpdate: '', // Not available from API by default
-      type: type || 'manga',
-      // Store original title data for alternative displays
-      originalTitle: apiManga.attributes.title,
-    };
-  }
-  // Already UI shape
-  return manga as Manga;
 }
 
 // Helper to format large numbers with K/M suffixes

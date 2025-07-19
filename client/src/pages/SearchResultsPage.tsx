@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -6,11 +7,12 @@ import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount } from
 import { Star, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import axios from 'axios';
+import { Manga, Relationship } from '../types';
 
 const SearchResultsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<(Manga & { chapters: number; author: string; rating: number; follows: number })[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -23,18 +25,20 @@ const SearchResultsPage: React.FC = () => {
       .then(async (data) => {
         // For each manga, fetch chapter count and author
         const withDetails = await Promise.all(
-          data.map(async (manga: any) => {
+          data.map(async (manga: Manga) => {
             let chapters = 0;
             let author = '';
             let follows = 0;
             let rating = 0;
             try {
               chapters = await getMangaChapterCount(manga.id);
-            } catch {}
+            } catch (err) {
+              console.error('Error fetching chapter count:', err);
+            }
             try {
               const details = await getMangaDetails(manga.id);
-              const authorRel = details.relationships?.find((r: any) => r.type === 'author');
-              author = authorRel?.attributes?.name || '';
+              const authorRel = details.relationships?.find((r: Relationship) => r.type === 'author');
+              author = (authorRel?.attributes as { name?: string })?.name || '';
               // Fetch statistics for rating and follows
               const statsRes = await axios.get(`/api/manga/statistics/${manga.id}`);
               if (statsRes.data && statsRes.data.statistics && statsRes.data.statistics[manga.id]) {
@@ -42,7 +46,9 @@ const SearchResultsPage: React.FC = () => {
                 rating = typeof stat.rating === 'object' ? (stat.rating.bayesian ?? stat.rating.average ?? 0) : stat.rating ?? 0;
                 follows = stat.follows ?? 0;
               }
-            } catch {}
+            } catch (err) {
+              console.error('Error fetching manga details or stats:', err);
+            }
             return { ...manga, chapters, author, rating, follows };
           })
         );
@@ -53,7 +59,7 @@ const SearchResultsPage: React.FC = () => {
   }, [query]);
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="main-content-frame bg-gray-950 min-h-screen">
       <Header />
       <div className="container mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold text-white mb-6">Search Results for "{query}"</h1>
@@ -64,13 +70,13 @@ const SearchResultsPage: React.FC = () => {
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {results.map((manga) => {
-            const coverRel = manga.relationships?.find((r: any) => r.type === 'cover_art');
-            const image = coverRel?.attributes?.fileName
-              ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}.256.jpg`
+            const coverRel = manga.relationships?.find((r: Relationship) => r.type === 'cover_art');
+            const image = coverRel?.attributes && (coverRel.attributes as { fileName?: string }).fileName
+              ? `https://uploads.mangadex.org/covers/${manga.id}/${(coverRel.attributes as { fileName: string }).fileName}.256.jpg`
               : '/placeholder.svg';
             const title = manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title';
             const description = manga.attributes?.description?.en || Object.values(manga.attributes?.description || {})[0] || '';
-            const rating = (manga.attributes?.bayesianRating || manga.attributes?.averageRating || 0).toFixed(1);
+            const rating = typeof manga.rating === 'number' ? manga.rating.toFixed(1) : 'N/A';
             return (
               <div
                 key={manga.id}

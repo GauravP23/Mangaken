@@ -19,7 +19,7 @@ const Browse = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [chapterCounts, setChapterCounts] = useState<{ [id: string]: number }>({});
 
-  const allManga = [...trendingManga, ...topManga, ...latestUpdates];
+  const allManga = useMemo(() => [...trendingManga, ...topManga, ...latestUpdates], []);
 
   useEffect(() => {
     // Fetch chapter counts for all manga in Browse page
@@ -32,23 +32,19 @@ const Browse = () => {
       results.forEach(({ id, count }) => { counts[id] = count; });
       setChapterCounts(counts);
     });
-  }, [allManga.length]);
+  }, [allManga]);
 
   const filteredAndSortedManga = useMemo(() => {
     let filtered = allManga.filter(manga => {
       const genreMatch = selectedGenres.length === 0 || 
         selectedGenres.some(genre => manga.genres.includes(genre));
-      
       const statusMatch = statusFilter === 'all' || manga.status === statusFilter;
-      
       return genreMatch && statusMatch;
     });
-
     // Remove duplicates
     filtered = filtered.filter((manga, index, self) => 
       index === self.findIndex(m => m.id === manga.id)
     );
-
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -66,7 +62,6 @@ const Browse = () => {
           return 0;
       }
     });
-
     // Add real chapter count to each manga
     return filtered.map(manga => ({ ...manga, chapters: chapterCounts[manga.id] ?? manga.chapters }));
   }, [allManga, selectedGenres, statusFilter, sortBy, chapterCounts]);
@@ -85,19 +80,16 @@ const Browse = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="main-content-frame bg-gray-950 min-h-screen">
       <Header />
-      
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Browse Manga</h1>
           <p className="text-gray-400">Discover your next favorite manga</p>
         </div>
-
         {/* Filters */}
         <div className="bg-gray-900 rounded-lg p-6 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Filters</h2>
-          
           {/* Genres */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
@@ -113,7 +105,6 @@ const Browse = () => {
                 </Button>
               )}
             </div>
-            
             {selectedGenres.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {selectedGenres.map(genre => (
@@ -129,7 +120,6 @@ const Browse = () => {
                 ))}
               </div>
             )}
-            
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
               {genres.map(genre => (
                 <Button
@@ -147,7 +137,6 @@ const Browse = () => {
               ))}
             </div>
           </div>
-
           {/* Sort and Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
