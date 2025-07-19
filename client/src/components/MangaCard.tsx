@@ -162,20 +162,22 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             {/* Status Badge - Updated to match reference images */}
           <Badge 
             className={`absolute top-0 right-0 rounded-bl-md rounded-tr-md px-3 py-1 ${
-              uiManga.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
-            } text-white text-xs font-medium`}
+              uiManga.status === 'completed' ? 'bg-secondary' : 'bg-primary'
+            } text-foreground text-xs font-medium`}
           >
             {uiManga.status === 'completed' ? 'Complete' : 'Ongoing'}
-          </Badge>          {/* Language Badge - Similar to second reference image */}
+          </Badge>
+          
+          {/* Language Badge - Similar to second reference image */}
           {showLanguageBadge && (
-            <Badge className="absolute top-0 left-0 bg-lime-400 text-black text-xs font-bold rounded-tr-md rounded-bl-md px-2 py-1 z-10">
+            <Badge className="absolute top-0 left-0 bg-secondary text-secondary-foreground text-xs font-bold rounded-tr-md rounded-bl-md px-2 py-1 z-10">
               EN/JA
             </Badge>
           )}
           
           {/* Rating - Positioned to not overlap with language badge */}
-          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-white text-xs`}>
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-background/70 rounded px-2 py-1 flex items-center gap-1 text-primary-white text-xs`}>
+            <Star className="w-3 h-3 fill-primary text-primary" />
             <span>{uiManga.rating !== undefined ? Number(uiManga.rating).toFixed(1) : 'N/A'}</span>
           </div>
             {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
@@ -184,7 +186,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
               <Button
                 size="sm"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/50 transition-transform hover:scale-105 w-28"
+                className="btn-primary-cta font-semibold shadow-lg shadow-primary/50 transition-transform hover:scale-105 w-28"
                 onClick={handleReadNow}
                 disabled={loadingReadNow}
               >
@@ -198,7 +200,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
               <Button
                 size="sm"
                 variant="outline"
-                className="border-gray-400 text-white hover:bg-gray-800 font-semibold shadow-lg shadow-white/20 transition-transform hover:scale-105 w-28"
+                className="border-border text-secondary hover:bg-muted font-semibold shadow-lg shadow-secondary/20 transition-transform hover:scale-105 w-28"
                 onClick={handleViewInfo}
               >
                 <Info className="w-3 h-3 mr-1" />
@@ -207,16 +209,16 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             </div>
             
             {/* Simple Stats at bottom */}
-            <div className="text-white mt-auto">
+            <div className="text-primary-white mt-auto">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3 text-blue-400" />
+                  <Eye className="w-3 h-3 accent-cyan" />
                   <span>{formatNumber(uiManga.views)}</span>
                 </div>
                 
                 <div className="flex items-center gap-1 justify-end">
-                  <BookOpen className="w-3 h-3 text-green-400" />
-                  <span className="text-red-500 font-semibold">{uiManga.chapters} ch</span>
+                  <BookOpen className="w-3 h-3 accent-cyan" />
+                  <span className="text-secondary font-semibold">{uiManga.chapters} ch</span>
                 </div>
               </div>
             </div>
@@ -224,10 +226,10 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
         </div>      </Link>
       {/* Title and Genres below the card - Updated layout to match reference images */}
       <div className="mt-3 space-y-1">
-        <h3 className={`${textSizes[size]} font-semibold text-white line-clamp-2 transition-colors`}>
+        <h3 className={`${textSizes[size]} font-semibold text-primary-white line-clamp-2 transition-colors`}>
           {uiManga.title}
         </h3>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-secondary-gray">
           {uiManga.genres.slice(0, 3).join(', ')}
         </div>
       </div>

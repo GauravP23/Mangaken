@@ -8,11 +8,25 @@ import { searchManga } from '../services/mangaApi';
 import { AuthContext } from '../contexts/AuthContext';
 import './Header.css'; // For styling
 
+type Manga = {
+  id: string;
+  attributes: {
+    title: { [lang: string]: string };
+    // Add other attributes as needed
+  };
+  relationships?: Array<{
+    type: string;
+    attributes?: {
+      fileName?: string;
+    };
+  }>;
+};
+
 const Header: React.FC = () => {
   const { user, logout } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Manga[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
@@ -64,21 +78,21 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
+    <header className="bg-content-frame/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 w-full">
+      <div className="px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 text-white hover:text-red-400 transition-colors flex-shrink-0">
-            <div className="bg-red-600 px-2 py-1 rounded font-bold text-white text-sm">
+          <Link to="/" className="flex items-center space-x-2 text-primary-white hover:text-primary transition-colors flex-shrink-0">
+            <div className="bg-primary px-2 py-1 rounded font-bold text-primary-foreground text-sm">
               Manga
             </div>
-            <span className="text-xl font-bold text-red-400 hidden sm:block">Ken</span>
+            <span className="text-xl font-bold accent-purple hidden sm:block">Ken</span>
           </Link>
 
           {/* Search Bar - Center */}
           <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8 relative">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search manga..."
@@ -86,22 +100,22 @@ const Header: React.FC = () => {
                 onChange={handleInputChange}
                 onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                className="w-full pl-10 pr-4 bg-gray-800/80 border-gray-700 text-white placeholder:text-gray-400 focus:border-red-400 focus:ring-red-400/20 rounded-full"
+                className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 rounded-full"
               />
               {showDropdown && searchResults.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
                   {searchResults.map((manga) => (
                     <div
                       key={manga.id}
-                      className="px-4 py-2 hover:bg-gray-800 cursor-pointer flex items-center gap-3"
+                      className="px-4 py-2 hover:bg-muted cursor-pointer flex items-center gap-3"
                       onMouseDown={() => handleResultClick(manga.id)}
                     >
                       <img src={manga.relationships?.find(r => r.type === 'cover_art')?.attributes?.fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${manga.relationships.find(r => r.type === 'cover_art').attributes.fileName}.256.jpg` : '/placeholder.svg'} alt={manga.attributes?.title?.en || 'No Title'} className="w-8 h-12 object-cover rounded shadow" />
-                      <span className="text-white font-medium line-clamp-1">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
+                      <span className="text-primary-white font-medium line-clamp-1">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
                     </div>
                   ))}
                   {searchResults.length === 0 && (
-                    <div className="px-4 py-2 text-gray-400">No results found.</div>
+                    <div className="px-4 py-2 text-secondary-gray">No results found.</div>
                   )}
                 </div>
               )}
@@ -113,7 +127,7 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
               onClick={handleGenres}
             >
               <Grid3X3 className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
@@ -123,7 +137,7 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
               onClick={handleNew}
             >
               <Star className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
@@ -133,7 +147,7 @@ const Header: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:text-white hover:bg-gray-800/50 text-xs xl:text-sm"
+              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
               onClick={handleOngoing}
             >
               <TrendingUp className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
@@ -147,7 +161,7 @@ const Header: React.FC = () => {
               <>
                 <button
                   onClick={logout}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded"
                 >
                   Logout
                 </button>
@@ -156,13 +170,13 @@ const Header: React.FC = () => {
               <>
                 <button
                   onClick={() => navigate('/login')}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => navigate('/register')}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800/50 px-3 py-1 rounded"
+                  className="btn-primary-cta px-3 py-1 rounded"
                 >
                   Register
                 </button>
@@ -174,7 +188,7 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden text-white flex-shrink-0"
+            className="lg:hidden text-primary-white flex-shrink-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -183,17 +197,17 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-800">
+          <div className="lg:hidden py-4 border-t border-border">
             {/* Mobile Search */}
             <form onSubmit={handleSearch} className="mb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   type="text"
                   placeholder="Search manga..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 bg-gray-800/80 border-gray-700 text-white placeholder:text-gray-400 focus:border-red-400 rounded-full"
+                  className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-full"
                 />
               </div>
             </form>
@@ -202,7 +216,7 @@ const Header: React.FC = () => {
             <nav className="flex flex-col space-y-2">
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Filter className="h-4 w-4 mr-2" />
@@ -211,7 +225,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Grid3X3 className="h-4 w-4 mr-2" />
@@ -220,7 +234,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Shuffle className="h-4 w-4 mr-2" />
@@ -229,7 +243,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Star className="h-4 w-4 mr-2" />
@@ -238,7 +252,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Clock className="h-4 w-4 mr-2" />
@@ -247,7 +261,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <TrendingUp className="h-4 w-4 mr-2" />
@@ -256,7 +270,7 @@ const Header: React.FC = () => {
               
               <Button
                 variant="ghost"
-                className="justify-start text-gray-300 hover:text-white hover:bg-gray-800/50"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />

@@ -22,6 +22,12 @@ function uniqueManga<T extends { id: string }>(mangaList: T[]): T[] {
     });
 }
 
+// Define a type for cover art attributes
+type CoverArtAttributes = {
+    fileName?: string;
+    filename?: string;
+};
+
 // Helper function to extract cover image from manga relationships
 const extractCoverImage = (manga: Manga): string => {
     if (!manga.relationships) return '';
@@ -29,7 +35,8 @@ const extractCoverImage = (manga: Manga): string => {
     const coverRel = manga.relationships.find(rel => rel.type === 'cover_art');
     if (!coverRel || !coverRel.attributes) return '';
     
-    const fileName = coverRel.attributes.fileName || (coverRel.attributes as any).filename;
+    const attrs = coverRel.attributes as CoverArtAttributes;
+    const fileName = attrs.fileName || attrs.filename;
     if (!fileName) return '';
     
     return `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
@@ -149,11 +156,13 @@ const HomePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="main-content-frame">
             <Header />
             {/* Hero Section */}
             <HeroSlider />
-            <div className="container mx-auto px-4 py-16 bg-gray-950">
+            
+            {/* Main Content Container */}
+            <div className="px-4 py-8">
                 {/* Trending Now Section */}
                 <MangaSection 
                     title="Trending Now" 
