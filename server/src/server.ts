@@ -40,7 +40,8 @@ app.use(cors({
     origin: [
         'http://localhost:3000', // React default
         'http://localhost:5173', // Vite default
-        'https://mangaken-rrb1y3u0r-gauravp23s-projects.vercel.app', // Your frontend URL
+        'https://mangaken-rrb1y3u0r-gauravp23s-projects.vercel.app', // Your old frontend URL
+        'https://mangaken-teyz.vercel.app', // Your new frontend URL
         /https:\/\/.*\.vercel\.app$/ // Allow all Vercel domains
     ],
     credentials: true
