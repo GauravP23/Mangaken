@@ -37,14 +37,19 @@ const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loaded
 
 app.use(cors({
-    origin: [
-        'http://localhost:3000', // React default
-        'http://localhost:5173', // Vite default
-        'https://mangaken-rrb1y3u0r-gauravp23s-projects.vercel.app', // Your old frontend URL
-        'https://mangaken-teyz.vercel.app', // Your new frontend URL
-        /https:\/\/.*\.vercel\.app$/ // Allow all Vercel domains
-    ],
-    credentials: true
+  origin: (origin, callback) => {
+    if (
+      !origin || // allow REST tools/curl/server-to-server
+      origin.startsWith('http://localhost:3000') ||
+      origin.startsWith('http://localhost:5173') ||
+      /\.vercel\.app$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
 app.use(express.json());
 
