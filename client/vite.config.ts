@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
-// Remove @tailwindcss/vite, use standard Vite config for Tailwind
+import react from '@vitejs/plugin-react-swc'
+
 export default defineConfig({
+  plugins: [react()],
   server: {
     proxy: {
       '/api': 'http://localhost:5001', // Proxy API requests to backend on port 5001
     },
   },
-  plugins: [],
 })
