@@ -102,10 +102,11 @@ const HeroSlider = () => {
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url(${currentManga.image})`,
-          filter: 'brightness(0.3) blur(2px)',
+          // Make the cover more visible: less dark, less blur
+          filter: 'brightness(0.4) blur(1.5px)',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent z-0" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent z-0" />
 
     <div className="px-8 mx-auto relative z-10 flex items-center justify-between h-full container">
       <div className="flex flex-col justify-center max-w-xl h-full py-4 md:py-10 overflow-hidden" style={{ marginLeft: '2.5rem' }}>
