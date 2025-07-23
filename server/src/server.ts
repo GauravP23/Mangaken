@@ -1,6 +1,8 @@
 // server/src/server.ts
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path'; // Keep if you still want explicit path, but usually not needed
@@ -29,20 +31,32 @@ import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
 import heroRoutes from './routes/heroRoutes';
 
+
 const app = express();
+
+// Security: Helmet middleware
+app.use(helmet());
+
+// Rate limiting for auth endpoints
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api/auth', authLimiter);
 
 // Initialize Passport middleware
 app.use(passport.initialize());
 const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loaded
 
+// Dynamic CORS config for local and Vercel
+const vercelURL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
+const allowedOrigins = ['http://localhost:5173'];
+if (vercelURL) allowedOrigins.push(vercelURL);
 app.use(cors({
-    origin: [
-        'http://localhost:3000', // React default
-        'http://localhost:5173', // Vite default
-        'https://mangaken-rrb1y3u0r-gauravp23s-projects.vercel.app', // Your frontend URL
-        /https:\/\/.*\.vercel\.app$/ // Allow all Vercel domains
-    ],
+    origin: allowedOrigins,
     credentials: true
 }));
 app.use(express.json());
