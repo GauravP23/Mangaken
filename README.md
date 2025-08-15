@@ -2,6 +2,16 @@
 
 A modern, fullstack Manga reader web application built with Vite, React, TypeScript, Tailwind CSS, shadcn/ui, and Radix UI. It features a robust client and server, fetching real manga and chapter data from the MangaDex API.
 
+![Homepage Hero Section](client/src/assets/images/Screenshot%20from%202025-07-22%2014-20-14.png)
+
+## Screenshots
+
+### Homepage and Trending Manga
+![Trending Manga Section](client/src/assets/images/Screenshot%20from%202025-07-22%2014-20-47.png)
+
+### Manga Details and Chapter Reader
+![Manga Details and Reader](client/src/assets/images/Screenshot%20from%202025-08-15%2012-50-54.png)
+
 ## Features
 
 - **Modern UI**: Built with Tailwind CSS, shadcn/ui, and Radix UI for a beautiful, accessible, and responsive experience.
