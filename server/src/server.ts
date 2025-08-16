@@ -38,8 +38,9 @@ const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loa
 
 app.use(cors({
     origin: [
-        'http://localhost:3000', // React default
-        'http://localhost:5173'  // Vite default
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://mangaken.vercel.app' // This line is essential
     ],
     credentials: true
 }));
