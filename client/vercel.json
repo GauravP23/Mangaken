@@ -2,13 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/**",  
-      "use": "@vercel/static" 
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",       
-      "dest": "/client/index.html" 
-}]
+      "source": "/api/(.*)",
+      "destination": "https://mangaken-server-ke8hgkdqc-gauravp23s-projects.vercel.app/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
