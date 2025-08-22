@@ -17,7 +17,7 @@ const apiClient = axios.create({
     }
 });
 
-const limiter = new RateLimiter({ tokensPerInterval: 10, interval: 'second' });
+const limiter = new RateLimiter({ tokensPerInterval: 40, interval: 'second' });
 
 async function removeTokens(total: number) {
   await limiter.removeTokens(total);
@@ -138,7 +138,7 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
     }
 
     // 3. Fetch ALL chapters robustly (handle pagination)
-    let allChapters = [];
+    let allChapters = [] as any[];
     let offset = 0;
     const limit = 500;
     let total = 1;
@@ -153,42 +153,32 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
       }
     }
 
-    // 4. For each chapter, ensure pages are loadable (optional: can be slow for many chapters)
-    // Uncomment below if you want to verify every chapter's pages
-    // for (const chapter of allChapters) {
-    //   try {
-    //     await getChapterPages(chapter.id);
-    //   } catch (e) {
-    //     // Log or handle missing/broken chapter pages
-    //   }
-    // }
-
-    // 5. Extract author from relationships
+    // 4. Extract author from relationships
     let author = '';
     const authorRel = (manga.relationships || []).find(rel => rel.type === 'author');
     if (authorRel && authorRel.attributes && authorRel.attributes.name) {
       author = authorRel.attributes.name;
     }
 
-    // 6. Extract genres/tags
-    const genres = (manga.attributes.tags || []).map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || '');
+    // 5. Extract genres/tags
+    const genres = (manga.attributes.tags || []).map((tag: any) => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || '');
 
-    // 7. Extract cover image
+    // 6. Extract cover image
     let coverFileName = '';
-    const coverRel = (manga.relationships || []).find(rel => rel.type === 'cover_art');
+    const coverRel = (manga.relationships || []).find((rel: any) => rel.type === 'cover_art');
     if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
       coverFileName = coverRel.attributes.fileName;
     }
     const coverImage = coverFileName ?
       `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg` : '';
 
-    // 8. Build and return complete info object
+    // 7. Build and return complete info object
     return {
       id: manga.id,
-      title: manga.attributes.title?.en || Object.values(manga.attributes.title)[0] || 'No Title',
-      description: manga.attributes.description?.en || Object.values(manga.attributes.description)[0] || '',
+      title: (manga.attributes.title as any)?.en || Object.values(manga.attributes.title)[0] || 'No Title',
+      description: (manga.attributes.description as any)?.en || Object.values(manga.attributes.description)[0] || '',
       author,
-      type: manga.type || 'manga',
+      type: (manga as any).type || 'manga',
       status: manga.attributes.status,
       genres,
       rating,
@@ -196,7 +186,7 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
       totalChapters: allChapters.length,
       coverImage,
       year: manga.attributes.year,
-      contentRating: manga.attributes.contentRating,
+      contentRating: (manga.attributes as any).contentRating,
       chapters: allChapters,
     };
   } catch (error) {
@@ -224,5 +214,32 @@ export const getMangaStatistics = async (mangaId: string) => {
   } catch (error) {
     console.error(`Error fetching manga statistics for ID ${mangaId}:`, error);
     return { rating: 0, follows: 0 };
+  }
+};
+
+// New: Batch statistics fetch for multiple manga IDs
+export const getMangaStatisticsBatch = async (ids: string[]) => {
+  if (!ids || ids.length === 0) {
+    return {} as Record<string, { rating: number; follows: number }>;
+  }
+  try {
+    await removeTokens(1);
+    const params: any = {};
+    // MangaDex expects repeated manga[] params
+    params['manga[]'] = ids;
+    const response = await apiClient.get(`/statistics/manga`, { params });
+    const result: Record<string, { rating: number; follows: number }> = {};
+    if (response.data && response.data.statistics) {
+      for (const [id, stats] of Object.entries<any>(response.data.statistics)) {
+        result[id] = {
+          rating: typeof stats.rating === 'object' ? (stats.rating.bayesian ?? stats.rating.average ?? 0) : (stats.rating ?? 0),
+          follows: stats.follows ?? 0,
+        };
+      }
+    }
+    return result;
+  } catch (error) {
+    console.error(`Error fetching batch manga statistics for IDs ${ids.join(',')}:`, error);
+    return {} as Record<string, { rating: number; follows: number }>;
   }
 };

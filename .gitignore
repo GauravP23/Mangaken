@@ -22,9 +22,19 @@
 npm-debug.log*
 yarn-error.log*
 yarn-debug.log*
+# Generic logs and log files
+logs/
+*.log
+
+# Coverage reports
+coverage/
 
 # IDE & OS Files
 # Ignore metadata files from common editors and operating systems.
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
+
+# Vercel local project folder
+.vercel/

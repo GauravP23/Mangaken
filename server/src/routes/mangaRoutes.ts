@@ -9,6 +9,12 @@ router.get('/', mangaController.listMangaController);
 // GET /api/manga/search?title=...
 router.get('/search', mangaController.searchMangaController);
 
+// GET /api/manga/statistics/batch?manga[]=id1&manga[]=id2
+router.get('/statistics/batch', mangaController.getMangaStatisticsBatchController);
+
+// GET /api/manga/statistics/:id
+router.get('/statistics/:id', mangaController.getMangaStatisticsController);
+
 // GET /api/manga/:id
 router.get('/:id', mangaController.getMangaDetailsController);
 
@@ -20,8 +26,5 @@ router.get('/chapter/:chapterId/pages', mangaController.getChapterPagesControlle
 
 // GET /api/manga/complete/:id
 router.get('/complete/:id', mangaController.getCompleteMangaInfoController);
-
-// GET /api/manga/statistics/:id
-router.get('/statistics/:id', mangaController.getMangaStatisticsController);
 
 export default router;

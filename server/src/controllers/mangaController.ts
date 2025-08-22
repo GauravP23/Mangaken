@@ -104,6 +104,10 @@ export const getCompleteMangaInfoController: RequestHandler = async (req, res, n
     }
 };
 
+// Simple in-memory cache for statistics
+const statsCache = new Map<string, { data: any; timestamp: number }>();
+const STATS_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
 export const getMangaStatisticsController: RequestHandler = async (req, res, next) => {
     try {
         const mangaId = req.params.id;
@@ -111,7 +115,42 @@ export const getMangaStatisticsController: RequestHandler = async (req, res, nex
             res.status(400).json({ message: 'Manga ID parameter is required' });
             return;
         }
+
+        // Check cache first
+        const cached = statsCache.get(mangaId);
+        if (cached && Date.now() - cached.timestamp < STATS_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
         const data = await mangadexService.getMangaStatistics(mangaId);
+        
+        // Cache the result
+        statsCache.set(mangaId, { data, timestamp: Date.now() });
+        
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New: Batch statistics controller
+export const getMangaStatisticsBatchController: RequestHandler = async (req, res, next) => {
+    try {
+        let ids: string[] = [];
+        const q = req.query['manga[]'] ?? req.query.manga; // support both manga[] and manga
+        if (Array.isArray(q)) {
+            ids = q as string[];
+        } else if (typeof q === 'string') {
+            ids = [q];
+        }
+
+        if (!ids.length) {
+            res.status(400).json({ message: 'Provide at least one manga[] id' });
+            return;
+        }
+
+        const data = await mangadexService.getMangaStatisticsBatch(ids);
         res.json(data);
     } catch (error) {
         next(error);

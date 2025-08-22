@@ -22,7 +22,7 @@ const HERO_TITLES = [
 // In-memory cache
 let cachedHero: any[] | null = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes (increased from 10)
 
 router.get(
   '/',
@@ -34,13 +34,23 @@ router.get(
       }
       const list = await Promise.all(
         HERO_TITLES.map(async (title) => {
-          const searchRes = await searchManga(title, 1, 0);
-          const manga = searchRes.data[0];
-          if (!manga) return null;
-          const ui = mapApiMangaToUICard(manga);
-          const countResult = await getMangaFeed(ui.id).catch(() => ({ data: [] }));
-          const count = Array.isArray(countResult.data) ? countResult.data.length : 0;
-          return { ...ui, chapters: count };
+          try {
+            const searchRes = await searchManga(title, 1, 0);
+            const manga = searchRes.data[0];
+            if (!manga) return null;
+            const ui = mapApiMangaToUICard(manga);
+            // Use a lighter approach - just get first page of chapters for count estimation
+            try {
+              const feedResult = await getMangaFeed(ui.id, ['en'], 100, 0);
+              const estimatedCount = feedResult.total || feedResult.data?.length || 0;
+              return { ...ui, chapters: estimatedCount };
+            } catch {
+              return { ...ui, chapters: 0 };
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch hero manga: ${title}`, error);
+            return null;
+          }
         })
       );
       cachedHero = list.filter(Boolean);

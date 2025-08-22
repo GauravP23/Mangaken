@@ -104,7 +104,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
           {/* Rating - Positioned to not overlap with language badge */}
           <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-background/70 rounded px-2 py-1 flex items-center gap-1 text-primary-white text-xs`}>
             <Star className="w-3 h-3 fill-primary text-primary" />
-            <span>{uiManga.rating !== undefined ? Number(uiManga.rating).toFixed(1) : 'N/A'}</span>
+            <span>{uiManga.rating && uiManga.rating > 0 ? Number(uiManga.rating).toFixed(1) : '—'}</span>
           </div>
             {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3">
@@ -139,12 +139,12 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1">
                   <Eye className="w-3 h-3 accent-cyan" />
-                  <span>{formatNumber(uiManga.views)}</span>
+                  <span>{uiManga.views ? formatNumber(uiManga.views) : '—'}</span>
                 </div>
                 
                 <div className="flex items-center gap-1 justify-end">
                   <BookOpen className="w-3 h-3 accent-cyan" />
-                  <span className="text-secondary font-semibold">{uiManga.chapters} ch</span>
+                  <span className="text-secondary font-semibold">{uiManga.chapters ? uiManga.chapters : '—'} ch</span>
                 </div>
               </div>
             </div>

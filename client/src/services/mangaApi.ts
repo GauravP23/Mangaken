@@ -1,6 +1,26 @@
 import { Manga, MangaDexResponse, Chapter, AtHomeServerResponse } from '../types';
 import apiClient from './apiClient';
 
+// Simple cache for API responses
+const cache = new Map<string, { data: unknown; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const getCacheKey = (endpoint: string, params?: Record<string, unknown>) => {
+    return `${endpoint}${params ? JSON.stringify(params) : ''}`;
+};
+
+const getCachedData = (key: string) => {
+    const cached = cache.get(key);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    return null;
+};
+
+const setCachedData = (key: string, data: unknown) => {
+    cache.set(key, { data, timestamp: Date.now() });
+};
+
 // Search manga by title
 export const searchManga = async (title: string, limit: number = 20, offset: number = 0): Promise<Manga[]> => {
     const response = await apiClient.get<MangaDexResponse<Manga>>('/manga/search', { params: { title, limit, offset } });
@@ -9,7 +29,10 @@ export const searchManga = async (title: string, limit: number = 20, offset: num
 
 // Get latest updated manga
 export const getLatestManga = async (limit: number = 20, offset: number = 0): Promise<Manga[]> => {
-    // Use the generic /manga endpoint with order[latestUploadedChapter]=desc for latest updates
+    const cacheKey = getCacheKey('/manga/latest', { limit, offset });
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached as Manga[];
+
     const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
         params: {
             limit,
@@ -18,12 +41,17 @@ export const getLatestManga = async (limit: number = 20, offset: number = 0): Pr
             'order[latestUploadedChapter]': 'desc',
         }
     });
+    
+    setCachedData(cacheKey, response.data.data);
     return response.data.data;
 };
 
 // Get most popular manga
 export const getPopularManga = async (limit: number = 20, offset: number = 0): Promise<Manga[]> => {
-    // Use the generic /manga endpoint with order[followedCount] or order[relevance] as a fallback for popularity
+    const cacheKey = getCacheKey('/manga/popular', { limit, offset });
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached as Manga[];
+
     const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
         params: {
             limit,
@@ -32,6 +60,8 @@ export const getPopularManga = async (limit: number = 20, offset: number = 0): P
             'order[followedCount]': 'desc', // Sort by most followed (proxy for popularity)
         }
     });
+    
+    setCachedData(cacheKey, response.data.data);
     return response.data.data;
 };
 
@@ -103,6 +133,20 @@ export const getMangaStatistics = async (mangaId: string) => {
   }
 };
 
+// New: Batch statistics fetch for multiple IDs
+export const getMangaStatisticsBatch = async (ids: string[]) => {
+  if (!ids.length) return {} as Record<string, { rating: number; follows: number }>;
+  const params = new URLSearchParams();
+  ids.forEach(id => params.append('manga[]', id));
+  try {
+    const response = await apiClient.get(`/manga/statistics/batch`, { params });
+    return response.data as Record<string, { rating: number; follows: number }>;
+  } catch (error) {
+    console.error('Error fetching batch statistics:', error);
+    return {} as Record<string, { rating: number; follows: number }>;
+  }
+};
+
 // Get batch hero manga data for homepage hero slider
 export const getHeroManga = async (): Promise<{
     id: string;
@@ -112,6 +156,18 @@ export const getHeroManga = async (): Promise<{
     genres: string[];
     chapters: number;
 }[]> => {
+    const cacheKey = getCacheKey('/hero');
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached as {
+        id: string;
+        title: string;
+        description: string;
+        image: string;
+        genres: string[];
+        chapters: number;
+    }[];
+
     const response = await apiClient.get('/hero');
+    setCachedData(cacheKey, response.data);
     return response.data;
 };

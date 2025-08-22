@@ -14,6 +14,8 @@ type MangaDexAttributes = {
   bayesianRating?: number;
   averageRating?: number;
   followedCount?: number;
+  lastChapter?: string;
+  lastVolume?: string;
 };
 
 function isUIManga(manga: unknown): manga is UIManga {
@@ -76,6 +78,15 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
     if (attributes && typeof attributes.followedCount === 'number') {
       views = attributes.followedCount;
     }
+    
+    // Extract chapter count from lastChapter
+    let chapters = 0;
+    if (attributes && attributes.lastChapter) {
+      // Parse the chapter number (e.g., "122.5" -> 122)
+      const chapterNum = parseFloat(attributes.lastChapter);
+      chapters = isNaN(chapterNum) ? 0 : Math.floor(chapterNum);
+    }
+    
     // Extract type
     const type = (apiManga as { type?: string }).type || 'manga';
     return {
@@ -86,7 +97,7 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
       genres: (attributes.tags || []).map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || ''),
       rating,
       status: (attributes.status as 'ongoing' | 'completed') || 'ongoing',
-      chapters: 0, // Not available from API by default
+      chapters, // Now using real chapter count from API!
       views,
       author,
       lastUpdate: '', // Not available from API by default
