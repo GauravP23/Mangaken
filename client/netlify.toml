@@ -9,7 +9,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://mangaken-server.onrender.com/api/:splat"
+  to = "https://mangaken.onrender.com/api/:splat"
   status = 200
   force = true
 
