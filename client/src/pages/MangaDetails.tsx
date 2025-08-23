@@ -66,48 +66,48 @@ const MangaDetail = () => {
     <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
       <Header />
       <div className="flex-1">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
           {/* Manga Header */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
             {/* Cover Image */}
             <div className="lg:col-span-1">
               <img
                 src={manga.coverImage || manga.image || '/placeholder.svg'}
                 alt={manga.title}
-                className="w-full max-w-sm mx-auto rounded-lg shadow-2xl"
+                className="w-full max-w-xs sm:max-w-sm mx-auto rounded-lg shadow-2xl"
               />
             </div>
             {/* Manga Info */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Manga Title */}
-              <h1 className="text-4xl font-bold text-white mb-4">{manga.title}</h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">{manga.title}</h1>
               {/* Stats Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gray-900 p-4 rounded-lg text-center">
-                  <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{manga.rating !== undefined ? manga.rating.toFixed(1) : 'N/A'}</div>
-                  <div className="text-gray-400 text-sm">Rating</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="bg-gray-900 p-3 sm:p-4 rounded-lg text-center">
+                  <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-white">{manga.rating !== undefined ? manga.rating.toFixed(1) : 'N/A'}</div>
+                  <div className="text-gray-400 text-xs sm:text-sm">Rating</div>
                 </div>
-                <div className="bg-gray-900 p-4 rounded-lg text-center">
-                  <Eye className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{typeof manga.follows === 'number' ? manga.follows : 'N/A'}</div>
-                  <div className="text-gray-400 text-sm">Views</div>
+                <div className="bg-gray-900 p-3 sm:p-4 rounded-lg text-center">
+                  <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-white">{typeof manga.follows === 'number' ? manga.follows : 'N/A'}</div>
+                  <div className="text-gray-400 text-xs sm:text-sm">Views</div>
                 </div>
-                <div className="bg-gray-900 p-4 rounded-lg text-center">
-                  <BookOpen className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{chapterCount !== null ? chapterCount : 'N/A'}</div>
-                  <div className="text-gray-400 text-sm">Chapters</div>
+                <div className="bg-gray-900 p-3 sm:p-4 rounded-lg text-center">
+                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-white">{chapterCount !== null ? chapterCount : 'N/A'}</div>
+                  <div className="text-gray-400 text-xs sm:text-sm">Chapters</div>
                 </div>
-                <div className="bg-gray-900 p-4 rounded-lg text-center">
-                  <Calendar className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white capitalize">{manga.status || 'N/A'}</div>
-                  <div className="text-gray-400 text-sm">Status</div>
+                <div className="bg-gray-900 p-3 sm:p-4 rounded-lg text-center">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-white capitalize">{manga.status || 'N/A'}</div>
+                  <div className="text-gray-400 text-xs sm:text-sm">Status</div>
                 </div>
               </div>
               {/* Description/Synopsis */}
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Synopsis</h3>
-                <p className="text-gray-300 leading-relaxed">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">Synopsis</h3>
+                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
                   {manga.description && manga.description.length > 300 && !showFullDescription
                     ? <>
                 {manga.description.slice(0, 300)}... <span className="text-primary cursor-pointer hover:underline" onClick={() => setShowFullDescription(true)}>See more</span>

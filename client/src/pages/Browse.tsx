@@ -7,8 +7,44 @@ import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { X } from 'lucide-react';
-import { genres, topManga, latestUpdates, trendingManga } from '../data/mangaData';
-import { getMangaChapterCount } from '../services/mangaApi';
+import { genres } from '../data/mangaData';
+import { getLatestManga, getPopularManga, getMangaStatisticsBatch } from '../services/mangaApi';
+import { mapApiMangaToUICard } from '../utils';
+import { Manga, UIManga } from '../types';
+
+// Helper function to enhance manga data with batch statistics for the provided list
+const enhanceMangaWithBatchStats = async (mangaList: Manga[]): Promise<UIManga[]> => {
+    const uiList = mangaList.map((apiManga) => {
+        const baseUI = mapApiMangaToUICard(apiManga);
+        return baseUI;
+    });
+
+    // Gather IDs for batch stats
+    const ids = mangaList.map(m => m.id);
+    try {
+        const statsMap = await getMangaStatisticsBatch(ids);
+        return uiList.map((ui) => {
+            const stats = statsMap[ui.id];
+            return {
+                ...ui,
+                rating: typeof stats?.rating === 'number' ? stats.rating : (ui.rating ?? 0),
+                views: typeof stats?.follows === 'number' ? stats.follows : (ui.views ?? 0),
+            } as UIManga;
+        });
+    } catch {
+        return uiList;
+    }
+};
+
+// Utility to deduplicate manga by id, works for any object with an id
+function uniqueManga<T extends { id: string }>(mangaList: T[]): T[] {
+    const seen = new Set<string>();
+    return mangaList.filter((manga) => {
+        if (seen.has(manga.id)) return false;
+        seen.add(manga.id);
+        return true;
+    });
+}
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,54 +53,67 @@ const Browse = () => {
   );
   const [sortBy, setSortBy] = useState('rating');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [chapterCounts, setChapterCounts] = useState<{ [id: string]: number }>({});
-
-  const allManga = useMemo(() => [...trendingManga, ...topManga, ...latestUpdates], []);
+  const [allManga, setAllManga] = useState<UIManga[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch chapter counts for all manga in Browse page
-    const ids = allManga.map(m => m.id);
-    Promise.all(ids.map(async (id) => {
-      const count = await getMangaChapterCount(id).catch(() => 0);
-      return { id, count };
-    })).then(results => {
-      const counts: { [id: string]: number } = {};
-      results.forEach(({ id, count }) => { counts[id] = count; });
-      setChapterCounts(counts);
+    // Fetch real manga data from API
+    setLoading(true);
+    Promise.all([
+      getLatestManga(20, 0),
+      getPopularManga(20, 0),
+      getPopularManga(20, 20) // Get more for variety
+    ]).then(async ([latest, popular1, popular2]) => {
+      const combinedData = [...latest, ...popular1, ...popular2];
+      const uniqueData = uniqueManga(combinedData);
+      const enhancedData = await enhanceMangaWithBatchStats(uniqueData);
+      setAllManga(enhancedData);
+    }).catch((error) => {
+      console.error('Failed to fetch manga data:', error);
+    }).finally(() => {
+      setLoading(false);
     });
-  }, [allManga]);
+  }, []);
 
-  const filteredAndSortedManga = useMemo(() => {
-    let filtered = allManga.filter(manga => {
-      const genreMatch = selectedGenres.length === 0 || 
-        selectedGenres.some(genre => manga.genres.includes(genre));
-      const statusMatch = statusFilter === 'all' || manga.status === statusFilter;
-      return genreMatch && statusMatch;
-    });
-    // Remove duplicates
-    filtered = filtered.filter((manga, index, self) => 
-      index === self.findIndex(m => m.id === manga.id)
-    );
+    const filteredManga = useMemo(() => {
+    let filtered = allManga;
+
+    // Filter by genres
+    if (selectedGenres.length > 0) {
+      filtered = filtered.filter(manga =>
+        selectedGenres.some(genre => manga.genres.includes(genre))
+      );
+    }
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(manga => manga.status.toLowerCase() === statusFilter);
+    }
+
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'rating':
-          return b.rating - a.rating;
-        case 'views':
-          return b.views - a.views;
-        case 'chapters':
-          return b.chapters - a.chapters;
         case 'title':
           return a.title.localeCompare(b.title);
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
+        case 'views':
+          return (b.views || 0) - (a.views || 0);
+        case 'chapters':
+          return (b.chapters || 0) - (a.chapters || 0);
         case 'latest':
-          return new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime();
+          // Sort by last update if available, otherwise by rating
+          if (a.lastUpdate && b.lastUpdate) {
+            return new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime();
+          }
+          return (b.rating || 0) - (a.rating || 0);
         default:
           return 0;
       }
     });
-    // Add real chapter count to each manga
-    return filtered.map(manga => ({ ...manga, chapters: chapterCounts[manga.id] ?? manga.chapters }));
-  }, [allManga, selectedGenres, statusFilter, sortBy, chapterCounts]);
+
+    return filtered;
+  }, [allManga, selectedGenres, statusFilter, sortBy]);
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev => 
@@ -120,17 +169,17 @@ const Browse = () => {
                 ))}
               </div>
             )}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
               {genres.map(genre => (
                 <Button
                   key={genre}
                   variant={selectedGenres.includes(genre) ? "default" : "outline"}
                   size="sm"
                   onClick={() => toggleGenre(genre)}
-                  className={selectedGenres.includes(genre) 
+                  className={`text-xs sm:text-sm ${selectedGenres.includes(genre) 
                     ? "bg-orange-500 hover:bg-orange-600 text-white" 
                     : "border-gray-600 text-gray-400 hover:text-white hover:border-gray-400"
-                  }
+                  }`}
                 >
                   {genre}
                 </Button>
@@ -138,7 +187,7 @@ const Browse = () => {
             </div>
           </div>
           {/* Sort and Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-white mb-2">Sort by</label>
               <Select value={sortBy} onValueChange={setSortBy}>
@@ -172,29 +221,37 @@ const Browse = () => {
         </div>
 
         {/* Results */}
-        <div className="mb-6">
-          <p className="text-gray-400">
-            Showing {filteredAndSortedManga.length} results
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
-          {filteredAndSortedManga.map(manga => (
-            <MangaCard key={manga.id} manga={manga} size="medium" />
-          ))}
-        </div>
-
-        {filteredAndSortedManga.length === 0 && (
+        {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">No manga found matching your criteria.</p>
-            <Button
-              variant="outline"
-              className="mt-4 border-gray-600 text-gray-400 hover:text-white hover:border-gray-400"
-              onClick={clearGenres}
-            >
-              Clear Filters
-            </Button>
+            <div className="text-white text-lg">Loading manga...</div>
           </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <p className="text-gray-400">
+                Showing {filteredManga.length} results
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-12">
+              {filteredManga.map(manga => (
+                <MangaCard key={manga.id} manga={manga} size="medium" />
+              ))}
+            </div>
+
+            {filteredManga.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No manga found matching your criteria.</p>
+                <Button
+                  variant="outline"
+                  className="mt-4 border-gray-600 text-gray-400 hover:text-white hover:border-gray-400"
+                  onClick={clearGenres}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

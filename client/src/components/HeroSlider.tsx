@@ -184,13 +184,6 @@ const HeroSlider = () => {
       >
         <ChevronRight className="w-6 h-6" />
       </Button>
-
-      {/* Slide number indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full text-sm">
-        <span className="font-semibold text-white">{currentSlide + 1}</span>
-        <span className="text-gray-400">/</span>
-        <span className="text-gray-400">{mangaList.length}</span>
-      </div>
     </div>
   );
 };
