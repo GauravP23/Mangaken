@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express'; // Import RequestHandler
 import * as mangadexService from '../services/mangadexService';
+import axios from 'axios';
 
 // Use RequestHandler type for each controller.
 // req, res, next types will be inferred.
@@ -155,4 +156,36 @@ export const getMangaStatisticsBatchController: RequestHandler = async (req, res
     } catch (error) {
         next(error);
     }
+};
+
+// New: Proxy cover images from MangaDex to avoid hotlink protection
+export const getCoverImageController: RequestHandler = async (req, res, next) => {
+  try {
+    const { id, fileName } = req.params as { id: string; fileName: string };
+    const sizeParam = (req.query.size as string) || '256';
+    const size = ['256', '512'].includes(sizeParam) ? sizeParam : '256';
+    // MangaDex sized cover format: <fileName>.256.jpg (fileName already includes extension)
+    const upstreamUrl = `https://uploads.mangadex.org/covers/${id}/${fileName}.${size}.jpg`;
+
+    const upstream = await axios.get(upstreamUrl, {
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'MangaKen/1.0 (+https://mangaken.netlify.app)',
+        'Referer': 'https://mangadex.org',
+        'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+      },
+      validateStatus: () => true
+    });
+
+    if (!upstream || upstream.status >= 400 || !upstream.data) {
+      res.status(404).end();
+      return;
+    }
+
+    res.setHeader('Content-Type', upstream.headers['content-type'] || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, immutable');
+    upstream.data.pipe(res);
+  } catch (error) {
+    next(error);
+  }
 };

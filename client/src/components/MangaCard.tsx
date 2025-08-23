@@ -41,7 +41,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
     large: 'text-lg'
   };
 
-  const [imgSrc, setImgSrc] = React.useState(uiManga.coverImage || uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover');
+  const [imgSrc, setImgSrc] = React.useState(uiManga.image || uiManga.coverImage || '/placeholder.svg');
   
   // Handle Read Now button click
   const handleReadNow = async (e: React.MouseEvent) => {

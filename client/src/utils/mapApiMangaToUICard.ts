@@ -1,4 +1,5 @@
 import { Manga as ApiManga, UIManga } from '../types';
+import apiClient from '../services/apiClient';
 
 type Relationship = {
   id: string;
@@ -27,7 +28,6 @@ function isUIManga(manga: unknown): manga is UIManga {
 
 export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
   if (isUIManga(manga)) {
-    // UIManga shape
     return {
       ...manga,
       views: manga.follows ?? manga.views ?? 0,
@@ -56,9 +56,9 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
     } else if (coverRel && coverRel.attributes && typeof coverRel.attributes.filename === 'string') {
       coverFileName = coverRel.attributes.filename as string;
     }
-    // Build MangaDex cover URL if possible
+    // Build proxy URL via our backend to avoid hotlink issues
     const image = coverFileName ?
-      `https://uploads.mangadex.org/covers/${apiManga.id}/${coverFileName}.256.jpg` :
+      `/api/manga/cover/${apiManga.id}/${coverFileName}?size=256` :
       '';
     // Extract author name
     let author = '';
@@ -106,6 +106,7 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
       originalTitle: attributes.title,
     };
   }
+
   // Fallback: treat as UIManga
   // Fallback: return a minimal UIManga object with default values
   return {
