@@ -156,8 +156,8 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
     // 4. Extract author from relationships
     let author = '';
     const authorRel = (manga.relationships || []).find(rel => rel.type === 'author');
-    if (authorRel && (authorRel as any).attributes && (authorRel as any).attributes.name) {
-      author = (authorRel as any).attributes.name;
+    if (authorRel && authorRel.attributes && authorRel.attributes.name) {
+      author = authorRel.attributes.name;
     }
 
     // 5. Extract genres/tags
@@ -170,7 +170,7 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
       coverFileName = coverRel.attributes.fileName;
     }
     const coverImage = coverFileName ?
-      `/api/manga/cover/${manga.id}/${coverFileName}?size=512` : '';
+      `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg` : '';
 
     // 7. Build and return complete info object
     return {

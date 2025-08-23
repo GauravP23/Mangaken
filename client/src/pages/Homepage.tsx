@@ -128,7 +128,7 @@ const HomePage: React.FC = () => {
         <div className="main-content-frame">
             <Header />
             <HeroSlider />
-            <div className="px-4 py-8">
+            <div className="px-2 sm:px-4 py-4 sm:py-8">
                 <MangaSection 
                     title="Trending Now" 
                     showViewAll={false}
@@ -138,7 +138,7 @@ const HomePage: React.FC = () => {
                     ) : error.trending ? (
                         <div className="text-center text-red-500 py-8">{error.trending}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                             {trendingManga.slice(0, 12).map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
@@ -169,7 +169,7 @@ const HomePage: React.FC = () => {
                     ) : error.latest ? (
                         <div className="text-center text-red-500 py-8">{error.latest}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                             {latestUpdates.slice(0, 12).map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
@@ -191,7 +191,7 @@ const HomePage: React.FC = () => {
                     ) : error.popular ? (
                         <div className="text-center text-red-500 py-8">{error.popular}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                             {mostViewed.slice(0, 6).map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
@@ -213,7 +213,7 @@ const HomePage: React.FC = () => {
                     ) : error.popular && error.latest && error.trending ? (
                         <div className="text-center text-red-500 py-8">{error.popular || error.latest || error.trending}</div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                             {completedSeries.slice(0, 6).map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 

@@ -82,14 +82,14 @@ const Browse = () => {
   return (
     <div className="main-content-frame bg-gray-950 min-h-screen">
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Browse Manga</h1>
-          <p className="text-gray-400">Discover your next favorite manga</p>
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Browse Manga</h1>
+          <p className="text-gray-400 text-sm sm:text-base">Discover your next favorite manga</p>
         </div>
         {/* Filters */}
-        <div className="bg-gray-900 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Filters</h2>
+        <div className="bg-gray-900 rounded-lg p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Filters</h2>
           {/* Genres */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">

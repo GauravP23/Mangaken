@@ -15,26 +15,6 @@ interface HeroManga {
   chapters: number;
 }
 
-function toProxyCover(url?: string): string | undefined {
-  if (!url) return url;
-  try {
-    if (url.startsWith('http') && url.includes('/uploads.mangadex.org/covers/')) {
-      const u = new URL(url);
-      // pathname like: /covers/<id>/<fileName>.256.jpg or .512.jpg
-      const parts = u.pathname.split('/').filter(Boolean);
-      const idIdx = parts.indexOf('covers') + 1;
-      const id = parts[idIdx];
-      const fileWithSize = parts[idIdx + 1];
-      // fileWithSize = <fileName>.256.jpg  -> need <fileName>
-      const fileName = fileWithSize.replace(/\.(256|512)\.jpg$/i, '');
-      return `/api/manga/cover/${id}/${fileName}?size=512`;
-    }
-  } catch {
-    // ignore URL parsing errors
-  }
-  return url;
-}
-
 const HeroSlider = () => {
   const [mangaList, setMangaList] = useState<HeroManga[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -74,7 +54,6 @@ const HeroSlider = () => {
   }
 
   const currentManga = mangaList[currentSlide];
-  const heroImg = toProxyCover(currentManga.image) || '/placeholder.svg';
 
   function truncateDescription(desc: string, maxLen = 240) {
     if (!desc) return '';
@@ -118,22 +97,22 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[60vh] min-h-[400px] overflow-hidden text-white bg-black w-full group">
+    <div className="relative h-[50vh] sm:h-[60vh] min-h-[350px] sm:min-h-[400px] overflow-hidden text-white bg-black w-full group">
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
-          backgroundImage: `url(${heroImg})`,
+          backgroundImage: `url(${currentManga.image})`,
           filter: 'brightness(0.3) blur(2px)',
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent z-0" />
 
-    <div className="px-8 mx-auto relative z-10 flex items-center justify-between h-full container">
-      <div className="flex flex-col justify-center max-w-xl h-full py-4 md:py-10 overflow-hidden" style={{ marginLeft: '2.5rem' }}>
+    <div className="px-4 sm:px-6 lg:px-8 mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between h-full container">
+      <div className="flex flex-col justify-center w-full md:max-w-xl h-full py-4 md:py-10 overflow-hidden md:ml-10">
         <div className="mb-2 text-gray-300 font-semibold text-sm flex-shrink-0">
           Chapters: {currentManga.chapters || 'N/A'}
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight text-white flex-shrink-0">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 leading-tight text-white flex-shrink-0">
           {currentManga.title}
         </h1>
         <p className="text-gray-300 text-sm md:text-base mb-4 max-w-lg overflow-hidden line-clamp-3">
@@ -141,15 +120,15 @@ const HeroSlider = () => {
         </p>
         <div className="flex flex-wrap gap-2 mb-6 flex-shrink-0">
           {currentManga.genres?.slice(0, 4).map((genre) => (
-            <Badge key={genre} className="bg-gray-800/80 text-gray-300 border-gray-600">
+            <Badge key={genre} className="bg-gray-800/80 text-gray-300 border-gray-600 text-xs">
               {genre}
             </Badge>
           ))}
         </div>
-        <div className="flex gap-3 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
           <Button
             size="default"
-            className="btn-primary px-6 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none"
+            className="btn-primary px-4 sm:px-6 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none w-full sm:w-auto"
             onClick={handleReadNow}
             disabled={loadingReadNow}
           >
@@ -165,7 +144,7 @@ const HeroSlider = () => {
           <Button
             size="default"
             variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800 px-6 py-2 text-sm font-semibold"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-6 py-2 text-sm font-semibold w-full sm:w-auto"
             onClick={handleViewInfo}
           >
             View Info
@@ -173,10 +152,10 @@ const HeroSlider = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-end h-full" style={{ marginRight: '2.5rem' }}>
+      <div className="hidden md:flex items-center justify-end h-full md:mr-10">
         <div className="relative w-32 h-44 md:w-40 md:h-56 rounded-lg shadow-2xl overflow-hidden border-2 border-gray-600 bg-black/80 film-poster">
           <img
-            src={heroImg}
+            src={currentManga.image}
             alt={currentManga.title}
             className="object-cover w-full h-full rounded-lg film-poster-img"
             onError={e => (e.currentTarget.src = '/placeholder.svg')}
@@ -205,6 +184,13 @@ const HeroSlider = () => {
       >
         <ChevronRight className="w-6 h-6" />
       </Button>
+
+      {/* Slide number indicator */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full text-sm">
+        <span className="font-semibold text-white">{currentSlide + 1}</span>
+        <span className="text-gray-400">/</span>
+        <span className="text-gray-400">{mangaList.length}</span>
+      </div>
     </div>
   );
 };

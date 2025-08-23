@@ -36,17 +36,11 @@ app.use(passport.initialize());
 const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI; // This is now guaranteed to be loaded
 
-if (!process.env.CLIENT_URL) {
-    console.warn("WARNING: CLIENT_URL environment variable is not set. Using default localhost:5173");
-}
-
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
-
 app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:5173',
-        CLIENT_URL
+        'https://mangaken.vercel.app' // This line is essential
     ],
     credentials: true
 }));

@@ -15,9 +15,6 @@ router.get('/statistics/batch', mangaController.getMangaStatisticsBatchControlle
 // GET /api/manga/statistics/:id
 router.get('/statistics/:id', mangaController.getMangaStatisticsController);
 
-// Cover image proxy: /api/manga/cover/:id/:fileName.jpg?size=256|512
-router.get('/cover/:id/:fileName', mangaController.getCoverImageController);
-
 // GET /api/manga/:id
 router.get('/:id', mangaController.getMangaDetailsController);
 

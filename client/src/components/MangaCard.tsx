@@ -30,18 +30,18 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
   const navigate = useNavigate();
   const [loadingReadNow, setLoadingReadNow] = React.useState(false);
   const sizeClasses = {
-    small: 'w-32 h-44',
-    medium: 'w-40 h-60',
-    large: 'w-48 h-68'
+    small: 'w-24 h-32 sm:w-28 sm:h-40 md:w-32 md:h-44',
+    medium: 'w-32 h-44 sm:w-36 sm:h-52 md:w-40 md:h-60',
+    large: 'w-36 h-52 sm:w-44 sm:h-60 md:w-48 md:h-68'
   };
 
   const textSizes = {
-    small: 'text-sm',
-    medium: 'text-base',
-    large: 'text-lg'
+    small: 'text-xs sm:text-sm',
+    medium: 'text-sm sm:text-base',
+    large: 'text-base sm:text-lg'
   };
 
-  const [imgSrc, setImgSrc] = React.useState(uiManga.image || uiManga.coverImage || '/placeholder.svg');
+  const [imgSrc, setImgSrc] = React.useState(uiManga.coverImage || uiManga.image || 'https://placehold.co/400x600?text=Manga+Cover');
   
   // Handle Read Now button click
   const handleReadNow = async (e: React.MouseEvent) => {
@@ -109,24 +109,25 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3">
             {/* Action Buttons in Center - Stacked vertically */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-3 z-10">
               <Button
                 size="sm"
-                className="btn-primary-cta font-semibold shadow-lg shadow-primary/50 transition-transform hover:scale-105 w-28"
+                className="btn-primary-cta font-semibold shadow-lg shadow-primary/50 transition-transform hover:scale-105 w-20 sm:w-24 md:w-28 text-xs sm:text-sm"
                 onClick={handleReadNow}
                 disabled={loadingReadNow}
               >
                 {loadingReadNow ? 'Loading...' : (
                   <>
                     <ReadIcon className="w-3 h-3 mr-1" />
-                    Read Now
+                    <span className="hidden sm:inline">Read Now</span>
+                    <span className="sm:hidden">Read</span>
                   </>
                 )}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="border-border text-secondary hover:bg-muted font-semibold shadow-lg shadow-secondary/20 transition-transform hover:scale-105 w-28"
+                className="border-border text-secondary hover:bg-muted font-semibold shadow-lg shadow-secondary/20 transition-transform hover:scale-105 w-20 sm:w-24 md:w-28 text-xs sm:text-sm"
                 onClick={handleViewInfo}
               >
                 <Info className="w-3 h-3 mr-1" />
