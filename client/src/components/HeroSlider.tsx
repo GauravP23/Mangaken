@@ -15,6 +15,26 @@ interface HeroManga {
   chapters: number;
 }
 
+function toProxyCover(url?: string): string | undefined {
+  if (!url) return url;
+  try {
+    if (url.startsWith('http') && url.includes('/uploads.mangadex.org/covers/')) {
+      const u = new URL(url);
+      // pathname like: /covers/<id>/<fileName>.256.jpg or .512.jpg
+      const parts = u.pathname.split('/').filter(Boolean);
+      const idIdx = parts.indexOf('covers') + 1;
+      const id = parts[idIdx];
+      const fileWithSize = parts[idIdx + 1];
+      // fileWithSize = <fileName>.256.jpg  -> need <fileName>
+      const fileName = fileWithSize.replace(/\.(256|512)\.jpg$/i, '');
+      return `/api/manga/cover/${id}/${fileName}?size=512`;
+    }
+  } catch {
+    // ignore URL parsing errors
+  }
+  return url;
+}
+
 const HeroSlider = () => {
   const [mangaList, setMangaList] = useState<HeroManga[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -54,6 +74,7 @@ const HeroSlider = () => {
   }
 
   const currentManga = mangaList[currentSlide];
+  const heroImg = toProxyCover(currentManga.image) || '/placeholder.svg';
 
   function truncateDescription(desc: string, maxLen = 240) {
     if (!desc) return '';
@@ -101,7 +122,7 @@ const HeroSlider = () => {
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
-          backgroundImage: `url(${currentManga.image})`,
+          backgroundImage: `url(${heroImg})`,
           filter: 'brightness(0.3) blur(2px)',
         }}
       />
@@ -155,7 +176,7 @@ const HeroSlider = () => {
       <div className="flex items-center justify-end h-full" style={{ marginRight: '2.5rem' }}>
         <div className="relative w-32 h-44 md:w-40 md:h-56 rounded-lg shadow-2xl overflow-hidden border-2 border-gray-600 bg-black/80 film-poster">
           <img
-            src={currentManga.image}
+            src={heroImg}
             alt={currentManga.title}
             className="object-cover w-full h-full rounded-lg film-poster-img"
             onError={e => (e.currentTarget.src = '/placeholder.svg')}

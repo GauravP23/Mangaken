@@ -14,12 +14,12 @@ export function mapApiMangaToUICard(manga: Manga): UIManga {
   const title = manga.attributes.title.en || Object.values(manga.attributes.title)[0] || '';
   // Description
   const description = manga.attributes.description.en || Object.values(manga.attributes.description)[0] || '';
-  // Cover image
+  // Cover image via proxy
   let cover = '';
   const coverRel = manga.relationships?.find(r => r.type === 'cover_art');
   if (coverRel && coverRel.attributes && (coverRel.attributes as any).fileName) {
-    const fileName = (coverRel.attributes as any).fileName;
-    cover = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
+    const fileName = (coverRel.attributes as any).fileName as string;
+    cover = `/api/manga/cover/${manga.id}/${fileName}?size=512`;
   }
   // Genres/tags
   const genres = manga.attributes.tags.map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || '');

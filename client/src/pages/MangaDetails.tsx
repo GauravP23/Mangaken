@@ -8,6 +8,24 @@ import Footer from '../components/Footer';
 import { getCompleteMangaInfo } from '../services/mangaApi';
 import { UIManga } from '../types';
 
+function toProxyCover(url?: string): string | undefined {
+  if (!url) return url;
+  try {
+    if (url.startsWith('http') && url.includes('/uploads.mangadex.org/covers/')) {
+      const u = new URL(url);
+      const parts = u.pathname.split('/').filter(Boolean);
+      const idIdx = parts.indexOf('covers') + 1;
+      const id = parts[idIdx];
+      const fileWithSize = parts[idIdx + 1];
+      const fileName = fileWithSize.replace(/\.(256|512)\.jpg$/i, '');
+      return `/api/manga/cover/${id}/${fileName}?size=512`;
+    }
+  } catch {
+    // ignore
+  }
+  return url;
+}
+
 const MangaDetail = () => {
   const { id } = useParams();
   const [manga, setManga] = useState<UIManga | null>(null);
@@ -72,9 +90,10 @@ const MangaDetail = () => {
             {/* Cover Image */}
             <div className="lg:col-span-1">
               <img
-                src={manga.coverImage || manga.image || '/placeholder.svg'}
+                src={toProxyCover(manga.image) || manga.coverImage || '/placeholder.svg'}
                 alt={manga.title}
                 className="w-full max-w-sm mx-auto rounded-lg shadow-2xl"
+                onError={(e) => (e.currentTarget.src = '/placeholder.svg')}
               />
             </div>
             {/* Manga Info */}
