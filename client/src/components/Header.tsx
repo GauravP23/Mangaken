@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Grid3X3, Star, TrendingUp } from 'lucide-react';
+import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
@@ -197,83 +197,86 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border space-y-1">
-            {/* Main Navigation */}
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50 py-3 w-full text-left"
-                onClick={() => {
-                  handleGenres();
-                  setIsMenuOpen(false);
-                }}
-              >
-                <Grid3X3 className="h-4 w-4 mr-3" />
-                Browse Genres
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50 py-3 w-full text-left"
-                onClick={() => {
-                  handleNew();
-                  setIsMenuOpen(false);
-                }}
-              >
-                <Star className="h-4 w-4 mr-3" />
-                New Releases
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50 py-3 w-full text-left"
-                onClick={() => {
-                  handleOngoing();
-                  setIsMenuOpen(false);
-                }}
-              >
-                <TrendingUp className="h-4 w-4 mr-3" />
-                Ongoing Series
-              </Button>
-            </div>
+          <div className="lg:hidden py-4 border-t border-border">
+            {/* Mobile Search */}
+            <form onSubmit={handleSearch} className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search manga..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-full"
+                />
+              </div>
+            </form>
 
-            {/* Auth Section */}
-            <div className="pt-3 border-t border-border">
-              {user ? (
-                <Button
-                  variant="ghost"
-                  className="justify-start text-clickable hover:text-primary hover:bg-muted/50 py-3 w-full text-left"
-                  onClick={() => {
-                    logout();
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Logout
-                </Button>
-              ) : (
-                <div className="space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="justify-start text-clickable hover:text-primary hover:bg-muted/50 py-3 w-full text-left"
-                    onClick={() => {
-                      navigate('/login');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    className="btn-primary-cta py-3 w-full"
-                    onClick={() => {
-                      navigate('/register');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    Sign Up
-                  </Button>
-                </div>
-              )}
-            </div>
+            {/* Mobile Navigation */}
+            <nav className="flex flex-col space-y-2">
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                FILTER
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Grid3X3 className="h-4 w-4 mr-2" />
+                GENRES
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Shuffle className="h-4 w-4 mr-2" />
+                TYPES
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                NEW RELEASES
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Clock className="h-4 w-4 mr-2" />
+                UPDATES
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                ONGOING
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                RECENT
+              </Button>
+            </nav>
           </div>
         )}
       </div>
