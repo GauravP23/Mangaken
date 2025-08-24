@@ -56,9 +56,9 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
     } else if (coverRel && coverRel.attributes && typeof coverRel.attributes.filename === 'string') {
       coverFileName = coverRel.attributes.filename as string;
     }
-    // Build MangaDex cover URL if possible
+    // Build proxy cover URL using backend route to avoid hotlinking
     const image = coverFileName ?
-      `https://uploads.mangadex.org/covers/${apiManga.id}/${coverFileName}.256.jpg` :
+      `/api/manga/cover/${apiManga.id}/${encodeURIComponent(coverFileName)}?size=256` :
       '';
     // Extract author name
     let author = '';

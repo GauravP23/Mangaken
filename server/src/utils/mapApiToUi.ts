@@ -19,7 +19,8 @@ export function mapApiMangaToUICard(manga: Manga): UIManga {
   const coverRel = manga.relationships?.find(r => r.type === 'cover_art');
   if (coverRel && coverRel.attributes && (coverRel.attributes as any).fileName) {
     const fileName = (coverRel.attributes as any).fileName;
-    cover = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
+    // Use backend proxy to avoid hotlinking issues
+    cover = `/api/manga/cover/${manga.id}/${encodeURIComponent(fileName)}?size=256`;
   }
   // Genres/tags
   const genres = manga.attributes.tags.map(tag => tag.attributes.name.en || Object.values(tag.attributes.name)[0] || '');

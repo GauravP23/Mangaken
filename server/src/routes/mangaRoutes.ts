@@ -15,6 +15,9 @@ router.get('/statistics/batch', mangaController.getMangaStatisticsBatchControlle
 // GET /api/manga/statistics/:id
 router.get('/statistics/:id', mangaController.getMangaStatisticsController);
 
+// New: cover proxy - must be defined before '/:id' to avoid being treated as manga id
+router.get('/cover/:id/:fileName', mangaController.getCoverProxyController);
+
 // GET /api/manga/:id
 router.get('/:id', mangaController.getMangaDetailsController);
 

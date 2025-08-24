@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -72,8 +71,9 @@ return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
           {results.map((manga) => {
             const coverRel = manga.relationships?.find((r: Relationship) => r.type === 'cover_art');
-            const image = coverRel?.attributes && (coverRel.attributes as { fileName?: string }).fileName
-              ? `/api/manga/cover/${manga.id}/${(coverRel.attributes as { fileName: string }).fileName}`
+            const coverFileName = (coverRel?.attributes as { fileName?: string })?.fileName;
+            const image = coverFileName
+              ? `/api/manga/cover/${manga.id}/${encodeURIComponent(coverFileName)}?size=256`
               : '/placeholder.svg';
             const title = manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title';
             const description = manga.attributes?.description?.en || Object.values(manga.attributes?.description || {})[0] || '';

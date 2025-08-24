@@ -170,7 +170,7 @@ export const getCompleteMangaInfo = async (mangaId: string, languages: string[] 
       coverFileName = coverRel.attributes.fileName;
     }
     const coverImage = coverFileName ?
-      `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg` : '';
+      `/api/manga/cover/${manga.id}/${encodeURIComponent(coverFileName)}?size=256` : '';
 
     // 7. Build and return complete info object
     return {

@@ -1,5 +1,7 @@
 import { RequestHandler } from 'express'; // Import RequestHandler
 import * as mangadexService from '../services/mangadexService';
+import axios from 'axios';
+import path from 'path';
 
 // Use RequestHandler type for each controller.
 // req, res, next types will be inferred.
@@ -75,6 +77,47 @@ export const getChapterPagesController: RequestHandler = async (req, res, next) 
     } catch (error) {
         next(error);
     }
+};
+
+// New: Cover proxy controller to avoid hotlinking issues
+export const getCoverProxyController: RequestHandler = async (req, res, next) => {
+  try {
+    const { id, fileName } = req.params;
+    const size = (req.query.size as string) || '';
+    if (!id || !fileName) {
+      res.status(400).json({ message: 'Cover id and fileName are required' });
+      return;
+    }
+
+    // Try size-specific variant first (e.g. fileName.256.jpg), then fallback to fileName.jpg
+    const candidates: string[] = [];
+    if (size) {
+      candidates.push(`https://uploads.mangadex.org/covers/${id}/${encodeURIComponent(fileName)}.${encodeURIComponent(size)}.jpg`);
+    }
+    candidates.push(`https://uploads.mangadex.org/covers/${id}/${encodeURIComponent(fileName)}.jpg`);
+
+    let fetched = null as any;
+    for (const url of candidates) {
+      try {
+        fetched = await axios.get(url, { responseType: 'stream', timeout: 10000 });
+        if (fetched && fetched.status === 200) {
+          // Stream response to client
+          res.setHeader('Content-Type', fetched.headers['content-type'] || 'image/jpeg');
+          // Cache for 1 day
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          fetched.data.pipe(res);
+          return;
+        }
+      } catch (err) {
+        // try next
+      }
+    }
+
+    // If none found, redirect to placeholder served by client
+    res.redirect('/placeholder.svg');
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const listMangaController: RequestHandler = async (req, res, next) => {

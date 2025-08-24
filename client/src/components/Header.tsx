@@ -110,7 +110,16 @@ const Header: React.FC = () => {
                       className="px-4 py-2 hover:bg-muted cursor-pointer flex items-center gap-3"
                       onMouseDown={() => handleResultClick(manga.id)}
                     >
-                      <img src={manga.relationships?.find(r => r.type === 'cover_art')?.attributes?.fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${manga.relationships.find(r => r.type === 'cover_art').attributes.fileName}.256.jpg` : '/placeholder.svg'} alt={manga.attributes?.title?.en || 'No Title'} className="w-8 h-12 object-cover rounded shadow" />
+                      {/* Use backend proxy to avoid hotlinking */}
+                      <img
+                        src={
+                          manga.relationships?.find(r => r.type === 'cover_art')?.attributes?.fileName
+                            ? `/api/manga/cover/${manga.id}/${encodeURIComponent(manga.relationships.find(r => r.type === 'cover_art').attributes.fileName)}?size=256`
+                            : '/placeholder.svg'
+                        }
+                        alt={manga.attributes?.title?.en || 'No Title'}
+                        className="w-8 h-12 object-cover rounded shadow"
+                      />
                       <span className="text-primary-white font-medium line-clamp-1">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
                     </div>
                   ))}
