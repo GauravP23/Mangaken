@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { searchManga, getMangaFeed } from '../services/mangadexService';
+import { searchManga } from '../services/mangadexService';
 import { mapApiMangaToUICard } from '../utils';
 
 const router = express.Router();
@@ -28,34 +28,54 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      if (cachedHero && Date.now() - cacheTimestamp < CACHE_TTL) {
+      // If cache is valid, serve it immediately
+      const now = Date.now();
+      const cacheValid = cachedHero && now - cacheTimestamp < CACHE_TTL;
+      if (cacheValid && cachedHero) {
+        res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
         res.json(cachedHero);
         return;
       }
-      const list = await Promise.all(
-        HERO_TITLES.map(async (title) => {
-          try {
-            const searchRes = await searchManga(title, 1, 0);
-            const manga = searchRes.data[0];
-            if (!manga) return null;
-            const ui = mapApiMangaToUICard(manga);
-            // Use a lighter approach - just get first page of chapters for count estimation
+
+      // Try to rebuild cache
+      try {
+        const list = await Promise.all(
+          HERO_TITLES.map(async (title) => {
             try {
-              const feedResult = await getMangaFeed(ui.id, ['en'], 100, 0);
-              const estimatedCount = feedResult.total || feedResult.data?.length || 0;
-              return { ...ui, chapters: estimatedCount };
-            } catch {
+              const searchRes = await searchManga(title, 1, 0);
+              const manga = searchRes.data[0];
+              if (!manga) return null;
+              const ui = mapApiMangaToUICard(manga);
+              // Avoid extra feed calls here to reduce upstream load; set chapters to 0 (client can fetch when needed)
               return { ...ui, chapters: 0 };
+            } catch (error) {
+              console.warn(`Failed to fetch hero manga: ${title}`, error);
+              return null;
             }
-          } catch (error) {
-            console.warn(`Failed to fetch hero manga: ${title}`, error);
-            return null;
-          }
-        })
-      );
-      cachedHero = list.filter(Boolean);
-      cacheTimestamp = Date.now();
-      res.json(cachedHero);
+          })
+        );
+        const built = list.filter(Boolean) as any[];
+        if (built.length) {
+          cachedHero = built;
+          cacheTimestamp = now;
+          res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+          res.json(cachedHero);
+          return;
+        }
+        // If build resulted in empty, fall through to serve stale if available
+      } catch (e) {
+        // Rebuild failed; fall back to stale if present
+      }
+
+      if (cachedHero) {
+        // Serve stale cache if we have it
+        res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=600');
+        res.json(cachedHero);
+        return;
+      }
+
+      // No cache available and build failed
+      res.status(503).json({ message: 'Hero content temporarily unavailable' });
     } catch (error) {
       next(error);
     }

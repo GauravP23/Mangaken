@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount } from '../services/mangaApi';
+import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount, getMangaStatisticsBatch } from '../services/mangaApi';
 import { Star, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import axios from 'axios';
@@ -17,37 +17,49 @@ const SearchResultsPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const controller = new AbortController();
     if (!query) return;
     setLoading(true);
     setError('');
-    searchManga(query, 30, 0)
+    searchManga(query, 30, 0, controller.signal)
       .then(async (data) => {
-        // For each manga, fetch chapter count and author
+        // Derive chapters quickly from lastChapter when available to avoid heavy pagination calls
+        const ids = data.map(m => m.id);
+        const stats = await getMangaStatisticsBatch(ids);
         const withDetails = await Promise.all(
           data.map(async (manga: Manga) => {
+            // Chapters: quick derive from attributes.lastChapter, fallback to count API for missing
             let chapters = 0;
-            let author = '';
-            let follows = 0;
-            let rating = 0;
-            try {
-              chapters = await getMangaChapterCount(manga.id);
-            } catch (err) {
-              console.error('Error fetching chapter count:', err);
-            }
-            try {
-              const details = await getMangaDetails(manga.id);
-              const authorRel = details.relationships?.find((r: Relationship) => r.type === 'author');
-              author = (authorRel?.attributes as { name?: string })?.name || '';
-              // Fetch statistics for rating and follows
-              const statsRes = await axios.get(`/api/manga/statistics/${manga.id}`);
-              if (statsRes.data && statsRes.data.statistics && statsRes.data.statistics[manga.id]) {
-                const stat = statsRes.data.statistics[manga.id];
-                rating = typeof stat.rating === 'object' ? (stat.rating.bayesian ?? stat.rating.average ?? 0) : stat.rating ?? 0;
-                follows = stat.follows ?? 0;
+            const last = (manga.attributes as { lastChapter?: string })?.lastChapter;
+            if (last) {
+              const parsed = parseFloat(String(last));
+              chapters = isNaN(parsed) ? 0 : Math.floor(parsed);
+            } else {
+              try {
+                chapters = await getMangaChapterCount(manga.id);
+              } catch (err) {
+                // ignore
               }
-            } catch (err) {
-              console.error('Error fetching manga details or stats:', err);
             }
+
+            // Author: try from relationships of the search result itself
+            let author = '';
+            const authorRel = manga.relationships?.find((r: Relationship) => r.type === 'author');
+            if (authorRel && authorRel.attributes && typeof (authorRel.attributes as { name?: unknown }).name === 'string') {
+              author = (authorRel.attributes as { name?: string }).name || '';
+            } else {
+              try {
+                const details = await getMangaDetails(manga.id);
+                const aRel = details.relationships?.find((r: Relationship) => r.type === 'author');
+                author = (aRel?.attributes as { name?: string })?.name || '';
+              } catch (err) {
+                // ignore
+              }
+            }
+
+            const s: { rating: number; follows: number } | undefined = (stats as Record<string, { rating: number; follows: number }>)[manga.id];
+            const rating = s ? (typeof s.rating === 'number' ? s.rating : 0) : 0;
+            const follows = s ? (typeof s.follows === 'number' ? s.follows : 0) : 0;
             return { ...manga, chapters, author, rating, follows };
           })
         );
@@ -55,6 +67,7 @@ const SearchResultsPage: React.FC = () => {
       })
       .catch(() => setError('Failed to fetch search results.'))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [query]);
 
 return (

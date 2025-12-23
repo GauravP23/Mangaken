@@ -56,7 +56,7 @@ export interface UIManga {
     image: string;
     genres: string[];
     rating: number;
-    status: 'ongoing' | 'completed' | string;
+    status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | string;
     chapters: number;
     views: number;
     author: string;
@@ -64,6 +64,36 @@ export interface UIManga {
     type?: string;
     follows?: number;
     totalChapters?: number;
-    coverImage?: string; // Add coverImage to UIManga type
-    originalTitle?: { [lang: string]: string }; // Store original title data for alternative displays
+    coverImage?: string;
+    originalTitle?: { [lang: string]: string };
+    // Additional metadata
+    year?: number | null;
+    contentRating?: string;
+    demographic?: string;
+    japaneseTitle?: string;
+}
+
+// Hybrid API Types (AniList + MangaDex combined)
+export interface EnhancedTrendingManga {
+    mangadexId: string;
+    anilistId: number;
+    title: string;
+    coverImage: string;
+    averageScore: number | null;
+    popularity: number | null;
+    trending: number | null;
+    genres: string[];
+    status: string;
+    format: string;
+}
+
+export interface EnhancedRecommendation {
+    mangadexId: string;
+    anilistId: number;
+    title: string;
+    coverImage: string;
+    averageScore: number | null;
+    popularity: number | null;
+    genres: string[];
+    rating: number;
 }

@@ -21,7 +21,17 @@ export const searchMangaController: RequestHandler = async (req, res, next) => {
             res.status(400).json({ message: 'Title query parameter is required' });
             return;
         }
+        // Simple cache to reduce repeated identical searches across users
+        const key = `q=${title}&limit=${limit}&offset=${offset}`;
+        const now = Date.now();
+        const cached = searchCache.get(key);
+        if (cached && now - cached.timestamp < SEARCH_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
         const data = await mangadexService.searchManga(title, limit, offset);
+        searchCache.set(key, { data, timestamp: now });
         res.json(data);
     } catch (error) {
         next(error); // Pass error to the error handling middleware
@@ -150,6 +160,9 @@ export const getCompleteMangaInfoController: RequestHandler = async (req, res, n
 // Simple in-memory cache for statistics
 const statsCache = new Map<string, { data: any; timestamp: number }>();
 const STATS_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+// Cache for search results
+const searchCache = new Map<string, { data: any; timestamp: number }>();
+const SEARCH_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export const getMangaStatisticsController: RequestHandler = async (req, res, next) => {
     try {
@@ -194,6 +207,94 @@ export const getMangaStatisticsBatchController: RequestHandler = async (req, res
         }
 
         const data = await mangadexService.getMangaStatisticsBatch(ids);
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Cache for categorized manga lists
+const categoryCache = new Map<string, { data: unknown; timestamp: number }>();
+const CATEGORY_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+// New: Get completed manga
+export const getCompletedMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+        const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+        
+        const cacheKey = `completed-${limit}-${offset}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getCompletedManga(limit, offset);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New: Get trending manga (recently updated popular manga)
+export const getTrendingMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+        const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+        
+        const cacheKey = `trending-${limit}-${offset}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getTrendingManga(limit, offset);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New: Get most viewed manga
+export const getMostViewedMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+        const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+        
+        const cacheKey = `mostviewed-${limit}-${offset}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getMostViewedManga(limit, offset);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New: Get latest manga
+export const getLatestMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+        const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+        
+        const cacheKey = `latest-${limit}-${offset}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getLatestManga(limit, offset);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
         res.json(data);
     } catch (error) {
         next(error);

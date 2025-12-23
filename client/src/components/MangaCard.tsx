@@ -85,13 +85,19 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110`}
             onError={() => setImgSrc('/placeholder.svg')}
           />
-            {/* Status Badge - Updated to match reference images */}
+            {/* Status Badge - Updated to show different statuses */}
           <Badge 
-            className={`absolute top-0 right-0 rounded-bl-md rounded-tr-md px-3 py-1 ${
-              uiManga.status === 'completed' ? 'bg-secondary' : 'bg-primary'
-            } text-foreground text-xs font-medium`}
+            className={`absolute top-0 right-0 rounded-bl-md rounded-tr-md px-3 py-1 text-foreground text-xs font-medium ${
+              uiManga.status === 'completed' ? 'bg-emerald-600' : 
+              uiManga.status === 'hiatus' ? 'bg-amber-600' :
+              uiManga.status === 'cancelled' ? 'bg-red-600' :
+              'bg-primary'
+            }`}
           >
-            {uiManga.status === 'completed' ? 'Complete' : 'Ongoing'}
+            {uiManga.status === 'completed' ? 'Complete' : 
+             uiManga.status === 'hiatus' ? 'Hiatus' :
+             uiManga.status === 'cancelled' ? 'Cancelled' :
+             'Ongoing'}
           </Badge>
           
           {/* Language Badge - Similar to second reference image */}
@@ -156,9 +162,18 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
         <h3 className={`${textSizes[size]} font-semibold text-primary-white line-clamp-2 transition-colors`}>
           {uiManga.title}
         </h3>
-        <div className="text-xs text-secondary-gray">
-          {uiManga.genres.slice(0, 3).join(', ')}
+        <div className="flex items-center gap-2 text-xs text-secondary-gray">
+          {uiManga.year && (
+            <span className="text-primary/80">{uiManga.year}</span>
+          )}
+          {uiManga.year && uiManga.genres.length > 0 && <span>•</span>}
+          <span className="line-clamp-1">{uiManga.genres.slice(0, 3).join(', ')}</span>
         </div>
+        {uiManga.author && (
+          <div className="text-xs text-muted-foreground line-clamp-1">
+            by {uiManga.author}
+          </div>
+        )}
       </div>
     </div>
   );

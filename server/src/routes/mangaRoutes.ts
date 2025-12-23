@@ -15,6 +15,19 @@ router.get('/statistics/batch', mangaController.getMangaStatisticsBatchControlle
 // GET /api/manga/statistics/:id
 router.get('/statistics/:id', mangaController.getMangaStatisticsController);
 
+// New categorized endpoints - must be before '/:id' to avoid being treated as manga id
+// GET /api/manga/completed?limit=20&offset=0
+router.get('/completed', mangaController.getCompletedMangaController);
+
+// GET /api/manga/trending?limit=20&offset=0
+router.get('/trending', mangaController.getTrendingMangaController);
+
+// GET /api/manga/most-viewed?limit=20&offset=0
+router.get('/most-viewed', mangaController.getMostViewedMangaController);
+
+// GET /api/manga/latest?limit=20&offset=0
+router.get('/latest', mangaController.getLatestMangaController);
+
 // New: cover proxy - must be defined before '/:id' to avoid being treated as manga id
 router.get('/cover/:id/:fileName', mangaController.getCoverProxyController);
 

@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Home, List, Settings, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
-console.log('Button component:', Button);
 import { getChapterPages, getMangaFeed } from '../services/mangaApi';
-import { AtHomeServerResponse } from '../types';
+import { AtHomeServerResponse, Chapter } from '../types';
 import './ChapterReaderPage.css';
 
 // Helper type for local UI state
@@ -25,8 +24,8 @@ const ChapterReaderPage: React.FC = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [readingMode, setReadingMode] = useState<'long-strip' | 'single-page'>('long-strip');
     const [showControls, setShowControls] = useState(true);
-    const [chapterList, setChapterList] = useState<any[]>([]);
-    const [selectedChapter, setSelectedChapter] = useState<any>(null);
+    const [chapterList, setChapterList] = useState<Chapter[]>([]);
+    const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
     const [showBottomBar, setShowBottomBar] = useState(false);
     const bottomBarTimeout = useRef<NodeJS.Timeout | null>(null);
     const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
@@ -64,17 +63,12 @@ const ChapterReaderPage: React.FC = () => {
         console.log('Fetching pages for chapter:', selectedChapter.id);
         getChapterPages(selectedChapter.id)
             .then(data => {
-                // Always use English manga/chapter title if available
-                let title = '';
-                if (selectedChapter.attributes?.title) {
-                  if (typeof selectedChapter.attributes.title === 'object') {
-                    title = selectedChapter.attributes.title['en'] || Object.values(selectedChapter.attributes.title)[0] || '';
-                  } else {
-                    title = selectedChapter.attributes.title;
-                  }
-                } else {
-                  title = `Chapter ${selectedChapter.attributes?.chapter || ''}`;
-                }
+                                // Derive a safe, readable title. Chapter.attributes.title is a string or null per API.
+                                const rawTitle = selectedChapter.attributes?.title ?? null;
+                                const chapterNumber = selectedChapter.attributes?.chapter;
+                                const title = (typeof rawTitle === 'string' && rawTitle.trim().length > 0)
+                                    ? rawTitle.trim()
+                                    : (chapterNumber ? `Chapter ${chapterNumber}` : 'Chapter');
                 setServerInfo({
                   ...data,
                   mangaId: mangaId || '',
@@ -94,7 +88,7 @@ const ChapterReaderPage: React.FC = () => {
                 setError("Could not load chapter pages.");
             })
             .finally(() => setLoading(false));
-    }, [selectedChapter]);
+    }, [selectedChapter, chapterList.length, mangaId]);
 
     // Keyboard navigation for single page mode
     useEffect(() => {

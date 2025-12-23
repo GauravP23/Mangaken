@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import HeroSlider from '../components/HeroSlider';
@@ -7,11 +7,17 @@ import MangaCard from '../components/MangaCard';
 import { mapApiMangaToUICard } from '../utils';
 import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
-import { getLatestManga, getPopularManga, getMangaStatisticsBatch } from '../services/mangaApi';
+import { 
+    getLatestManga, 
+    getTrendingManga, 
+    getCompletedManga, 
+    getMostViewedManga,
+    getMangaStatisticsBatch 
+} from '../services/mangaApi';
 import { Manga, UIManga } from '../types';
 
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 // Helper function to enhance manga data with batch statistics for the provided list
 const enhanceMangaWithBatchStats = async (mangaList: Manga[]): Promise<UIManga[]> => {
@@ -37,9 +43,9 @@ const enhanceMangaWithBatchStats = async (mangaList: Manga[]): Promise<UIManga[]
     }
 };
 
-// Utility to deduplicate manga by id, works for any object with an id
-function uniqueManga<T extends { id: string }>(mangaList: T[]): T[] {
-    const seen = new Set<string>();
+// Global deduplication: removes manga IDs that exist in excludeIds set
+function deduplicateManga<T extends { id: string }>(mangaList: T[], excludeIds: Set<string>): T[] {
+    const seen = new Set<string>(excludeIds);
     return mangaList.filter((manga) => {
         if (seen.has(manga.id)) return false;
         seen.add(manga.id);
@@ -49,50 +55,30 @@ function uniqueManga<T extends { id: string }>(mangaList: T[]): T[] {
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
-    const [latestManga, setLatestManga] = useState<UIManga[]>([]);
-    const [popularManga, setPopularManga] = useState<UIManga[]>([]);
+    
+    // Separate state for each category
     const [trendingManga, setTrendingManga] = useState<UIManga[]>([]);
+    const [latestManga, setLatestManga] = useState<UIManga[]>([]);
+    const [mostViewedManga, setMostViewedManga] = useState<UIManga[]>([]);
+    const [completedManga, setCompletedManga] = useState<UIManga[]>([]);
+    
     const [loading, setLoading] = useState({
-        latest: true,
-        popular: true,
         trending: true,
+        latest: true,
+        mostViewed: true,
+        completed: true,
     });
     const [error, setError] = useState({
-        latest: '',
-        popular: '',
         trending: '',
+        latest: '',
+        mostViewed: '',
+        completed: '',
     });
-    const [latestPage, setLatestPage] = useState(1);
-    const [popularPage, setPopularPage] = useState(1);
 
-    useEffect(() => {
-        setLoading((l) => ({ ...l, latest: true }));
-        getLatestManga(PAGE_SIZE, (latestPage - 1) * PAGE_SIZE)
-            .then(async (data) => {
-                const withDetails = await enhanceMangaWithBatchStats(data);
-                setLatestManga(withDetails);
-                setError((e) => ({ ...e, latest: '' }));
-            })
-            .catch(() => setError((e) => ({ ...e, latest: 'Failed to load latest manga.' })))
-            .finally(() => setLoading((l) => ({ ...l, latest: false })));
-    }, [latestPage]);
-
-    useEffect(() => {
-        setLoading((l) => ({ ...l, popular: true }));
-        getPopularManga(PAGE_SIZE, (popularPage - 1) * PAGE_SIZE)
-            .then(async (data) => {
-                const withDetails = await enhanceMangaWithBatchStats(data);
-                setPopularManga(withDetails);
-                setError((e) => ({ ...e, popular: '' }));
-            })
-            .catch(() => setError((e) => ({ ...e, popular: 'Failed to load popular manga.' })))
-            .finally(() => setLoading((l) => ({ ...l, popular: false })));
-    }, [popularPage]);
-
-    // For trending, reuse popular as placeholder
+    // Fetch trending manga (recently updated popular series)
     useEffect(() => {
         setLoading((l) => ({ ...l, trending: true }));
-        getPopularManga(PAGE_SIZE, 0)
+        getTrendingManga(PAGE_SIZE, 0)
             .then(async (data) => {
                 const withDetails = await enhanceMangaWithBatchStats(data);
                 setTrendingManga(withDetails);
@@ -100,6 +86,45 @@ const HomePage: React.FC = () => {
             })
             .catch(() => setError((e) => ({ ...e, trending: 'Failed to load trending manga.' })))
             .finally(() => setLoading((l) => ({ ...l, trending: false })));
+    }, []);
+
+    // Fetch latest updates (most recently uploaded chapters)
+    useEffect(() => {
+        setLoading((l) => ({ ...l, latest: true }));
+        getLatestManga(PAGE_SIZE + 6, 0) // Fetch extra to account for deduplication
+            .then(async (data) => {
+                const withDetails = await enhanceMangaWithBatchStats(data);
+                setLatestManga(withDetails);
+                setError((e) => ({ ...e, latest: '' }));
+            })
+            .catch(() => setError((e) => ({ ...e, latest: 'Failed to load latest manga.' })))
+            .finally(() => setLoading((l) => ({ ...l, latest: false })));
+    }, []);
+
+    // Fetch most viewed manga (highest followed count) - use offset to get different results from trending
+    useEffect(() => {
+        setLoading((l) => ({ ...l, mostViewed: true }));
+        getMostViewedManga(PAGE_SIZE + 6, 0) // Different from popular - uses dedicated endpoint
+            .then(async (data) => {
+                const withDetails = await enhanceMangaWithBatchStats(data);
+                setMostViewedManga(withDetails);
+                setError((e) => ({ ...e, mostViewed: '' }));
+            })
+            .catch(() => setError((e) => ({ ...e, mostViewed: 'Failed to load most viewed manga.' })))
+            .finally(() => setLoading((l) => ({ ...l, mostViewed: false })));
+    }, []);
+
+    // Fetch completed manga (status = completed)
+    useEffect(() => {
+        setLoading((l) => ({ ...l, completed: true }));
+        getCompletedManga(PAGE_SIZE + 6, 0) // Uses dedicated completed endpoint
+            .then(async (data) => {
+                const withDetails = await enhanceMangaWithBatchStats(data);
+                setCompletedManga(withDetails);
+                setError((e) => ({ ...e, completed: '' }));
+            })
+            .catch(() => setError((e) => ({ ...e, completed: 'Failed to load completed manga.' })))
+            .finally(() => setLoading((l) => ({ ...l, completed: false })));
     }, []);
 
     const handleGenreClick = (genre: string) => {
@@ -110,19 +135,32 @@ const HomePage: React.FC = () => {
         navigate(`/browse?section=${section}`);
     };
 
-    // Hero Section derives from popular+trending
-    const topRated = popularManga.slice(0, 5);
-    const topTrending = trendingManga.slice(0, 5);
-    const heroMangaList: UIManga[] = [];
-    for (let i = 0; i < 5; i++) {
-        if (topRated[i]) heroMangaList.push(topRated[i]);
-        if (topTrending[i]) heroMangaList.push(topTrending[i]);
-    }
-    const uniqueHeroMangaList = uniqueManga(heroMangaList);
+    // Smart deduplication - each section excludes manga from previous sections
+    const displayTrending = useMemo(() => {
+        return trendingManga.slice(0, 12);
+    }, [trendingManga]);
 
-    const mostViewed: UIManga[] = uniqueManga([...popularManga, ...trendingManga]).slice(0, 6);
-    const completedSeries: UIManga[] = uniqueManga([...popularManga, ...trendingManga, ...latestManga]).slice(0, 6);
-    const latestUpdates: UIManga[] = uniqueManga([...latestManga, ...popularManga, ...trendingManga]).slice(0, 10);
+    const displayLatest = useMemo(() => {
+        const trendingIds = new Set(trendingManga.map(m => m.id));
+        return deduplicateManga(latestManga, trendingIds).slice(0, 12);
+    }, [latestManga, trendingManga]);
+
+    const displayMostViewed = useMemo(() => {
+        const excludeIds = new Set([
+            ...trendingManga.map(m => m.id),
+            ...latestManga.map(m => m.id)
+        ]);
+        return deduplicateManga(mostViewedManga, excludeIds).slice(0, 6);
+    }, [mostViewedManga, trendingManga, latestManga]);
+
+    const displayCompleted = useMemo(() => {
+        const excludeIds = new Set([
+            ...trendingManga.map(m => m.id),
+            ...latestManga.map(m => m.id),
+            ...mostViewedManga.map(m => m.id)
+        ]);
+        return deduplicateManga(completedManga, excludeIds).slice(0, 6);
+    }, [completedManga, trendingManga, latestManga, mostViewedManga]);
 
     return (
         <div className="main-content-frame">
@@ -131,6 +169,7 @@ const HomePage: React.FC = () => {
             <div className="px-2 sm:px-4 py-4 sm:py-8">
                 <MangaSection 
                     title="Trending Now" 
+                    subtitle="Currently hot and recently updated series"
                     showViewAll={false}
                 >
                     {loading.trending ? (
@@ -139,7 +178,7 @@ const HomePage: React.FC = () => {
                         <div className="text-center text-red-500 py-8">{error.trending}</div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {trendingManga.slice(0, 12).map((manga, index) => (
+                            {displayTrending.map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
                                     manga={manga} 
@@ -162,6 +201,7 @@ const HomePage: React.FC = () => {
 
                 <MangaSection 
                     title="Latest Updates"
+                    subtitle="Recently uploaded chapters"
                     showViewAll={false}
                 >
                     {loading.latest ? (
@@ -170,7 +210,7 @@ const HomePage: React.FC = () => {
                         <div className="text-center text-red-500 py-8">{error.latest}</div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {latestUpdates.slice(0, 12).map((manga, index) => (
+                            {displayLatest.map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
                                     manga={manga} 
@@ -184,15 +224,16 @@ const HomePage: React.FC = () => {
 
                 <MangaSection 
                     title="Most Viewed"
+                    subtitle="Popular series with the most followers"
                     onViewAll={() => handleViewAll('popular')}
                 >
-                    {loading.popular ? (
+                    {loading.mostViewed ? (
                         <div className="text-center py-8">Loading...</div>
-                    ) : error.popular ? (
-                        <div className="text-center text-red-500 py-8">{error.popular}</div>
+                    ) : error.mostViewed ? (
+                        <div className="text-center text-red-500 py-8">{error.mostViewed}</div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {mostViewed.slice(0, 6).map((manga, index) => (
+                            {displayMostViewed.map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
                                     manga={manga} 
@@ -206,15 +247,16 @@ const HomePage: React.FC = () => {
 
                 <MangaSection 
                     title="Completed Series"
+                    subtitle="Finished manga you can binge read"
                     onViewAll={() => handleViewAll('completed')}
                 >
-                    {loading.popular && loading.latest && loading.trending ? (
+                    {loading.completed ? (
                         <div className="text-center py-8">Loading...</div>
-                    ) : error.popular && error.latest && error.trending ? (
-                        <div className="text-center text-red-500 py-8">{error.popular || error.latest || error.trending}</div>
+                    ) : error.completed ? (
+                        <div className="text-center text-red-500 py-8">{error.completed}</div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {completedSeries.slice(0, 6).map((manga, index) => (
+                            {displayCompleted.map((manga, index) => (
                                 <MangaCard 
                                     key={manga.id} 
                                     manga={manga} 

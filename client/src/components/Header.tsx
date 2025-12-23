@@ -29,6 +29,7 @@ const Header: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Manga[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -50,8 +51,11 @@ const Header: React.FC = () => {
       return;
     }
     searchTimeout.current = setTimeout(async () => {
+      // cancel previous in-flight request
+      if (abortRef.current) abortRef.current.abort();
+      abortRef.current = new AbortController();
       try {
-        const results = await searchManga(value, 10, 0); // limit 10 for dropdown
+        const results = await searchManga(value, 10, 0, abortRef.current.signal); // limit 10 for dropdown
         setSearchResults(results);
         setShowDropdown(true);
       } catch {

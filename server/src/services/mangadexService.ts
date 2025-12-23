@@ -17,7 +17,9 @@ const apiClient = axios.create({
     }
 });
 
-const limiter = new RateLimiter({ tokensPerInterval: 40, interval: 'second' });
+// MangaDex rate limit: 5 requests per second (per IP)
+// Using a conservative 4 req/sec to be safe
+const limiter = new RateLimiter({ tokensPerInterval: 4, interval: 'second' });
 
 async function removeTokens(total: number) {
   await limiter.removeTokens(total);
@@ -224,16 +226,17 @@ export const getMangaStatisticsBatch = async (ids: string[]) => {
   }
   try {
     await removeTokens(1);
-    const params: any = {};
+    const params: Record<string, string[]> = {};
     // MangaDex expects repeated manga[] params
     params['manga[]'] = ids;
     const response = await apiClient.get(`/statistics/manga`, { params });
     const result: Record<string, { rating: number; follows: number }> = {};
     if (response.data && response.data.statistics) {
-      for (const [id, stats] of Object.entries<any>(response.data.statistics)) {
+      for (const [id, stats] of Object.entries<Record<string, number | { bayesian?: number; average?: number }>>(response.data.statistics)) {
+        const statsTyped = stats as { rating?: number | { bayesian?: number; average?: number }; follows?: number };
         result[id] = {
-          rating: typeof stats.rating === 'object' ? (stats.rating.bayesian ?? stats.rating.average ?? 0) : (stats.rating ?? 0),
-          follows: stats.follows ?? 0,
+          rating: typeof statsTyped.rating === 'object' ? (statsTyped.rating.bayesian ?? statsTyped.rating.average ?? 0) : (statsTyped.rating ?? 0),
+          follows: statsTyped.follows ?? 0,
         };
       }
     }
@@ -241,5 +244,110 @@ export const getMangaStatisticsBatch = async (ids: string[]) => {
   } catch (error) {
     console.error(`Error fetching batch manga statistics for IDs ${ids.join(',')}:`, error);
     return {} as Record<string, { rating: number; follows: number }>;
+  }
+};
+
+/**
+ * Fetches completed manga series (status = completed)
+ * @param limit Number of results to fetch
+ * @param offset Pagination offset
+ */
+export const getCompletedManga = async (limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {
+  try {
+    await removeTokens(1);
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+      params: {
+        limit,
+        offset,
+        "status[]": "completed",
+        "includes[]": ["cover_art", "author", "artist"],
+        "order[followedCount]": "desc",
+        "contentRating[]": ["safe", "suggestive"],
+        "availableTranslatedLanguage[]": "en"
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching completed manga:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches trending manga based on recent updates with high follows
+ * @param limit Number of results to fetch
+ * @param offset Pagination offset
+ */
+export const getTrendingManga = async (limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {
+  try {
+    await removeTokens(1);
+    // Get recently updated manga that are popular (high followed count)
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+      params: {
+        limit,
+        offset,
+        "includes[]": ["cover_art", "author", "artist"],
+        "order[updatedAt]": "desc", // Recently updated
+        "contentRating[]": ["safe", "suggestive"],
+        "availableTranslatedLanguage[]": "en",
+        "hasAvailableChapters": true
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching trending manga:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches most viewed/followed manga
+ * @param limit Number of results to fetch
+ * @param offset Pagination offset
+ */
+export const getMostViewedManga = async (limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {
+  try {
+    await removeTokens(1);
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+      params: {
+        limit,
+        offset,
+        "includes[]": ["cover_art", "author", "artist"],
+        "order[followedCount]": "desc",
+        "contentRating[]": ["safe", "suggestive"],
+        "availableTranslatedLanguage[]": "en",
+        "hasAvailableChapters": true
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching most viewed manga:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches latest/recently added manga
+ * @param limit Number of results to fetch  
+ * @param offset Pagination offset
+ */
+export const getLatestManga = async (limit: number = 20, offset: number = 0): Promise<MangaDexResponse<Manga>> => {
+  try {
+    await removeTokens(1);
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+      params: {
+        limit,
+        offset,
+        "includes[]": ["cover_art", "author", "artist"],
+        "order[createdAt]": "desc",
+        "contentRating[]": ["safe", "suggestive"],
+        "availableTranslatedLanguage[]": "en",
+        "hasAvailableChapters": true
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching latest manga:', error);
+    throw error;
   }
 };

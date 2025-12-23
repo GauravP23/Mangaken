@@ -28,6 +28,7 @@ import mangaRoutes from './routes/mangaRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
 import heroRoutes from './routes/heroRoutes';
+import hybridRoutes from './routes/hybridRoutes';
 
 const app = express();
 
@@ -60,6 +61,9 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 // Batch hero manga endpoint
 app.use('/api/hero', heroRoutes);
+// Hybrid routes (MangaDex + AniList)
+app.use('/api/hybrid', hybridRoutes);
+// MangaDex routes
 app.use('/api/manga', mangaRoutes);
 
 app.use(errorHandler);
