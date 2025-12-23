@@ -112,6 +112,45 @@ export const getMostViewedManga = async (limit: number = 20, offset: number = 0)
     return response.data.data;
 };
 
+// Advanced browse/filter parameters
+export interface BrowseParams {
+    query?: string;
+    genres?: string[];
+    status?: string;
+    demographic?: string;
+    year?: number;
+    sortBy?: string;
+    limit?: number;
+    offset?: number;
+}
+
+// Advanced browse with filters
+export const browseManga = async (params: BrowseParams): Promise<{ data: Manga[]; total: number }> => {
+    const cacheKey = getCacheKey('/manga/browse', params);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached as { data: Manga[]; total: number };
+
+    const queryParams: Record<string, string | number | string[]> = {
+        limit: params.limit || 24,
+        offset: params.offset || 0,
+    };
+
+    if (params.query) queryParams.q = params.query;
+    if (params.genres && params.genres.length > 0) queryParams.genres = params.genres.join(',');
+    if (params.status) queryParams.status = params.status;
+    if (params.demographic) queryParams.demographic = params.demographic;
+    if (params.year) queryParams.year = params.year;
+    if (params.sortBy) queryParams.sortBy = params.sortBy;
+
+    const response = await apiClient.get<{ data: Manga[]; total: number; limit: number; offset: number }>('/manga/browse', {
+        params: queryParams
+    });
+    
+    const result = { data: response.data.data, total: response.data.total || response.data.data.length };
+    setCachedData(cacheKey, result);
+    return result;
+};
+
 // Get manga details by ID
 export const getMangaDetails = async (mangaId: string): Promise<Manga> => {
     const response = await apiClient.get<{ data: Manga }>(`/manga/${mangaId}`);

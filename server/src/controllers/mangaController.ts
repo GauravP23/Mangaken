@@ -300,3 +300,72 @@ export const getLatestMangaController: RequestHandler = async (req, res, next) =
         next(error);
     }
 };
+
+// New: Advanced search with filters
+export const advancedSearchController: RequestHandler = async (req, res, next) => {
+    try {
+        const params: mangadexService.AdvancedSearchParams = {
+            query: req.query.q as string | undefined,
+            limit: req.query.limit ? parseInt(req.query.limit as string) : 24,
+            offset: req.query.offset ? parseInt(req.query.offset as string) : 0,
+            sortBy: req.query.sortBy as string | undefined,
+        };
+
+        // Parse genres (comma-separated or array)
+        if (req.query.genres) {
+            const genresParam = req.query.genres;
+            if (Array.isArray(genresParam)) {
+                params.genres = genresParam as string[];
+            } else if (typeof genresParam === 'string') {
+                params.genres = genresParam.split(',').map(g => g.trim());
+            }
+        }
+
+        // Parse status
+        if (req.query.status && req.query.status !== 'all') {
+            params.status = req.query.status as string;
+        }
+
+        // Parse demographic
+        if (req.query.demographic && req.query.demographic !== 'all') {
+            params.demographic = req.query.demographic as string;
+        }
+
+        // Parse year
+        if (req.query.year) {
+            params.year = parseInt(req.query.year as string);
+        }
+
+        // Cache key based on all params
+        const cacheKey = `advsearch-${JSON.stringify(params)}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.advancedSearchManga(params);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New: Get available tags/genres
+export const getMangaTagsController: RequestHandler = async (req, res, next) => {
+    try {
+        const cacheKey = 'manga-tags';
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < 60 * 60 * 1000) { // 1 hour cache
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getMangaTags();
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};

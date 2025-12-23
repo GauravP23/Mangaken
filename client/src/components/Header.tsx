@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw } from 'lucide-react';
+import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw, Trophy } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
@@ -79,6 +79,9 @@ const Header: React.FC = () => {
   };
   const handleOngoing = () => {
     navigate('/browse?status=ongoing');
+  };
+  const handleTop = () => {
+    navigate('/top');
   };
 
   return (
@@ -165,6 +168,16 @@ const Header: React.FC = () => {
             >
               <TrendingUp className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
               ONGOING
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
+              onClick={handleTop}
+            >
+              <Trophy className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
+              TOP
             </Button>
           </nav>
 
@@ -279,6 +292,15 @@ const Header: React.FC = () => {
               >
                 <TrendingUp className="h-4 w-4 mr-2" />
                 ONGOING
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                onClick={() => { handleTop(); setIsMenuOpen(false); }}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                TOP MANGA
               </Button>
               
               <Button

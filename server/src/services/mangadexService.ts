@@ -351,3 +351,157 @@ export const getLatestManga = async (limit: number = 20, offset: number = 0): Pr
     throw error;
   }
 };
+
+// MangaDex tag IDs for common genres (mapped from tag names)
+const GENRE_TAG_IDS: Record<string, string> = {
+  'Action': '391b0423-d847-456f-aff0-8b0cfc03066b',
+  'Adventure': '87cc87cd-a395-47af-b27a-93258283bbc6',
+  'Comedy': '4d32cc48-9f00-4cca-9b5a-a839f0764984',
+  'Drama': 'b9af3a63-f058-46de-a9a0-e0c13906197a',
+  'Fantasy': 'cdc58593-87dd-415e-bbc0-2ec27bf404cc',
+  'Horror': 'cdad7e68-1419-41dd-bdce-27753074a640',
+  'Mystery': 'ee968100-4191-4968-93d3-f82d72be7e46',
+  'Romance': '423e2eae-a7a2-4a8b-ac03-a8351462d71d',
+  'Sci-Fi': '256c8bd9-4904-4360-bf4f-508a76571a84',
+  'Slice of Life': 'e5301a23-ebd9-49dd-a0cb-2add944c7fe9',
+  'Sports': '69964a64-2f90-4d33-beeb-f3ed2875eb4c',
+  'Supernatural': 'eabc5b4c-6aff-42f3-b657-3e90cbd00b75',
+  'Thriller': '07251805-a27e-4d59-b488-f0bfbec15168',
+  'Historical': '33771934-028e-4cb3-8c9b-3c5e21b9a39f',
+  'School Life': 'caaa44eb-cd40-4177-b930-79d3ef2afe87',
+  'Magic': 'a1f53773-c69a-4ce5-8cab-fffcd90b1565',
+  'Martial Arts': '799c202e-7daa-44eb-9cf7-8a3c0441531e',
+  'Psychological': '3b60b75c-a2d7-4860-ab56-05f391bb889c',
+  'Isekai': 'ace04997-f6bd-436e-b261-779182193d3d',
+  'Shounen': 'f4bbd1a0-1d9e-4ae4-8e81-15d6de682d0c',
+  'Shoujo': 'a3c67850-4684-404e-9b7f-c69850ee5da6',
+  'Seinen': 'f8f62932-27da-4fe4-8ee1-6779a8c5edba',
+  'Josei': 'josei-tag-id', // placeholder
+  'Mecha': '0a39b5a1-b235-4886-a747-1d05d216532d',
+  'Music': '77a50f30-7f3b-4e47-a0b9-36d8b7e0f0d5',
+  'Harem': 'aafb99c1-7f60-43fa-b75f-fc9502ce29c7',
+  'Ecchi': 'b29d6a3d-1569-4e7a-8caf-7557bc92cd5d',
+  'Gore': 'b29d6a3d-1569-4e7a-8caf-7557bc92cd5d',
+};
+
+// Publication demographics
+const DEMOGRAPHICS: Record<string, string> = {
+  'shounen': 'shounen',
+  'shoujo': 'shoujo', 
+  'seinen': 'seinen',
+  'josei': 'josei',
+};
+
+// Sort options mapping
+const SORT_OPTIONS: Record<string, Record<string, string>> = {
+  'rating': { 'order[rating]': 'desc' },
+  'followedCount': { 'order[followedCount]': 'desc' },
+  'latestUploadedChapter': { 'order[latestUploadedChapter]': 'desc' },
+  'createdAt': { 'order[createdAt]': 'desc' },
+  'updatedAt': { 'order[updatedAt]': 'desc' },
+  'title': { 'order[title]': 'asc' },
+  'year': { 'order[year]': 'desc' },
+};
+
+export interface AdvancedSearchParams {
+  query?: string;
+  genres?: string[];
+  excludedGenres?: string[];
+  status?: string;  // 'ongoing' | 'completed' | 'hiatus' | 'cancelled'
+  demographic?: string;  // 'shounen' | 'shoujo' | 'seinen' | 'josei'
+  year?: number;
+  yearFrom?: number;
+  yearTo?: number;
+  sortBy?: string;
+  contentRating?: string[];
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Advanced manga search with multiple filters
+ */
+export const advancedSearchManga = async (params: AdvancedSearchParams): Promise<MangaDexResponse<Manga>> => {
+  try {
+    await removeTokens(1);
+    
+    const queryParams: Record<string, unknown> = {
+      limit: params.limit || 20,
+      offset: params.offset || 0,
+      "includes[]": ["cover_art", "author", "artist"],
+      "contentRating[]": params.contentRating || ["safe", "suggestive"],
+      "availableTranslatedLanguage[]": "en",
+      "hasAvailableChapters": true,
+    };
+
+    // Add search query
+    if (params.query) {
+      queryParams.title = params.query;
+    }
+
+    // Add genre filters (includedTags)
+    if (params.genres && params.genres.length > 0) {
+      const tagIds = params.genres
+        .map(g => GENRE_TAG_IDS[g])
+        .filter(Boolean);
+      if (tagIds.length > 0) {
+        queryParams["includedTags[]"] = tagIds;
+      }
+    }
+
+    // Add excluded genres
+    if (params.excludedGenres && params.excludedGenres.length > 0) {
+      const excludedTagIds = params.excludedGenres
+        .map(g => GENRE_TAG_IDS[g])
+        .filter(Boolean);
+      if (excludedTagIds.length > 0) {
+        queryParams["excludedTags[]"] = excludedTagIds;
+      }
+    }
+
+    // Add status filter
+    if (params.status && params.status !== 'all') {
+      queryParams["status[]"] = params.status;
+    }
+
+    // Add demographic filter
+    if (params.demographic && params.demographic !== 'all') {
+      queryParams["publicationDemographic[]"] = params.demographic;
+    }
+
+    // Add year filter
+    if (params.year) {
+      queryParams.year = params.year;
+    }
+
+    // Add sort order
+    if (params.sortBy && SORT_OPTIONS[params.sortBy]) {
+      Object.assign(queryParams, SORT_OPTIONS[params.sortBy]);
+    } else {
+      // Default sort by followed count
+      queryParams["order[followedCount]"] = "desc";
+    }
+
+    const response = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+      params: queryParams
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in advanced search:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get available tags/genres from MangaDex
+ */
+export const getMangaTags = async () => {
+  try {
+    await removeTokens(1);
+    const response = await apiClient.get('/manga/tag');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching manga tags:', error);
+    throw error;
+  }
+};

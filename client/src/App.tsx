@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import Browse from  './pages/Browse'
+import TopManga from './pages/TopManga';
 import SearchResultsPage from './pages/SearchResultsPage';
 import MangaDetails from './pages/MangaDetails';
 import ChapterReaderPage from './pages/ChapterReaderPage';
@@ -28,6 +29,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/" element={<Homepage />} />
                     <Route path="/browse" element={<Browse />} />
+                    <Route path="/top" element={<TopManga />} />
                     <Route path="/search" element={<SearchResultsPage />} />
                     <Route path="/manga/:id" element={<MangaDetails />} />
                     <Route path="/manga/:id/chapter/:chapterId" element={<ChapterReaderPage />} />

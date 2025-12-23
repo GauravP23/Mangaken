@@ -9,6 +9,12 @@ router.get('/', mangaController.listMangaController);
 // GET /api/manga/search?title=...
 router.get('/search', mangaController.searchMangaController);
 
+// GET /api/manga/browse - Advanced search with filters
+router.get('/browse', mangaController.advancedSearchController);
+
+// GET /api/manga/tags - Get available tags/genres
+router.get('/tags', mangaController.getMangaTagsController);
+
 // GET /api/manga/statistics/batch?manga[]=id1&manga[]=id2
 router.get('/statistics/batch', mangaController.getMangaStatisticsBatchController);
 
