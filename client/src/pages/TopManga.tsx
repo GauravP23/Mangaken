@@ -110,10 +110,10 @@ const TopManga = () => {
   };
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen">
+    <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
       <Header />
       
-      <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-10">
+      <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-10 flex-1">
         {/* Page Header */}
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-3 mb-3">

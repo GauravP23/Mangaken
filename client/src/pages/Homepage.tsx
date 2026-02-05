@@ -163,10 +163,10 @@ const HomePage: React.FC = () => {
     }, [completedManga, trendingManga, latestManga, mostViewedManga]);
 
     return (
-        <div className="main-content-frame">
+        <div className="main-content-frame min-h-screen flex flex-col">
             <Header />
             <HeroSlider />
-            <div className="px-2 sm:px-4 py-4 sm:py-8">
+            <div className="px-2 sm:px-4 py-4 sm:py-8 flex-1">
                 <MangaSection 
                     title="Trending Now" 
                     subtitle="Currently hot and recently updated series"

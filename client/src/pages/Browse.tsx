@@ -201,10 +201,10 @@ const Browse = () => {
   const totalPages = Math.ceil(totalResults / PAGE_SIZE);
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen">
+    <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
       <Header />
       
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 flex-1">
         {/* Page Title */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Browse Manga</h1>
