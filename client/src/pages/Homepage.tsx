@@ -163,10 +163,10 @@ const HomePage: React.FC = () => {
     }, [completedManga, trendingManga, latestManga, mostViewedManga]);
 
     return (
-        <div className="main-content-frame min-h-screen flex flex-col">
+        <div className="main-content-frame">
             <Header />
             <HeroSlider />
-            <div className="px-2 sm:px-4 py-4 sm:py-8 flex-1">
+            <div className="px-2 sm:px-4 py-4 sm:py-8">
                 <MangaSection 
                     title="Trending Now" 
                     subtitle="Currently hot and recently updated series"
@@ -188,15 +188,6 @@ const HomePage: React.FC = () => {
                             ))}
                         </div>
                     )}
-                </MangaSection>
-
-                <MangaSection 
-                    title="Explore Genres" 
-                    subtitle="Discover manga by your favorite genre categories" 
-                    showViewAll={false}
-                    variant="highlight"
-                >
-                    <GenreGrid onGenreClick={handleGenreClick} />
                 </MangaSection>
 
                 <MangaSection 

@@ -201,20 +201,33 @@ const Browse = () => {
   const totalPages = Math.ceil(totalResults / PAGE_SIZE);
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
+    <div className="main-content-frame bg-gray-950 min-h-screen">
       <Header />
       
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 flex-1">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Page Title */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Browse Manga</h1>
           <p className="text-gray-400 text-sm sm:text-base">Discover manga with advanced filters</p>
         </div>
 
-        {/* Filter Bar - AniList Style */}
-        <div className="bg-gray-900/80 backdrop-blur rounded-xl p-4 mb-6 border border-gray-800">
+        {/* Filter Bar */}
+        <div className="bg-gradient-to-r from-slate-900/90 via-slate-900/95 to-slate-950/90 backdrop-blur rounded-2xl p-4 sm:p-5 mb-6 border border-slate-800/80 shadow-[0_18px_45px_rgba(0,0,0,0.6)]">
+          {/* Header row */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-base sm:text-lg font-semibold text-white tracking-tight">Filter</h2>
+              <p className="hidden sm:block text-xs text-slate-400">Refine the manga list by title, genre and status</p>
+            </div>
+            <div className="text-xs sm:text-sm text-slate-400 whitespace-nowrap">
+              {loading
+                ? 'Loading manga...'
+                : `${totalResults.toLocaleString()} manga${totalResults === 1 ? '' : 's'}`}
+            </div>
+          </div>
+
           {/* Main Filter Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-3 sm:mb-4">
             {/* Search */}
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <div className="relative">
@@ -224,7 +237,7 @@ const Browse = () => {
                   placeholder="Search manga..."
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-orange-500"
+                  className="pl-10 bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-500 focus:border-orange-500 focus:ring-0 h-10 rounded-xl"
                 />
               </div>
             </div>
@@ -234,7 +247,7 @@ const Browse = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowGenres(!showGenres)}
-                className={`w-full justify-between bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 ${
+                className={`w-full justify-between bg-slate-900/80 border-slate-700 text-slate-200 hover:bg-slate-800 rounded-xl text-sm h-10 px-3 ${
                   selectedGenres.length > 0 ? 'border-orange-500 text-orange-400' : ''
                 }`}
               >
@@ -245,10 +258,10 @@ const Browse = () => {
 
             {/* Year */}
             <Select value={year} onValueChange={(v) => { setYear(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-300">
+              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 max-h-60">
+              <SelectContent className="bg-slate-900 border-slate-700 max-h-60">
                 {YEAR_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -257,10 +270,10 @@ const Browse = () => {
 
             {/* Status */}
             <Select value={status} onValueChange={(v) => { setStatus(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-300">
+              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-slate-900 border-slate-700">
                 {STATUS_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -269,10 +282,10 @@ const Browse = () => {
 
             {/* Demographic */}
             <Select value={demographic} onValueChange={(v) => { setDemographic(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-300">
+              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Demographic" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-slate-900 border-slate-700">
                 {DEMOGRAPHIC_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -336,7 +349,7 @@ const Browse = () => {
                   variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="text-gray-400 hover:text-white h-7"
+                  className="text-slate-400 hover:text-white h-7 px-2"
                 >
                   <Filter className="w-3 h-3 mr-1" />
                   Clear All
@@ -348,10 +361,10 @@ const Browse = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400">Sort:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40 bg-gray-800 border-gray-700 text-gray-300 h-8">
+                <SelectTrigger className="w-40 bg-slate-900/80 border-slate-700 text-slate-200 h-9 rounded-xl text-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-slate-900 border-slate-700">
                   {SORT_OPTIONS.map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                   ))}
