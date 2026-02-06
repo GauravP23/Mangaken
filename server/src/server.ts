@@ -41,8 +41,7 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:5173',
-        'https://mangaken.netlify.app',
-        'https://mangaken.vercel.app'
+        'https://mangaken.vercel.app' // This line is essential
     ],
     credentials: true
 }));

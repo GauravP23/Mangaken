@@ -12,6 +12,7 @@ import ChapterReaderPage from './pages/ChapterReaderPage';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import './App.css'; // Global styles
 import './styles/global.css'; // Additional global styles
 import { AuthProvider } from './contexts/AuthContext';
@@ -32,6 +33,7 @@ function App() {
                     <Route path="/top" element={<TopManga />} />
                     <Route path="/search" element={<SearchResultsPage />} />
                     <Route path="/manga/:id" element={<MangaDetails />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="/manga/:id/chapter/:chapterId" element={<ChapterReaderPage />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

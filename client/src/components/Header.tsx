@@ -1,11 +1,12 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw, Trophy } from 'lucide-react';
+import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw, Trophy, User, BookMarked, Bell, Settings, LogOut, BookOpen, Download } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { searchManga } from '../services/mangaApi';
 import { AuthContext } from '../contexts/AuthContext';
+import { AuthModal } from './AuthModal';
 import './Header.css'; // For styling
 
 type Manga = {
@@ -28,8 +29,12 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Manga[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -84,7 +89,35 @@ const Header: React.FC = () => {
     navigate('/top');
   };
 
+  const openAuthModal = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
+  };
+
+  const handleLogout = () => {
+    setShowUserMenu(false);
+    logout();
+  };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
   return (
+    <>
     <header className="bg-content-frame/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 w-full">
       <div className="px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
@@ -184,25 +217,90 @@ const Header: React.FC = () => {
           {/* User Avatar / Auth Links */}
           <div className="hidden md:flex items-center flex-shrink-0 ml-2 space-x-2">
             {user ? (
-              <>
+              <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={logout}
-                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 text-clickable hover:text-primary hover:bg-muted/50 px-3 py-2 rounded-lg transition-colors"
                 >
-                  Logout
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="hidden lg:block font-medium">{user.username}</span>
                 </button>
-              </>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#1a1f2e] rounded-lg shadow-2xl border border-gray-700/50 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-700/50">
+                      <p className="text-sm font-medium text-white">{user.username}</p>
+                      <p className="text-xs text-gray-400 mt-1 truncate">{user.email}</p>
+                    </div>
+
+                    <button
+                      onClick={() => { navigate('/profile'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </button>
+                    <button
+                      onClick={() => { navigate('/continue-reading'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Continue Reading
+                    </button>
+                    <button
+                      onClick={() => { navigate('/bookmarks'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <BookMarked className="h-4 w-4" />
+                      Bookmark
+                    </button>
+                    <button
+                      onClick={() => { navigate('/notifications'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Notification
+                    </button>
+                    <button
+                      onClick={() => { navigate('/import-export'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <Download className="h-4 w-4" />
+                      Import / Export
+                    </button>
+                    <button
+                      onClick={() => { navigate('/settings'); setShowUserMenu(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </button>
+
+                    <div className="border-t border-gray-700/50 mt-2 pt-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <button
-                  onClick={() => navigate('/login')}
-                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded"
+                  onClick={() => openAuthModal('login')}
+                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded transition-colors"
                 >
                   Login
                 </button>
                 <button
-                  onClick={() => navigate('/register')}
-                  className="btn-primary-cta px-3 py-1 rounded"
+                  onClick={() => openAuthModal('register')}
+                  className="btn-primary-cta px-3 py-1 rounded transition-colors"
                 >
                   Register
                 </button>
@@ -316,6 +414,13 @@ const Header: React.FC = () => {
         )}
       </div>
     </header>
+
+    <AuthModal
+      isOpen={showAuthModal}
+      onClose={() => setShowAuthModal(false)}
+      initialMode={authMode}
+    />
+    </>
   );
 };
 

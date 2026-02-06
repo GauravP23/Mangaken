@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Star, Users, BookOpen, Trophy, TrendingUp, Loader2 } from 'lucide-react';
-import { getMostViewedManga, getMangaStatisticsBatch } from '../services/mangaApi';
+import { getMostViewedManga, getMangaStatisticsBatch, getTrendingManga, getPopularManga } from '../services/mangaApi';
 import { mapApiMangaToUICard } from '../utils';
 import { Manga, UIManga } from '../types';
 
@@ -84,17 +84,25 @@ const TopManga = () => {
   const [mangaList, setMangaList] = useState<UIManga[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(20);
+  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month'>('today');
 
   useEffect(() => {
     const fetchTopManga = async () => {
       setLoading(true);
       try {
-        // Fetch top 100 manga by popularity
-        const data = await getMostViewedManga(100, 0);
+        let data: Manga[] = [];
+        if (timeRange === 'today') {
+          data = await getTrendingManga(100, 0);
+        } else if (timeRange === 'week') {
+          data = await getPopularManga(100, 0);
+        } else {
+          data = await getMostViewedManga(100, 0);
+        }
         const enhanced = await enhanceMangaWithStats(data);
         // Sort by views (followers) descending
         enhanced.sort((a, b) => (b.views || 0) - (a.views || 0));
         setMangaList(enhanced);
+        setVisibleCount(20);
       } catch (error) {
         console.error('Failed to fetch top manga:', error);
       } finally {
@@ -103,26 +111,49 @@ const TopManga = () => {
     };
 
     fetchTopManga();
-  }, []);
+  }, [timeRange]);
 
   const loadMore = () => {
     setVisibleCount(prev => Math.min(prev + 20, mangaList.length));
   };
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen flex flex-col">
+    <div className="main-content-frame bg-gray-950 min-h-screen">
       <Header />
       
-      <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-10 flex-1">
+      <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-10">
         {/* Page Header */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Trophy className="w-8 h-8 text-yellow-500" />
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">Top 100 Manga</h1>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
+              <Trophy className="w-8 h-8 text-yellow-500" />
+              <h1 className="text-3xl sm:text-4xl font-bold text-white">Top Manga</h1>
+            </div>
+            <p className="text-gray-400 text-sm sm:text-base">
+              Ranked lists using trending, popular and most-followed data
+            </p>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base">
-            The most popular manga series ranked by followers
-          </p>
+          <div className="flex justify-center sm:justify-end">
+            <div className="inline-flex bg-gray-900/80 border border-gray-800 rounded-full p-1 text-xs sm:text-sm">
+              {([
+                { key: 'today', label: 'Today' },
+                { key: 'week', label: 'Week' },
+                { key: 'month', label: 'Month' },
+              ] as const).map(option => (
+                <button
+                  key={option.key}
+                  onClick={() => setTimeRange(option.key)}
+                  className={`px-4 py-1 rounded-full transition-colors ${
+                    timeRange === option.key
+                      ? 'bg-orange-500 text-white'
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Stats Summary */}

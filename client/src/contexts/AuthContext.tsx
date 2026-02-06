@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import apiClient from '../services/apiClient';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface User {
   id: string;
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Load user from token on mount
   useEffect(() => {
@@ -64,7 +66,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('token');
     delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
-    navigate('/login');
+    // Clear all cached queries so data is reset like a new user
+    queryClient.clear();
+    navigate('/');
   };
 
   return (

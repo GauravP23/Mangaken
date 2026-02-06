@@ -5,8 +5,9 @@ import HeroSlider from '../components/HeroSlider';
 import MangaSection from '../components/MangaSection';
 import MangaCard from '../components/MangaCard';
 import { mapApiMangaToUICard } from '../utils';
-import GenreGrid from '../components/GenreGrid';
 import Footer from '../components/Footer';
+import ContinueReadingSection from '../components/ContinueReadingSection';
+import TopMangaMiniList from '../components/TopMangaMiniList';
 import { 
     getLatestManga, 
     getTrendingManga, 
@@ -167,6 +168,14 @@ const HomePage: React.FC = () => {
             <Header />
             <HeroSlider />
             <div className="px-2 sm:px-4 py-4 sm:py-8">
+                <ContinueReadingSection />
+                <MangaSection 
+                    title="Top Manga" 
+                    subtitle="Most followed series right now" 
+                    showViewAll={false}
+                >
+                    <TopMangaMiniList items={mostViewedManga} limit={5} />
+                </MangaSection>
                 <MangaSection 
                     title="Trending Now" 
                     subtitle="Currently hot and recently updated series"

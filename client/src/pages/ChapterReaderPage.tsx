@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { getChapterPages, getMangaFeed } from '../services/mangaApi';
 import { AtHomeServerResponse, Chapter } from '../types';
 import './ChapterReaderPage.css';
+import { saveReadingProgress } from '../utils/readingProgress';
 
 // Helper type for local UI state
 interface ChapterReaderServerInfo extends AtHomeServerResponse {
@@ -146,6 +147,20 @@ const ChapterReaderPage: React.FC = () => {
         setShowBottomBar(currentImageIndex === pages.length - 1);
       }
     }, [readingMode, currentImageIndex, pages.length]);
+
+        // Persist reading progress locally for Continue Reading section
+        useEffect(() => {
+            if (!serverInfo || !selectedChapter || pages.length === 0) return;
+            const chapterNumber = selectedChapter.attributes?.chapter ?? null;
+            saveReadingProgress({
+                mangaId: serverInfo.mangaId,
+                mangaTitle: serverInfo.mangaTitle,
+                chapterId: selectedChapter.id,
+                chapterNumber,
+                page: currentImageIndex + 1,
+                totalPages: pages.length,
+            });
+        }, [serverInfo, selectedChapter, currentImageIndex, pages.length]);
 
     const currentChapterIndex = chapterList.findIndex(ch => ch.id === (selectedChapter?.id || chapterId));
     const goToChapter = (index: number) => {
