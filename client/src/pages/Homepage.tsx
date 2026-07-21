@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import HeroSlider from '../components/HeroSlider';
 import MangaSection from '../components/MangaSection';
@@ -128,10 +128,6 @@ const HomePage: React.FC = () => {
             .finally(() => setLoading((l) => ({ ...l, completed: false })));
     }, []);
 
-    const handleGenreClick = (genre: string) => {
-        navigate(`/browse?genre=${encodeURIComponent(genre)}`);
-    };
-
     const handleViewAll = (section: string) => {
         navigate(`/browse?section=${section}`);
     };
@@ -163,110 +159,142 @@ const HomePage: React.FC = () => {
         return deduplicateManga(completedManga, excludeIds).slice(0, 6);
     }, [completedManga, trendingManga, latestManga, mostViewedManga]);
 
+    const AZ_LETTERS = "All 0-9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
+
     return (
-        <div className="main-content-frame">
+        <div className="main-content-frame bg-[#0B0C0E]">
             <Header />
             <HeroSlider />
-            <div className="px-2 sm:px-4 py-4 sm:py-8">
+            <div className="px-4 py-8 container mx-auto">
                 <ContinueReadingSection />
-                <MangaSection 
-                    title="Top Manga" 
-                    subtitle="Most followed series right now" 
-                    showViewAll={false}
-                >
-                    <TopMangaMiniList items={mostViewedManga} limit={5} />
-                </MangaSection>
-                <MangaSection 
-                    title="Trending Now" 
-                    subtitle="Currently hot and recently updated series"
-                    showViewAll={false}
-                >
-                    {loading.trending ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error.trending ? (
-                        <div className="text-center text-red-500 py-8">{error.trending}</div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {displayTrending.map((manga, index) => (
-                                <MangaCard 
-                                    key={manga.id} 
-                                    manga={manga} 
-                                    size="medium"
-                                    showLanguageBadge={index % 3 === 0}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </MangaSection>
+                
+                {/* Two Column Layout: Main left, Sidebar right */}
+                <div className="two-column-layout mt-6">
+                    {/* Left Column: Grid sections */}
+                    <div className="space-y-10">
+                        <MangaSection 
+                            title="Trending Now" 
+                            subtitle="Currently hot and recently updated series"
+                            showViewAll={false}
+                        >
+                            {loading.trending ? (
+                                <div className="text-center py-8 text-gray-400"><span className="loading mr-2"></span>Loading...</div>
+                            ) : error.trending ? (
+                                <div className="text-center text-red-500 py-8">{error.trending}</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                                    {displayTrending.map((manga, index) => (
+                                        <MangaCard 
+                                            key={manga.id} 
+                                            manga={manga} 
+                                            size="medium"
+                                            showLanguageBadge={index % 3 === 0}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </MangaSection>
 
-                <MangaSection 
-                    title="Latest Updates"
-                    subtitle="Recently uploaded chapters"
-                    showViewAll={false}
-                >
-                    {loading.latest ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error.latest ? (
-                        <div className="text-center text-red-500 py-8">{error.latest}</div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {displayLatest.map((manga, index) => (
-                                <MangaCard 
-                                    key={manga.id} 
-                                    manga={manga} 
-                                    size="medium"
-                                    showLanguageBadge={index % 4 === 0}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </MangaSection>
+                        <MangaSection 
+                            title="Latest Updates"
+                            subtitle="Recently uploaded chapters"
+                            showViewAll={false}
+                        >
+                            {loading.latest ? (
+                                <div className="text-center py-8 text-gray-400"><span className="loading mr-2"></span>Loading...</div>
+                            ) : error.latest ? (
+                                <div className="text-center text-red-500 py-8">{error.latest}</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                                    {displayLatest.map((manga, index) => (
+                                        <MangaCard 
+                                            key={manga.id} 
+                                            manga={manga} 
+                                            size="medium"
+                                            showLanguageBadge={index % 4 === 0}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </MangaSection>
 
-                <MangaSection 
-                    title="Most Viewed"
-                    subtitle="Popular series with the most followers"
-                    onViewAll={() => handleViewAll('popular')}
-                >
-                    {loading.mostViewed ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error.mostViewed ? (
-                        <div className="text-center text-red-500 py-8">{error.mostViewed}</div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {displayMostViewed.map((manga, index) => (
-                                <MangaCard 
-                                    key={manga.id} 
-                                    manga={manga} 
-                                    size="medium"
-                                    showLanguageBadge={index % 2 === 0}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </MangaSection>
+                        <MangaSection 
+                            title="Most Viewed"
+                            subtitle="Popular series with the most followers"
+                            onViewAll={() => handleViewAll('popular')}
+                        >
+                            {loading.mostViewed ? (
+                                <div className="text-center py-8 text-gray-400"><span className="loading mr-2"></span>Loading...</div>
+                            ) : error.mostViewed ? (
+                                <div className="text-center text-red-500 py-8">{error.mostViewed}</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                                    {displayMostViewed.map((manga, index) => (
+                                        <MangaCard 
+                                            key={manga.id} 
+                                            manga={manga} 
+                                            size="medium"
+                                            showLanguageBadge={index % 2 === 0}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </MangaSection>
 
-                <MangaSection 
-                    title="Completed Series"
-                    subtitle="Finished manga you can binge read"
-                    onViewAll={() => handleViewAll('completed')}
-                >
-                    {loading.completed ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error.completed ? (
-                        <div className="text-center text-red-500 py-8">{error.completed}</div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                            {displayCompleted.map((manga, index) => (
-                                <MangaCard 
-                                    key={manga.id} 
-                                    manga={manga} 
-                                    size="medium"
-                                    showLanguageBadge={index === 1 || index === 4}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </MangaSection>
+                        <MangaSection 
+                            title="Completed Series"
+                            subtitle="Finished manga you can binge read"
+                            onViewAll={() => handleViewAll('completed')}
+                        >
+                            {loading.completed ? (
+                                <div className="text-center py-8 text-gray-400"><span className="loading mr-2"></span>Loading...</div>
+                            ) : error.completed ? (
+                                <div className="text-center text-red-500 py-8">{error.completed}</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                                    {displayCompleted.map((manga, index) => (
+                                        <MangaCard 
+                                            key={manga.id} 
+                                            manga={manga} 
+                                            size="medium"
+                                            showLanguageBadge={index === 1 || index === 4}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </MangaSection>
+                    </div>
+
+                    {/* Right Column: Sidebar */}
+                    <div className="space-y-6 lg:border-l lg:border-white/[0.04] lg:pl-6">
+                        <MangaSection 
+                            title="Top Manga" 
+                            subtitle="Most followed series" 
+                            showViewAll={false}
+                        >
+                            <TopMangaMiniList items={mostViewedManga} limit={8} />
+                        </MangaSection>
+                    </div>
+                </div>
+
+                {/* A-Z List Section (Animekai style) */}
+                <div className="bg-white/[0.02] border border-white/[0.05] backdrop-blur-md rounded-2xl p-4 sm:p-6 mt-12 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+                    <h3 className="text-sm font-semibold mb-4 uppercase tracking-wider text-gray-300 flex items-center gap-2">
+                        <span className="w-1 h-4 bg-[#FF5C00] rounded"></span>
+                        A-Z List
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                        {AZ_LETTERS.map(letter => (
+                            <Link 
+                                key={letter} 
+                                to={`/browse?letter=${letter.toLowerCase()}`}
+                                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-[#FF5C00] hover:text-white text-xs font-semibold text-gray-300 hover:border-transparent transition-all"
+                            >
+                                {letter}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             </div>
             <Footer />
         </div>

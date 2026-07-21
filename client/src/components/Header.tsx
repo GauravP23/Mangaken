@@ -118,21 +118,21 @@ const Header: React.FC = () => {
 
   return (
     <>
-    <header className="bg-content-frame/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 w-full">
+    <header className="bg-black/45 backdrop-blur-md border-b border-white/[0.05] sticky top-0 z-50 w-full">
       <div className="px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 text-primary-white hover:text-primary transition-colors flex-shrink-0">
-            <div className="bg-primary px-2 py-1 rounded font-bold text-primary-foreground text-sm">
+          <Link to="/" className="flex items-center space-x-2 text-white hover:text-[#FF5C00] transition-colors flex-shrink-0">
+            <div className="bg-[#FF5C00] px-2.5 py-1 rounded-lg font-black text-white text-xs tracking-wider uppercase shadow-lg shadow-[#FF5C00]/25">
               Manga
             </div>
-            <span className="text-xl font-bold accent-purple hidden sm:block">Ken</span>
+            <span className="text-xl font-black tracking-wide hidden sm:block text-white">Ken</span>
           </Link>
 
           {/* Search Bar - Center */}
           <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8 relative">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search manga..."
@@ -140,17 +140,16 @@ const Header: React.FC = () => {
                 onChange={handleInputChange}
                 onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 rounded-full"
+                className="w-full pl-10 pr-4 bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-gray-400 focus:border-[#FF5C00]/50 focus:ring-1 focus:ring-[#FF5C00]/30 rounded-full transition-all"
               />
               {showDropdown && searchResults.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-2 bg-black/90 backdrop-blur-md border border-white/[0.08] rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto">
                   {searchResults.map((manga) => (
                     <div
                       key={manga.id}
-                      className="px-4 py-2 hover:bg-muted cursor-pointer flex items-center gap-3"
+                      className="px-4 py-2.5 hover:bg-white/[0.04] cursor-pointer flex items-center gap-3 border-b border-white/[0.02] last:border-0"
                       onMouseDown={() => handleResultClick(manga.id)}
                     >
-                      {/* Use backend proxy to avoid hotlinking */}
                       <img
                         src={
                           manga.relationships?.find(r => r.type === 'cover_art')?.attributes?.fileName
@@ -158,130 +157,127 @@ const Header: React.FC = () => {
                             : '/placeholder.svg'
                         }
                         alt={manga.attributes?.title?.en || 'No Title'}
-                        className="w-8 h-12 object-cover rounded shadow"
+                        className="w-8 h-12 object-cover rounded shadow border border-white/[0.05]"
                       />
-                      <span className="text-primary-white font-medium line-clamp-1">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
+                      <span className="text-white font-medium line-clamp-1 hover:text-[#FF5C00] transition-colors">{manga.attributes?.title?.en || Object.values(manga.attributes?.title || {})[0] || 'No Title'}</span>
                     </div>
                   ))}
-                  {searchResults.length === 0 && (
-                    <div className="px-4 py-2 text-secondary-gray">No results found.</div>
-                  )}
                 </div>
               )}
             </div>
           </form>
 
-          {/* Desktop Navigation - Simplified for better fit */}
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             <Button
               variant="ghost"
               size="sm"
-              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
+              className="text-xs font-semibold tracking-wider text-gray-300 hover:text-[#FF5C00] hover:bg-transparent uppercase transition-colors"
               onClick={handleGenres}
             >
-              <Grid3X3 className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
+              <Grid3X3 className="h-3.5 w-3.5 mr-1" />
               GENRES
             </Button>
             
             <Button
               variant="ghost"
               size="sm"
-              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
+              className="text-xs font-semibold tracking-wider text-gray-300 hover:text-[#FF5C00] hover:bg-transparent uppercase transition-colors"
               onClick={handleNew}
             >
-              <Star className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
+              <Star className="h-3.5 w-3.5 mr-1" />
               NEW
             </Button>
             
             <Button
               variant="ghost"
               size="sm"
-              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
+              className="text-xs font-semibold tracking-wider text-gray-300 hover:text-[#FF5C00] hover:bg-transparent uppercase transition-colors"
               onClick={handleOngoing}
             >
-              <TrendingUp className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
+              <TrendingUp className="h-3.5 w-3.5 mr-1" />
               ONGOING
             </Button>
             
             <Button
               variant="ghost"
               size="sm"
-              className="text-clickable hover:text-primary hover:bg-muted/50 text-xs xl:text-sm"
+              className="text-xs font-semibold tracking-wider text-gray-300 hover:text-[#FF5C00] hover:bg-transparent uppercase transition-colors"
               onClick={handleTop}
             >
-              <Trophy className="h-3 w-3 xl:h-4 xl:w-4 mr-1" />
+              <Trophy className="h-3.5 w-3.5 mr-1" />
               TOP
             </Button>
           </nav>
 
           {/* User Avatar / Auth Links */}
-          <div className="hidden md:flex items-center flex-shrink-0 ml-2 space-x-2">
+          <div className="hidden md:flex items-center flex-shrink-0 ml-2 space-x-3">
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 text-clickable hover:text-primary hover:bg-muted/50 px-3 py-2 rounded-lg transition-colors"
+                  className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-xl transition-colors hover:bg-white/[0.04]"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF5C00] to-[#FF8C00] flex items-center justify-center text-white font-bold shadow-md shadow-[#FF5C00]/10">
                     {user.username.charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden lg:block font-medium">{user.username}</span>
+                  <span className="hidden lg:block font-medium text-xs tracking-wide">{user.username}</span>
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#1a1f2e] rounded-lg shadow-2xl border border-gray-700/50 py-2 z-50">
-                    <div className="px-4 py-3 border-b border-gray-700/50">
-                      <p className="text-sm font-medium text-white">{user.username}</p>
-                      <p className="text-xs text-gray-400 mt-1 truncate">{user.email}</p>
+                  <div className="absolute right-0 mt-2 w-56 bg-black/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/[0.08] py-2.5 z-50">
+                    <div className="px-4 py-3 border-b border-white/[0.05]">
+                      <p className="text-sm font-bold text-white">{user.username}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 truncate">{user.email}</p>
                     </div>
 
                     <button
                       onClick={() => { navigate('/profile'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <User className="h-4 w-4" />
                       Profile
                     </button>
                     <button
                       onClick={() => { navigate('/continue-reading'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <BookOpen className="h-4 w-4" />
                       Continue Reading
                     </button>
                     <button
                       onClick={() => { navigate('/bookmarks'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <BookMarked className="h-4 w-4" />
                       Bookmark
                     </button>
                     <button
                       onClick={() => { navigate('/notifications'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <Bell className="h-4 w-4" />
                       Notification
                     </button>
                     <button
                       onClick={() => { navigate('/import-export'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <Download className="h-4 w-4" />
                       Import / Export
                     </button>
                     <button
                       onClick={() => { navigate('/settings'); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-muted/50 hover:text-white transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-300 hover:bg-white/[0.04] hover:text-[#FF5C00] transition-colors"
                     >
                       <Settings className="h-4 w-4" />
                       Settings
                     </button>
 
-                    <div className="border-t border-gray-700/50 mt-2 pt-2">
+                    <div className="border-t border-white/[0.05] mt-2 pt-2">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout
@@ -294,13 +290,13 @@ const Header: React.FC = () => {
               <>
                 <button
                   onClick={() => openAuthModal('login')}
-                  className="text-clickable hover:text-primary hover:bg-muted/50 px-3 py-1 rounded transition-colors"
+                  className="text-xs font-bold text-gray-300 hover:text-white px-3 py-2 rounded-lg transition-colors"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => openAuthModal('register')}
-                  className="btn-primary-cta px-3 py-1 rounded transition-colors"
+                  className="bg-[#FF5C00] hover:bg-[#FF8C00] text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg shadow-[#FF5C00]/25 hover:-translate-y-0.5"
                 >
                   Register
                 </button>

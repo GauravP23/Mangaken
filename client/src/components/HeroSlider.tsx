@@ -97,30 +97,33 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[50vh] sm:h-[60vh] min-h-[350px] sm:min-h-[400px] overflow-hidden text-white bg-black w-full group">
+    <div className="relative h-[50vh] sm:h-[60vh] min-h-[350px] sm:min-h-[400px] overflow-hidden text-white bg-[#0B0C0E] w-full group border-b border-white/[0.05]">
       <div
-        className="absolute inset-0 bg-cover bg-center z-0"
+        className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-1000"
         style={{
           backgroundImage: `url(${currentManga.image})`,
-          filter: 'brightness(0.3) blur(2px)',
+          filter: 'brightness(0.2) blur(3px)',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent z-0" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E] via-[#0B0C0E]/50 to-transparent z-0" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E] via-[#0B0C0E]/70 to-transparent z-0" />
 
     <div className="px-4 sm:px-6 lg:px-8 mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between h-full container">
       <div className="flex flex-col justify-center w-full md:max-w-xl h-full py-4 md:py-10 overflow-hidden md:ml-10">
-        <div className="mb-2 text-gray-300 font-semibold text-sm flex-shrink-0">
-          Chapters: {currentManga.chapters || 'N/A'}
+        <div className="mb-3 flex-shrink-0">
+          <span className="bg-white/10 text-white backdrop-blur-sm text-xs font-bold px-3 py-1 rounded-lg border border-white/10 shadow-sm">
+            Chapters: {currentManga.chapters || 'N/A'}
+          </span>
         </div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 leading-tight text-white flex-shrink-0">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 leading-tight text-white flex-shrink-0 tracking-tight">
           {currentManga.title}
         </h1>
-        <p className="text-gray-300 text-sm md:text-base mb-4 max-w-lg overflow-hidden line-clamp-3">
+        <p className="text-gray-300 text-sm md:text-base mb-5 max-w-lg overflow-hidden line-clamp-3 leading-relaxed">
           {truncateDescription(currentManga.description, 180)}
         </p>
         <div className="flex flex-wrap gap-2 mb-6 flex-shrink-0">
           {currentManga.genres?.slice(0, 4).map((genre) => (
-            <Badge key={genre} className="bg-gray-800/80 text-gray-300 border-gray-600 text-xs">
+            <Badge key={genre} className="bg-white/[0.04] border border-white/[0.08] text-gray-300 text-xs px-3.5 py-1 rounded-full hover:bg-[#FF5C00]/20 hover:border-[#FF5C00]/50 hover:text-white transition-all cursor-default">
               {genre}
             </Badge>
           ))}
@@ -128,7 +131,7 @@ const HeroSlider = () => {
         <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
           <Button
             size="default"
-            className="btn-primary px-4 sm:px-6 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none w-full sm:w-auto"
+            className="bg-[#FF5C00] hover:bg-[#FF8C00] text-white font-extrabold px-6 py-2.5 rounded-xl shadow-lg shadow-[#FF5C00]/30 border-none w-full sm:w-auto transition-all hover:-translate-y-0.5"
             onClick={handleReadNow}
             disabled={loadingReadNow}
           >
@@ -144,7 +147,7 @@ const HeroSlider = () => {
           <Button
             size="default"
             variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-6 py-2 text-sm font-semibold w-full sm:w-auto"
+            className="bg-white/5 hover:bg-white/10 text-white border-white/10 px-6 py-2.5 rounded-xl text-sm font-bold w-full sm:w-auto transition-all"
             onClick={handleViewInfo}
           >
             View Info

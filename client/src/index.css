@@ -13,80 +13,80 @@
 
 @layer base {
   :root {
-    /* Content background - Dark charcoal gray (slightly lighter than pure black) */
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
+    /* Content background - deep pure dark slate/black */
+    --background: 220 18% 5%;
+    --foreground: 220 10% 98%;
 
-    /* Muted elements - darker gray for subtle backgrounds */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 63%;
+    /* Muted elements - darker slate */
+    --muted: 220 18% 9%;
+    --muted-foreground: 220 10% 65%;
 
     /* Popover backgrounds */
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 18% 5%;
+    --popover-foreground: 220 10% 98%;
 
-    /* Borders and inputs - subtle gray */
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
+    /* Borders and inputs */
+    --border: 220 18% 13%;
+    --input: 220 18% 13%;
 
     /* Cards - transparent to inherit background */
     --card: transparent;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 220 10% 98%;
 
-    /* Primary - Vibrant Purple for CTAs and active states */
-    --primary: 265 53.5% 38.8%;
-    --primary-foreground: 0 0% 98%;
+    /* Primary - Hot Orange (#FF5C00) */
+    --primary: 22 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Bright Cyan for clickable elements */
-    --secondary: 180 100% 70%;
-    --secondary-foreground: 0 0% 7%;
+    /* Secondary - Mint Green (#00FF66) */
+    --secondary: 144 100% 50%;
+    --secondary-foreground: 220 18% 5%;
 
-    /* Accent - Purple variant for highlights */
-    --accent: 265 53.5% 48.8%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent */
+    --accent: 22 100% 55%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive actions */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     /* Focus rings */
-    --ring: 265 53.5% 38.8%;
+    --ring: 22 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
-    /* Light mode - keeping original light theme structure */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
+    /* Keeping dark identical since it's a dark-first application */
+    --background: 220 18% 5%;
+    --foreground: 220 10% 98%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 220 18% 9%;
+    --muted-foreground: 220 10% 65%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 7%;
+    --accent: 22 100% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover: 220 18% 5%;
+    --popover-foreground: 220 10% 98%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 220 18% 13%;
+    --input: 220 18% 13%;
 
     --card: transparent;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 220 10% 98%;
 
-    --primary: 265 53.5% 38.8%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 22 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 100% 60%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary: 144 100% 50%;
+    --secondary-foreground: 220 18% 5%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --ring: 265 53.5% 38.8%;
+    --ring: 22 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 }
 

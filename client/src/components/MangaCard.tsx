@@ -76,22 +76,23 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
     navigate(`/manga/${uiManga.id}`);
   };
 
-  return (    <div className="group cursor-pointer transition-transform duration-300 hover:scale-105 block">
+  return (
+    <div className="group cursor-pointer transition-transform duration-300 hover:scale-[1.03] block">
       <Link to={`/manga/${uiManga.id}`} className="block">
-        <div className="relative overflow-hidden shadow-lg rounded-md">
+        <div className="relative overflow-hidden shadow-2xl rounded-xl border border-white/[0.05]">
           <img
             src={imgSrc}
             alt={uiManga.title}
-            className={`${sizeClasses[size]} object-cover transition-transform duration-300 group-hover:scale-110`}
+            className={`${sizeClasses[size]} w-full object-cover transition-transform duration-500 group-hover:scale-105`}
             onError={() => setImgSrc('/placeholder.svg')}
           />
-            {/* Status Badge - Updated to show different statuses */}
+          {/* Status Badge - Glassmorphic pills matching status */}
           <Badge 
-            className={`absolute top-0 right-0 rounded-bl-md rounded-tr-md px-3 py-1 text-foreground text-xs font-medium ${
-              uiManga.status === 'completed' ? 'bg-emerald-600' : 
-              uiManga.status === 'hiatus' ? 'bg-amber-600' :
-              uiManga.status === 'cancelled' ? 'bg-red-600' :
-              'bg-primary'
+            className={`absolute top-2 right-2 rounded-lg px-2.5 py-0.5 text-[10px] font-extrabold uppercase border-none tracking-wider ${
+              uiManga.status === 'completed' ? 'bg-[#00FF66] text-black shadow-lg shadow-[#00FF66]/25' : 
+              uiManga.status === 'hiatus' ? 'bg-amber-500 text-white' :
+              uiManga.status === 'cancelled' ? 'bg-red-600 text-white' :
+              'bg-[#FF5C00] text-white shadow-lg shadow-[#FF5C00]/25'
             }`}
           >
             {uiManga.status === 'completed' ? 'Complete' : 
@@ -100,78 +101,79 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
              'Ongoing'}
           </Badge>
           
-          {/* Language Badge - Similar to second reference image */}
+          {/* Language Badge */}
           {showLanguageBadge && (
-            <Badge className="absolute top-0 left-0 bg-secondary text-secondary-foreground text-xs font-bold rounded-tr-md rounded-bl-md px-2 py-1 z-10">
+            <Badge className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg px-2 py-0.5 border border-white/10 z-10">
               EN/JA
             </Badge>
           )}
           
-          {/* Rating - Positioned to not overlap with language badge */}
-          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-background/70 rounded px-2 py-1 flex items-center gap-1 text-primary-white text-xs`}>
-            <Star className="w-3 h-3 fill-primary text-primary" />
+          {/* Rating */}
+          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-black/60 backdrop-blur-sm rounded-lg border border-white/10 px-2 py-0.5 flex items-center gap-1 text-white text-[10px] font-bold`}>
+            <Star className="w-3 h-3 fill-[#FF5C00] text-[#FF5C00]" />
             <span>{uiManga.rating && uiManga.rating > 0 ? Number(uiManga.rating).toFixed(1) : '—'}</span>
           </div>
-            {/* Overlay on Hover - Simplified with only buttons and minimal stats */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3">
+
+          {/* Overlay on Hover - Glass blur overlay */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-[3px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-4">
             {/* Action Buttons in Center - Stacked vertically */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-3 z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 z-10 px-3">
               <Button
                 size="sm"
-                className="btn-primary-cta font-semibold shadow-lg shadow-primary/50 transition-transform hover:scale-105 w-20 sm:w-24 md:w-28 text-xs sm:text-sm"
+                className="bg-[#FF5C00] hover:bg-[#FF6B00] text-white font-extrabold shadow-lg shadow-[#FF5C00]/30 transition-transform hover:scale-105 w-full text-xs py-2 rounded-lg border-none"
                 onClick={handleReadNow}
                 disabled={loadingReadNow}
               >
                 {loadingReadNow ? 'Loading...' : (
                   <>
-                    <ReadIcon className="w-3 h-3 mr-1" />
-                    <span className="hidden sm:inline">Read Now</span>
-                    <span className="sm:hidden">Read</span>
+                    <ReadIcon className="w-3.5 h-3.5 mr-1.5" />
+                    <span>Read Now</span>
                   </>
                 )}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="border-border text-secondary hover:bg-muted font-semibold shadow-lg shadow-secondary/20 transition-transform hover:scale-105 w-20 sm:w-24 md:w-28 text-xs sm:text-sm"
+                className="bg-white/10 hover:bg-white/20 text-white font-bold border-white/10 transition-transform hover:scale-105 w-full text-xs py-2 rounded-lg"
                 onClick={handleViewInfo}
               >
-                <Info className="w-3 h-3 mr-1" />
-                Info
+                <Info className="w-3.5 h-3.5 mr-1.5" />
+                <span>Info</span>
               </Button>
             </div>
             
             {/* Simple Stats at bottom */}
-            <div className="text-primary-white mt-auto">
-              <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="text-white mt-auto z-10">
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-gray-300">
                 <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3 accent-cyan" />
+                  <Eye className="w-3 h-3 text-[#FF5C00]" />
                   <span>{uiManga.views ? formatNumber(uiManga.views) : '—'}</span>
                 </div>
                 
                 <div className="flex items-center gap-1 justify-end">
-                  <BookOpen className="w-3 h-3 accent-cyan" />
-                  <span className="text-secondary font-semibold">{uiManga.chapters ? uiManga.chapters : '—'} ch</span>
+                  <BookOpen className="w-3 h-3 text-[#FF5C00]" />
+                  <span>{uiManga.chapters ? `${uiManga.chapters} ch` : '—'}</span>
                 </div>
               </div>
             </div>
           </div>
-        </div>      </Link>
-      {/* Title and Genres below the card - Updated layout to match reference images */}
-      <div className="mt-3 space-y-1">
-        <h3 className={`${textSizes[size]} font-semibold text-primary-white line-clamp-2 transition-colors`}>
+        </div>
+      </Link>
+      {/* Title and Genres below the card */}
+      <div className="mt-3.5 space-y-1 px-1">
+        <h3 className={`${textSizes[size]} font-bold text-gray-200 group-hover:text-[#FF5C00] transition-colors line-clamp-1`}>
           {uiManga.title}
         </h3>
-        <div className="flex items-center gap-2 text-xs text-secondary-gray">
+        <div className="flex items-center gap-2 text-[11px] font-medium text-gray-400">
           {uiManga.year && (
-            <span className="text-primary/80">{uiManga.year}</span>
+            <span className="text-[#FF5C00]">{uiManga.year}</span>
           )}
           {uiManga.year && uiManga.genres.length > 0 && <span>•</span>}
-          <span className="line-clamp-1">{uiManga.genres.slice(0, 3).join(', ')}</span>
+          <span className="line-clamp-1">{uiManga.genres.slice(0, 2).join(', ')}</span>
         </div>
         {uiManga.author && (
-          <div className="text-xs text-muted-foreground line-clamp-1">
-            by {uiManga.author}
+          <div className="text-[11px] text-gray-500 line-clamp-1">
+            {uiManga.author}
           </div>
         )}
       </div>
