@@ -201,25 +201,25 @@ const Browse = () => {
   const totalPages = Math.ceil(totalResults / PAGE_SIZE);
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen">
+    <div className="main-content-frame bg-background min-h-screen">
       <Header />
       
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Page Title */}
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Browse Manga</h1>
-          <p className="text-gray-400 text-sm sm:text-base">Discover manga with advanced filters</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Browse Manga</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Discover manga with advanced filters</p>
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-gradient-to-r from-slate-900/90 via-slate-900/95 to-slate-950/90 backdrop-blur rounded-2xl p-4 sm:p-5 mb-6 border border-slate-800/80 shadow-[0_18px_45px_rgba(0,0,0,0.6)]">
+        <div className="bg-card backdrop-blur rounded-2xl p-4 sm:p-5 mb-6 border border-border shadow-sm">
           {/* Header row */}
           <div className="flex items-center justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-white tracking-tight">Filter</h2>
-              <p className="hidden sm:block text-xs text-slate-400">Refine the manga list by title, genre and status</p>
+              <h2 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">Filter</h2>
+              <p className="hidden sm:block text-xs text-muted-foreground">Refine the manga list by title, genre and status</p>
             </div>
-            <div className="text-xs sm:text-sm text-slate-400 whitespace-nowrap">
+            <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
               {loading
                 ? 'Loading manga...'
                 : `${totalResults.toLocaleString()} manga${totalResults === 1 ? '' : 's'}`}
@@ -231,13 +231,13 @@ const Browse = () => {
             {/* Search */}
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Search manga..."
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  className="pl-10 bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-500 focus:border-orange-500 focus:ring-0 h-10 rounded-xl"
+                  className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-0 h-10 rounded-xl"
                 />
               </div>
             </div>
@@ -247,8 +247,8 @@ const Browse = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowGenres(!showGenres)}
-                className={`w-full justify-between bg-slate-900/80 border-slate-700 text-slate-200 hover:bg-slate-800 rounded-xl text-sm h-10 px-3 ${
-                  selectedGenres.length > 0 ? 'border-orange-500 text-orange-400' : ''
+                className={`w-full justify-between bg-background border-border text-foreground hover:bg-muted rounded-xl text-sm h-10 px-3 ${
+                  selectedGenres.length > 0 ? 'border-primary text-primary' : ''
                 }`}
               >
                 <span>Genres {selectedGenres.length > 0 && `(${selectedGenres.length})`}</span>
@@ -258,10 +258,10 @@ const Browse = () => {
 
             {/* Year */}
             <Select value={year} onValueChange={(v) => { setYear(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
+              <SelectTrigger className="bg-background border-border text-foreground rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-700 max-h-60">
+              <SelectContent className="bg-card border-border max-h-60">
                 {YEAR_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -270,10 +270,10 @@ const Browse = () => {
 
             {/* Status */}
             <Select value={status} onValueChange={(v) => { setStatus(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
+              <SelectTrigger className="bg-background border-border text-foreground rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-700">
+              <SelectContent className="bg-card border-border">
                 {STATUS_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -282,10 +282,10 @@ const Browse = () => {
 
             {/* Demographic */}
             <Select value={demographic} onValueChange={(v) => { setDemographic(v); setCurrentPage(1); }}>
-              <SelectTrigger className="bg-slate-900/80 border-slate-700 text-slate-200 rounded-xl h-10 text-sm">
+              <SelectTrigger className="bg-background border-border text-foreground rounded-xl h-10 text-sm">
                 <SelectValue placeholder="Demographic" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-700">
+              <SelectContent className="bg-card border-border">
                 {DEMOGRAPHIC_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -295,15 +295,15 @@ const Browse = () => {
 
           {/* Genres Grid - Expandable */}
           {showGenres && (
-            <div className="border-t border-gray-700 pt-4 mt-2">
+            <div className="border-t border-border pt-4 mt-2">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-300">Select Genres</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Select Genres</h3>
                 {selectedGenres.length > 0 && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedGenres([])}
-                    className="text-orange-400 hover:text-orange-300 h-7"
+                    className="text-primary hover:text-primary/80 h-7"
                   >
                     Clear Genres
                   </Button>
@@ -318,7 +318,7 @@ const Browse = () => {
                     className={`cursor-pointer transition-all ${
                       selectedGenres.includes(name)
                         ? `${color} text-white border-transparent`
-                        : 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-500'
+                        : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
                     }`}
                   >
                     {name}
@@ -329,7 +329,7 @@ const Browse = () => {
           )}
 
           {/* Active Filters & Sort */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-700">
+          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-border">
             <div className="flex flex-wrap items-center gap-2">
               {/* Selected Genre Badges */}
               {selectedGenres.map(genre => (
@@ -349,7 +349,7 @@ const Browse = () => {
                   variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="text-slate-400 hover:text-white h-7 px-2"
+                  className="text-muted-foreground hover:text-foreground h-7 px-2"
                 >
                   <Filter className="w-3 h-3 mr-1" />
                   Clear All
@@ -359,12 +359,12 @@ const Browse = () => {
 
             {/* Sort By */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Sort:</span>
+              <span className="text-sm text-muted-foreground">Sort:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40 bg-slate-900/80 border-slate-700 text-slate-200 h-9 rounded-xl text-sm">
+                <SelectTrigger className="w-40 bg-background border-border text-foreground h-9 rounded-xl text-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700">
+                <SelectContent className="bg-card border-border">
                   {SORT_OPTIONS.map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                   ))}
@@ -376,7 +376,7 @@ const Browse = () => {
 
         {/* Results Count */}
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-gray-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             {loading ? 'Loading...' : `Showing ${mangaList.length} of ${totalResults} results`}
           </p>
         </div>
@@ -384,8 +384,8 @@ const Browse = () => {
         {/* Manga Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-            <span className="ml-3 text-gray-400">Loading manga...</span>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Loading manga...</span>
           </div>
         ) : mangaList.length > 0 ? (
           <>
@@ -407,7 +407,7 @@ const Browse = () => {
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                  className="bg-card border-border text-foreground hover:bg-muted"
                 >
                   Previous
                 </Button>
@@ -431,8 +431,8 @@ const Browse = () => {
                         onClick={() => setCurrentPage(pageNum)}
                         className={`w-10 h-10 ${
                           currentPage === pageNum 
-                            ? 'bg-orange-500 hover:bg-orange-600' 
-                            : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+                            ? 'bg-primary hover:bg-primary/95 text-primary-foreground' 
+                            : 'bg-card border-border text-foreground hover:bg-muted'
                         }`}
                       >
                         {pageNum}
@@ -445,7 +445,7 @@ const Browse = () => {
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                  className="bg-card border-border text-foreground hover:bg-muted"
                 >
                   Next
                 </Button>
@@ -454,11 +454,11 @@ const Browse = () => {
           </>
         ) : (
           <div className="text-center py-20">
-            <p className="text-gray-400 text-lg mb-4">No manga found matching your criteria.</p>
+            <p className="text-muted-foreground text-lg mb-4">No manga found matching your criteria.</p>
             <Button
               variant="outline"
               onClick={clearAllFilters}
-              className="border-orange-500 text-orange-400 hover:bg-orange-500/10"
+              className="border-primary text-primary hover:bg-primary/10"
             >
               Clear Filters
             </Button>

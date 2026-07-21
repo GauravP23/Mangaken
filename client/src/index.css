@@ -13,6 +13,49 @@
 
 @layer base {
   :root {
+    /* Content background - premium soft gray-blue (Anilist style) */
+    --background: 208 30% 94.5%;
+    --foreground: 220 18% 10%;
+
+    /* Muted elements - subtle gray */
+    --muted: 210 20% 90%;
+    --muted-foreground: 220 10% 40%;
+
+    /* Popover backgrounds */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 18% 10%;
+
+    /* Borders and inputs */
+    --border: 210 20% 86%;
+    --input: 210 20% 86%;
+
+    /* Cards - white background */
+    --card: 0 0% 100%;
+    --card-foreground: 220 18% 10%;
+
+    /* Primary - Premium Blue (#0066FF) */
+    --primary: 216 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Cobalt Blue (#0052CC) */
+    --secondary: 216 100% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent */
+    --accent: 216 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive actions */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Focus rings */
+    --ring: 216 100% 50%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
     /* Content background - deep pure dark slate/black */
     --background: 220 18% 5%;
     --foreground: 220 10% 98%;
@@ -29,20 +72,20 @@
     --border: 220 18% 13%;
     --input: 220 18% 13%;
 
-    /* Cards - transparent to inherit background */
-    --card: transparent;
+    /* Cards - dark glass style */
+    --card: 220 18% 8%;
     --card-foreground: 220 10% 98%;
 
-    /* Primary - Hot Orange (#FF5C00) */
-    --primary: 22 100% 50%;
+    /* Primary - Vibrant Blue (#3B82F6) */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Mint Green (#00FF66) */
-    --secondary: 144 100% 50%;
+    /* Secondary - Light Sky Blue */
+    --secondary: 212 96% 78%;
     --secondary-foreground: 220 18% 5%;
 
     /* Accent */
-    --accent: 22 100% 55%;
+    --accent: 217 91% 65%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive actions */
@@ -50,41 +93,7 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Focus rings */
-    --ring: 22 100% 50%;
-
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    /* Keeping dark identical since it's a dark-first application */
-    --background: 220 18% 5%;
-    --foreground: 220 10% 98%;
-
-    --muted: 220 18% 9%;
-    --muted-foreground: 220 10% 65%;
-
-    --accent: 22 100% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --popover: 220 18% 5%;
-    --popover-foreground: 220 10% 98%;
-
-    --border: 220 18% 13%;
-    --input: 220 18% 13%;
-
-    --card: transparent;
-    --card-foreground: 220 10% 98%;
-
-    --primary: 22 100% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 144 100% 50%;
-    --secondary-foreground: 220 18% 5%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --ring: 22 100% 50%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
   }
@@ -97,7 +106,8 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #0e0e0e;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     position: relative;
   }
 
@@ -105,8 +115,6 @@
     @apply bg-background text-foreground;
     font-family: 'Poppins', Arial, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background: #0e0e0e;
-    color: #aaa;
     font-size: 14px;
     line-height: 1.5em;
     font-weight: 400;

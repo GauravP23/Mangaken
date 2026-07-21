@@ -118,7 +118,7 @@ const TopManga = () => {
   };
 
   return (
-    <div className="main-content-frame bg-gray-950 min-h-screen">
+    <div className="main-content-frame bg-background min-h-screen">
       <Header />
       
       <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-10">
@@ -127,27 +127,27 @@ const TopManga = () => {
           <div className="text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
               <Trophy className="w-8 h-8 text-yellow-500" />
-              <h1 className="text-3xl sm:text-4xl font-bold text-white">Top Manga</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground">Top Manga</h1>
             </div>
-            <p className="text-gray-400 text-sm sm:text-base">
+            <p className="text-muted-foreground text-sm sm:text-base">
               Ranked lists using trending, popular and most-followed data
             </p>
           </div>
           <div className="flex justify-center sm:justify-end">
-            <div className="inline-flex bg-gray-900/80 border border-gray-800 rounded-full p-1 text-xs sm:text-sm">
+            <div className="inline-flex bg-card border border-border rounded-full p-1 text-xs sm:text-sm shadow-sm">
               {([
                 { key: 'today', label: 'Today' },
                 { key: 'week', label: 'Week' },
                 { key: 'month', label: 'Month' },
               ] as const).map(option => (
                 <button
-                  key={option.key}
-                  onClick={() => setTimeRange(option.key)}
-                  className={`px-4 py-1 rounded-full transition-colors ${
-                    timeRange === option.key
-                      ? 'bg-orange-500 text-white'
-                      : 'text-gray-300 hover:bg-gray-800'
-                  }`}
+                   key={option.key}
+                   onClick={() => setTimeRange(option.key)}
+                   className={`px-4 py-1 rounded-full transition-colors ${
+                     timeRange === option.key
+                       ? 'bg-primary text-primary-foreground'
+                       : 'text-muted-foreground hover:bg-muted'
+                   }`}
                 >
                   {option.label}
                 </button>
@@ -159,31 +159,31 @@ const TopManga = () => {
         {/* Stats Summary */}
         {!loading && mangaList.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-900/60 rounded-lg p-4 text-center">
-              <TrendingUp className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{mangaList.length}</div>
-              <div className="text-xs text-gray-400">Total Ranked</div>
+            <div className="bg-card border border-border rounded-xl p-4 text-center shadow-sm">
+              <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">{mangaList.length}</div>
+              <div className="text-xs text-muted-foreground">Total Ranked</div>
             </div>
-            <div className="bg-gray-900/60 rounded-lg p-4 text-center">
+            <div className="bg-card border border-border rounded-xl p-4 text-center shadow-sm">
               <Star className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">
+              <div className="text-2xl font-bold text-foreground">
                 {mangaList[0]?.rating ? mangaList[0].rating.toFixed(1) : '—'}
               </div>
-              <div className="text-xs text-gray-400">#1 Rating</div>
+              <div className="text-xs text-muted-foreground">#1 Rating</div>
             </div>
-            <div className="bg-gray-900/60 rounded-lg p-4 text-center">
+            <div className="bg-card border border-border rounded-xl p-4 text-center shadow-sm">
               <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">
+              <div className="text-2xl font-bold text-foreground">
                 {mangaList[0]?.views ? formatNumber(mangaList[0].views) : '—'}
               </div>
-              <div className="text-xs text-gray-400">#1 Followers</div>
+              <div className="text-xs text-muted-foreground">#1 Followers</div>
             </div>
-            <div className="bg-gray-900/60 rounded-lg p-4 text-center">
+            <div className="bg-card border border-border rounded-xl p-4 text-center shadow-sm">
               <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">
+              <div className="text-2xl font-bold text-foreground">
                 {mangaList.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-xs text-gray-400">Completed</div>
+              <div className="text-xs text-muted-foreground">Completed</div>
             </div>
           </div>
         )}
@@ -191,8 +191,8 @@ const TopManga = () => {
         {/* Loading State */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-            <span className="ml-3 text-gray-400">Loading top manga...</span>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Loading top manga...</span>
           </div>
         ) : (
           <>
@@ -206,8 +206,8 @@ const TopManga = () => {
                     to={`/manga/${manga.id}`}
                     className="block"
                   >
-                    <div className={`bg-gray-900/60 hover:bg-gray-800/80 rounded-lg p-3 sm:p-4 transition-all border border-gray-800 hover:border-gray-700 ${
-                      rank <= 3 ? 'border-l-4' : ''
+                    <div className={`bg-card hover:bg-muted/70 rounded-xl p-3 sm:p-4 transition-all border border-border hover:border-primary/40 shadow-sm ${
+                      rank <= 3 ? 'border-l-[3px]' : ''
                     } ${rank === 1 ? 'border-l-yellow-500' : rank === 2 ? 'border-l-gray-400' : rank === 3 ? 'border-l-amber-600' : ''}`}>
                       <div className="flex items-center gap-3 sm:gap-4">
                         {/* Rank */}
@@ -227,7 +227,7 @@ const TopManga = () => {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-semibold text-sm sm:text-base line-clamp-1 mb-1">
+                          <h3 className="text-foreground font-semibold text-sm sm:text-base line-clamp-1 mb-1">
                             {manga.title}
                           </h3>
                           
@@ -244,7 +244,7 @@ const TopManga = () => {
                           </div>
 
                           {/* Meta Info - Mobile Hidden */}
-                          <div className="hidden sm:flex items-center gap-4 text-xs text-gray-400">
+                          <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
                             {manga.author && (
                               <span>by {manga.author}</span>
                             )}
@@ -259,19 +259,19 @@ const TopManga = () => {
                           {/* Rating */}
                           <div className="flex items-center gap-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                            <span className="text-white font-semibold text-sm">
+                            <span className="text-foreground font-semibold text-sm">
                               {manga.rating ? (manga.rating * 10).toFixed(0) + '%' : '—'}
                             </span>
                           </div>
 
                           {/* Followers */}
-                          <div className="hidden sm:flex items-center gap-1 text-gray-400 text-sm">
+                          <div className="hidden sm:flex items-center gap-1 text-muted-foreground text-sm">
                             <Users className="w-4 h-4" />
                             <span>{manga.views ? formatNumber(manga.views) : '—'}</span>
                           </div>
 
                           {/* Chapters */}
-                          <div className="hidden md:flex items-center gap-1 text-gray-400 text-sm">
+                          <div className="hidden md:flex items-center gap-1 text-muted-foreground text-sm">
                             <BookOpen className="w-4 h-4" />
                             <span>{manga.chapters || '—'} ch</span>
                           </div>
@@ -293,7 +293,7 @@ const TopManga = () => {
               <div className="text-center mt-8">
                 <Button
                   onClick={loadMore}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+                  className="bg-primary hover:bg-primary/95 text-primary-foreground px-8"
                 >
                   Load More ({mangaList.length - visibleCount} remaining)
                 </Button>

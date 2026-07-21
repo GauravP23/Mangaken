@@ -76,15 +76,15 @@ const SearchResultsPage: React.FC = () => {
   }, [query]);
 
   return (
-    <div className="main-content-frame bg-[#0B0C0E] min-h-screen flex flex-col">
+    <div className="main-content-frame bg-background min-h-screen flex flex-col">
       <Header />
       <div className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Search Results for "{query}"</h1>
-          {loading && <div className="text-white text-sm sm:text-base py-4"><span className="loading mr-2"></span>Loading...</div>}
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Search Results for "{query}"</h1>
+          {loading && <div className="text-foreground text-sm sm:text-base py-4"><span className="loading mr-2"></span>Loading...</div>}
           {error && <div className="text-red-400 text-sm sm:text-base py-4">{error}</div>}
           {!loading && !error && results.length === 0 && (
-            <div className="text-gray-400 text-sm sm:text-base py-4">No results found.</div>
+            <div className="text-muted-foreground text-sm sm:text-base py-4">No results found.</div>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:gap-6">
             {results.map((manga) => {

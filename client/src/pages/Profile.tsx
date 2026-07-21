@@ -21,28 +21,28 @@ const Profile: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
         <aside className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-content-frame rounded-lg border border-border overflow-hidden">
+          <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm">
             <button className="w-full flex items-center gap-3 px-4 py-3 text-sm bg-primary/10 text-primary border-l-4 border-primary">
               <User className="h-4 w-4" />
               <span className="flex-1 text-left">Profile</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:bg-muted/50 hover:text-white">
+            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               <BookOpen className="h-4 w-4" />
               <span className="flex-1 text-left">Continue Reading</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:bg-muted/50 hover:text-white">
+            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               <BookMarked className="h-4 w-4" />
               <span className="flex-1 text-left">Bookmark</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:bg-muted/50 hover:text-white">
+            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               <Bell className="h-4 w-4" />
               <span className="flex-1 text-left">Notification</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:bg-muted/50 hover:text-white">
+            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               <Download className="h-4 w-4" />
               <span className="flex-1 text-left">Import & Export</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:bg-muted/50 hover:text-white">
+            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               <Settings className="h-4 w-4" />
               <span className="flex-1 text-left">Settings</span>
             </button>
@@ -51,38 +51,38 @@ const Profile: React.FC = () => {
 
         {/* Main Content */}
         <main className="flex-1">
-          <div className="bg-content-frame rounded-lg border border-border p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-white mb-8">Profile</h1>
+          <div className="bg-card rounded-lg border border-border p-6 md:p-8 shadow-sm">
+            <h1 className="text-3xl font-bold text-foreground mb-8">Profile</h1>
 
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-md shadow-primary/25">
                 {user.username.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">{user.username}</h2>
-                <p className="text-gray-400 text-sm">{user.email}</p>
+                <h2 className="text-xl font-semibold text-foreground">{user.username}</h2>
+                <p className="text-muted-foreground text-sm">{user.email}</p>
               </div>
             </div>
 
             <div className="space-y-6 max-w-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
-                <Input value={user.username} disabled className="bg-muted/30 border-gray-700/50 text-white" />
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Username</label>
+                <Input value={user.username} disabled className="bg-muted/30 border-border text-foreground" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                <Input value={user.email} disabled className="bg-muted/30 border-gray-700/50 text-white" />
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Email</label>
+                <Input value={user.email} disabled className="bg-muted/30 border-border text-foreground" />
               </div>
 
-              <div className="pt-4 border-t border-gray-700/50">
-                <div className="flex items-center gap-2 mb-4 text-blue-400">
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-4 text-primary">
                   <Lock className="h-4 w-4" />
                   <span className="font-medium">Change Password (coming soon)</span>
                 </div>
               </div>
 
-              <Button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8">
+              <Button className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground px-8">
                 Save Changes
               </Button>
             </div>

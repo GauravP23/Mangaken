@@ -46,8 +46,8 @@ const ContinueReadingSection = () => {
   return (
     <section className="mb-10">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-          <span className="w-1 h-6 rounded bg-[#FF5C00]"></span>
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+          <span className="w-1 h-6 rounded bg-primary"></span>
           Continue Reading
         </h2>
       </div>
@@ -59,10 +59,10 @@ const ContinueReadingSection = () => {
             <Link
               key={`${progress.mangaId}-${progress.chapterId}`}
               to={`/manga/${progress.mangaId}/chapter/${progress.chapterId}`}
-              className="block bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.05] hover:border-[#FF5C00]/30 rounded-2xl p-4 transition-all duration-300 shadow-md group"
+              className="block bg-card hover:bg-muted border border-border hover:border-primary/30 rounded-2xl p-4 transition-all duration-300 shadow-md group"
             >
               <div className="flex gap-4">
-                <div className="w-16 h-22 flex-shrink-0 overflow-hidden rounded-lg border border-white/[0.05]">
+                <div className="w-16 h-22 flex-shrink-0 overflow-hidden rounded-lg border border-border">
                   <img
                     src={ui.image || '/placeholder.svg'}
                     alt={ui.title}
@@ -71,10 +71,10 @@ const ContinueReadingSection = () => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-bold text-[#FF5C00] uppercase tracking-wider mb-0.5">Manga</div>
-                  <h3 className="text-sm font-semibold text-gray-200 group-hover:text-[#FF5C00] transition-colors line-clamp-1 mb-2">{ui.title}</h3>
-                  <div className="text-xs text-gray-400 font-medium">
-                    {pageLabel} <span className="text-gray-600">•</span> <span className="text-[#FF5C00]">{chapterLabel}</span>
+                  <div className="text-[10px] font-bold text-primary uppercase tracking-wider mb-0.5">Manga</div>
+                  <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-2">{ui.title}</h3>
+                  <div className="text-xs text-muted-foreground font-medium">
+                    {pageLabel} <span className="text-muted-foreground/30">•</span> <span className="text-primary">{chapterLabel}</span>
                   </div>
                 </div>
               </div>
