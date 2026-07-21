@@ -4,7 +4,7 @@ import { Github } from 'lucide-react';
 const Footer = () => {
   return (
     <footer className="bg-card border-t border-border w-full py-6 mt-auto">
-      <div className="flex flex-col items-center justify-center gap-2 px-4">
+      <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-2">
         <span className="text-lg sm:text-xl font-black text-foreground tracking-wide">Manga Ken</span>
         <span className="text-muted-foreground text-xs sm:text-sm text-center">All rights reserved to its corresponding developer</span>
         <a

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Play, Bookmark, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Bookmark } from 'lucide-react';
 import { Button } from './ui/button';
 import { getHeroManga, getMangaFeed } from '../services/mangaApi';
 import { useNavigate } from 'react-router-dom';
@@ -209,9 +209,8 @@ const HeroSlider = () => {
             <Button
               variant="outline"
               onClick={() => setBookmarked(!bookmarked)}
-              className={`rounded-2xl border border-slate-200 dark:border-border p-3 h-auto transition-all shadow-xs ${
-                bookmarked ? 'bg-primary/10 border-primary text-primary' : 'bg-white dark:bg-background hover:bg-slate-100 dark:hover:bg-muted text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
-              }`}
+              className={`rounded-2xl border border-slate-200 dark:border-border p-3 h-auto transition-all shadow-xs ${bookmarked ? 'bg-primary/10 border-primary text-primary' : 'bg-white dark:bg-background hover:bg-slate-100 dark:hover:bg-muted text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
+                }`}
               title={bookmarked ? 'Bookmarked' : 'Add to Bookmark'}
             >
               <Bookmark className={`w-5 h-5 ${bookmarked ? 'fill-current' : ''}`} />
@@ -260,11 +259,6 @@ const HeroSlider = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Decorative Star/Sparkle Icon outside card bottom right */}
-      <div className="absolute bottom-4 right-6 pointer-events-none z-20 hidden sm:block">
-        <Sparkles className="w-6 h-6 text-[#124d73] dark:text-primary opacity-60 fill-current" />
       </div>
     </div>
   );

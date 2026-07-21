@@ -13,12 +13,12 @@
 
 @layer base {
   :root {
-    /* Content background - premium soft gray-blue (Anilist style) */
-    --background: 208 30% 94.5%;
+    /* Content background - soft sky-blue (HeroSlider wallpaper background) */
+    --background: 208 32% 94.5%;
     --foreground: 220 18% 10%;
 
-    /* Muted elements - subtle gray */
-    --muted: 210 20% 90%;
+    /* Muted elements - subtle slate gray */
+    --muted: 210 20% 88%;
     --muted-foreground: 220 10% 40%;
 
     /* Popover backgrounds */
@@ -26,23 +26,23 @@
     --popover-foreground: 220 18% 10%;
 
     /* Borders and inputs */
-    --border: 210 20% 86%;
-    --input: 210 20% 86%;
+    --border: 210 20% 85%;
+    --input: 210 20% 85%;
 
-    /* Cards - white background */
+    /* Cards - pure clean white background */
     --card: 0 0% 100%;
     --card-foreground: 220 18% 10%;
 
-    /* Primary - Premium Blue (#0066FF) */
-    --primary: 216 100% 50%;
+    /* Primary - HeroSlider Teal-Blue (#3880a3) */
+    --primary: 200 52% 43%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Cobalt Blue (#0052CC) */
-    --secondary: 216 100% 40%;
+    /* Secondary - HeroSlider Navy Blue (#124d73) */
+    --secondary: 204 70% 32%;
     --secondary-foreground: 0 0% 100%;
 
     /* Accent */
-    --accent: 216 100% 55%;
+    --accent: 200 52% 48%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive actions */
@@ -50,42 +50,42 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Focus rings */
-    --ring: 216 100% 50%;
+    --ring: 200 52% 43%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Content background - deep pure dark slate/black */
-    --background: 220 18% 5%;
+    /* Content background - deep dark slate */
+    --background: 220 22% 6%;
     --foreground: 220 10% 98%;
 
     /* Muted elements - darker slate */
-    --muted: 220 18% 9%;
+    --muted: 220 18% 12%;
     --muted-foreground: 220 10% 65%;
 
     /* Popover backgrounds */
-    --popover: 220 18% 5%;
+    --popover: 220 22% 8%;
     --popover-foreground: 220 10% 98%;
 
     /* Borders and inputs */
-    --border: 220 18% 13%;
-    --input: 220 18% 13%;
+    --border: 220 18% 15%;
+    --input: 220 18% 15%;
 
-    /* Cards - dark glass style */
-    --card: 220 18% 8%;
+    /* Cards - dark slate glass */
+    --card: 220 20% 9%;
     --card-foreground: 220 10% 98%;
 
-    /* Primary - Vibrant Blue (#3B82F6) */
-    --primary: 217 91% 60%;
+    /* Primary - HeroSlider Vibrant Cyan-Blue */
+    --primary: 199 65% 52%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Light Sky Blue */
-    --secondary: 212 96% 78%;
-    --secondary-foreground: 220 18% 5%;
+    /* Secondary - HeroSlider Light Sky Blue */
+    --secondary: 204 70% 45%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Accent */
-    --accent: 217 91% 65%;
+    --accent: 199 65% 58%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive actions */
@@ -93,7 +93,7 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Focus rings */
-    --ring: 217 91% 60%;
+    --ring: 199 65% 52%;
 
     --radius: 0.75rem;
   }
