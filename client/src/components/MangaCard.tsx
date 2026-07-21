@@ -76,6 +76,14 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
     navigate(`/manga/${uiManga.id}`);
   };
 
+  // Infer Country of Origin / Format Type
+  const originFormat = React.useMemo(() => {
+    const genreStr = (uiManga.genres || []).join(' ').toLowerCase();
+    if (genreStr.includes('manhwa') || genreStr.includes('webtoon')) return { label: 'MANHWA', flag: '🇰🇷' };
+    if (genreStr.includes('manhua')) return { label: 'MANHUA', flag: '🇨🇳' };
+    return { label: 'MANGA', flag: '🇯🇵' };
+  }, [uiManga.genres]);
+
   return (
     <div className="group cursor-pointer transition-transform duration-300 hover:scale-[1.03] block">
       <Link to={`/manga/${uiManga.id}`} className="block">
@@ -89,7 +97,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
           {/* Status Badge - Glassmorphic pills matching status */}
           <Badge 
             className={`absolute top-2 right-2 rounded-lg px-2.5 py-0.5 text-[10px] font-extrabold uppercase border-none tracking-wider ${
-              uiManga.status === 'completed' ? 'bg-[#00FF66] text-black shadow-lg shadow-[#00FF66]/25' : 
+              uiManga.status === 'completed' ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-md shadow-emerald-600/20' : 
               uiManga.status === 'hiatus' ? 'bg-amber-500 text-white' :
               uiManga.status === 'cancelled' ? 'bg-red-600 text-white' :
               'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
@@ -101,16 +109,15 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
              'Ongoing'}
           </Badge>
           
-          {/* Language Badge */}
-          {showLanguageBadge && (
-            <Badge className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg px-2 py-0.5 border border-white/10 z-10">
-              EN/JA
-            </Badge>
-          )}
+          {/* Origin Badge */}
+          <Badge className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-extrabold rounded-md px-1.5 py-0.5 border border-white/10 z-10 flex items-center gap-1">
+            <span>{originFormat.flag}</span>
+            <span>{originFormat.label}</span>
+          </Badge>
           
           {/* Rating */}
-          <div className={`absolute ${showLanguageBadge ? 'top-8' : 'top-2'} left-2 bg-black/60 backdrop-blur-sm rounded-lg border border-white/10 px-2 py-0.5 flex items-center gap-1 text-white text-[10px] font-bold`}>
-            <Star className="w-3 h-3 fill-primary text-primary" />
+          <div className="absolute top-8 left-2 bg-black/70 backdrop-blur-md rounded-md border border-white/10 px-1.5 py-0.5 flex items-center gap-1 text-white text-[10px] font-bold z-10">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
             <span>{uiManga.rating && uiManga.rating > 0 ? Number(uiManga.rating).toFixed(1) : '—'}</span>
           </div>
  

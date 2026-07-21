@@ -99,14 +99,18 @@ const enhanceMangaWithBatchStats = async (mangaList: Manga[]): Promise<UIManga[]
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Filter states
+  // 3-State Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [selectedGenres, setSelectedGenres] = useState<string[]>(
+  const [includedGenres, setIncludedGenres] = useState<string[]>(
     searchParams.get('genres')?.split(',').filter(Boolean) || []
+  );
+  const [excludedGenres, setExcludedGenres] = useState<string[]>(
+    searchParams.get('excluded')?.split(',').filter(Boolean) || []
   );
   const [status, setStatus] = useState(searchParams.get('status') || 'all');
   const [demographic, setDemographic] = useState(searchParams.get('demographic') || 'all');
   const [year, setYear] = useState(searchParams.get('year') || 'all');
+  const [minRating, setMinRating] = useState(searchParams.get('minRating') || 'all');
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'followedCount');
   
   // UI states
@@ -138,14 +142,29 @@ const Browse = () => {
     };
 
     if (debouncedQuery) params.query = debouncedQuery;
-    if (selectedGenres.length > 0) params.genres = selectedGenres;
+    if (includedGenres.length > 0) params.genres = includedGenres;
     if (status !== 'all') params.status = status;
     if (demographic !== 'all') params.demographic = demographic;
     if (year !== 'all') params.year = parseInt(year);
 
     try {
       const result = await browseManga(params);
-      const enhanced = await enhanceMangaWithBatchStats(result.data);
+      let enhanced = await enhanceMangaWithBatchStats(result.data);
+
+      // Apply local Excluded Genres filtering
+      if (excludedGenres.length > 0) {
+        enhanced = enhanced.filter(ui => {
+          const mangaGenres = (ui.genres || []).map(g => g.toLowerCase());
+          return !excludedGenres.some(ex => mangaGenres.includes(ex.toLowerCase()));
+        });
+      }
+
+      // Apply Min Rating filter
+      if (minRating !== 'all') {
+        const threshold = parseFloat(minRating);
+        enhanced = enhanced.filter(ui => (ui.rating || 0) >= threshold);
+      }
+
       setMangaList(enhanced);
       setTotalResults(result.total);
     } catch (error) {
@@ -154,7 +173,7 @@ const Browse = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedQuery, selectedGenres, status, demographic, year, sortBy, currentPage]);
+  }, [debouncedQuery, includedGenres, excludedGenres, status, demographic, year, minRating, sortBy, currentPage]);
 
   useEffect(() => {
     fetchManga();
@@ -164,39 +183,43 @@ const Browse = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (debouncedQuery) params.set('q', debouncedQuery);
-    if (selectedGenres.length > 0) params.set('genres', selectedGenres.join(','));
+    if (includedGenres.length > 0) params.set('genres', includedGenres.join(','));
+    if (excludedGenres.length > 0) params.set('excluded', excludedGenres.join(','));
     if (status !== 'all') params.set('status', status);
     if (demographic !== 'all') params.set('demographic', demographic);
     if (year !== 'all') params.set('year', year);
+    if (minRating !== 'all') params.set('minRating', minRating);
     if (sortBy !== 'followedCount') params.set('sortBy', sortBy);
     setSearchParams(params);
-  }, [debouncedQuery, selectedGenres, status, demographic, year, sortBy, setSearchParams]);
+  }, [debouncedQuery, includedGenres, excludedGenres, status, demographic, year, minRating, sortBy, setSearchParams]);
 
-  const toggleGenre = (genre: string) => {
-    setSelectedGenres(prev =>
-      prev.includes(genre)
-        ? prev.filter(g => g !== genre)
-        : [...prev, genre]
-    );
+  // 3-State Tag Cycling: Neutral -> Included (Green) -> Excluded (Red) -> Neutral
+  const cycleGenreState = (genre: string) => {
+    if (includedGenres.includes(genre)) {
+      setIncludedGenres(prev => prev.filter(g => g !== genre));
+      setExcludedGenres(prev => [...prev, genre]);
+    } else if (excludedGenres.includes(genre)) {
+      setExcludedGenres(prev => prev.filter(g => g !== genre));
+    } else {
+      setIncludedGenres(prev => [...prev, genre]);
+    }
     setCurrentPage(1);
   };
 
   const clearAllFilters = () => {
     setSearchQuery('');
-    setSelectedGenres([]);
+    setIncludedGenres([]);
+    setExcludedGenres([]);
     setStatus('all');
     setDemographic('all');
     setYear('all');
+    setMinRating('all');
     setSortBy('followedCount');
     setCurrentPage(1);
   };
 
-  const getGenreColor = (genre: string) => {
-    return GENRES_WITH_COLORS.find(g => g.name === genre)?.color || 'bg-gray-500';
-  };
-
-  const hasActiveFilters = searchQuery || selectedGenres.length > 0 || status !== 'all' || 
-                           demographic !== 'all' || year !== 'all';
+  const hasActiveFilters = searchQuery || includedGenres.length > 0 || excludedGenres.length > 0 || status !== 'all' || 
+                           demographic !== 'all' || year !== 'all' || minRating !== 'all';
 
   const totalPages = Math.ceil(totalResults / PAGE_SIZE);
 
@@ -248,10 +271,10 @@ const Browse = () => {
                 variant="outline"
                 onClick={() => setShowGenres(!showGenres)}
                 className={`w-full justify-between bg-background border-border text-foreground hover:bg-muted rounded-xl text-sm h-10 px-3 ${
-                  selectedGenres.length > 0 ? 'border-primary text-primary' : ''
+                  (includedGenres.length > 0 || excludedGenres.length > 0) ? 'border-primary text-primary' : ''
                 }`}
               >
-                <span>Genres {selectedGenres.length > 0 && `(${selectedGenres.length})`}</span>
+                <span>Genres {(includedGenres.length + excludedGenres.length) > 0 && `(${includedGenres.length + excludedGenres.length})`}</span>
                 {showGenres ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </Button>
             </div>
@@ -265,6 +288,20 @@ const Browse = () => {
                 {YEAR_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            {/* Min Rating Filter */}
+            <Select value={minRating} onValueChange={(v) => { setMinRating(v); setCurrentPage(1); }}>
+              <SelectTrigger className="bg-background border-border text-foreground rounded-xl h-10 text-sm">
+                <SelectValue placeholder="Rating" />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border">
+                <SelectItem value="all">Any Rating</SelectItem>
+                <SelectItem value="9.0">9.0+ ★</SelectItem>
+                <SelectItem value="8.0">8.0+ ★</SelectItem>
+                <SelectItem value="7.0">7.0+ ★</SelectItem>
+                <SelectItem value="6.0">6.0+ ★</SelectItem>
               </SelectContent>
             </Select>
 
@@ -293,37 +330,49 @@ const Browse = () => {
             </Select>
           </div>
 
-          {/* Genres Grid - Expandable */}
+          {/* Genres Grid - Expandable 3-State Picker */}
           {showGenres && (
             <div className="border-t border-border pt-4 mt-2">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-muted-foreground">Select Genres</h3>
-                {selectedGenres.length > 0 && (
+                <div className="flex items-center gap-4 text-xs font-semibold">
+                  <span className="text-muted-foreground">Tag Filter System:</span>
+                  <span className="text-emerald-500 flex items-center gap-1">✓ Include (1 Click)</span>
+                  <span className="text-red-500 flex items-center gap-1">✕ Exclude (2 Clicks)</span>
+                </div>
+                {(includedGenres.length > 0 || excludedGenres.length > 0) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSelectedGenres([])}
-                    className="text-primary hover:text-primary/80 h-7"
+                    onClick={() => { setIncludedGenres([]); setExcludedGenres([]); }}
+                    className="text-primary hover:text-primary/80 h-7 text-xs"
                   >
-                    Clear Genres
+                    Clear All Tags
                   </Button>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                {GENRES_WITH_COLORS.map(({ name, color }) => (
-                  <Badge
-                    key={name}
-                    variant="outline"
-                    onClick={() => toggleGenre(name)}
-                    className={`cursor-pointer transition-all ${
-                      selectedGenres.includes(name)
-                        ? `${color} text-white border-transparent`
-                        : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
-                    }`}
-                  >
-                    {name}
-                  </Badge>
-                ))}
+                {GENRES_WITH_COLORS.map(({ name }) => {
+                  const isIncluded = includedGenres.includes(name);
+                  const isExcluded = excludedGenres.includes(name);
+                  return (
+                    <Badge
+                      key={name}
+                      variant="outline"
+                      onClick={() => cycleGenreState(name)}
+                      className={`cursor-pointer transition-all px-3 py-1 text-xs font-bold ${
+                        isIncluded
+                          ? 'bg-emerald-600 text-white border-transparent shadow-xs'
+                          : isExcluded
+                          ? 'bg-red-600 text-white border-transparent line-through opacity-80'
+                          : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {isIncluded && '✓ '}
+                      {isExcluded && '✕ '}
+                      {name}
+                    </Badge>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -331,15 +380,28 @@ const Browse = () => {
           {/* Active Filters & Sort */}
           <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-border">
             <div className="flex flex-wrap items-center gap-2">
-              {/* Selected Genre Badges */}
-              {selectedGenres.map(genre => (
+              {/* Included Genre Badges */}
+              {includedGenres.map(genre => (
                 <Badge
-                  key={genre}
-                  className={`${getGenreColor(genre)} text-white cursor-pointer`}
-                  onClick={() => toggleGenre(genre)}
+                  key={`inc-${genre}`}
+                  className="bg-emerald-600 text-white cursor-pointer flex items-center gap-1 text-xs font-bold"
+                  onClick={() => cycleGenreState(genre)}
+                  title="Click to change state"
                 >
-                  {genre}
-                  <X className="w-3 h-3 ml-1" />
+                  ✓ {genre}
+                  <X className="w-3 h-3 ml-0.5" />
+                </Badge>
+              ))}
+              {/* Excluded Genre Badges */}
+              {excludedGenres.map(genre => (
+                <Badge
+                  key={`exc-${genre}`}
+                  className="bg-red-600 text-white cursor-pointer flex items-center gap-1 text-xs font-bold line-through"
+                  onClick={() => cycleGenreState(genre)}
+                  title="Click to change state"
+                >
+                  ✕ {genre}
+                  <X className="w-3 h-3 ml-0.5" />
                 </Badge>
               ))}
               

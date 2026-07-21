@@ -28,6 +28,9 @@ const ChapterReaderPage: React.FC = () => {
     const [chapterList, setChapterList] = useState<Chapter[]>([]);
     const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
     const [showBottomBar, setShowBottomBar] = useState(false);
+    const [fitMode, setFitMode] = useState<'fit-container' | 'fit-width' | 'fit-height'>('fit-container');
+    const [showDrawer, setShowDrawer] = useState(false);
+    const [drawerSearch, setDrawerSearch] = useState('');
     const bottomBarTimeout = useRef<NodeJS.Timeout | null>(null);
     const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
@@ -203,45 +206,59 @@ const ChapterReaderPage: React.FC = () => {
         </div>
     );
 
+    const filteredDrawerChapters = chapterList.filter(ch => {
+        const title = ch.attributes?.title || '';
+        const num = ch.attributes?.chapter || '';
+        const q = drawerSearch.toLowerCase();
+        return title.toLowerCase().includes(q) || num.toLowerCase().includes(q);
+    });
+
+    const getFitClass = () => {
+        if (fitMode === 'fit-width') return 'w-full max-w-full';
+        if (fitMode === 'fit-height') return 'max-h-[92vh] w-auto mx-auto object-contain';
+        return 'max-w-4xl mx-auto w-full';
+    };
+
     return (
-        <div className="chapter-reader-page min-h-screen bg-black">
-            {/* Header Controls */}
-            <div className={`fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm transition-transform duration-300 ${showControls ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="chapter-reader-page min-h-screen bg-slate-950 text-foreground relative">
+            {/* Top Header Controls */}
+            <div className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-transform duration-300 ${showControls ? 'translate-y-0' : '-translate-y-full'}`}>
                 <div className="container mx-auto px-4 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             <Link to={`/manga/${serverInfo.mangaId}`}>
-                                <Button variant="ghost" size="sm" className="text-white hover:text-red-400">
+                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
                                     <ChevronLeft className="w-4 h-4 mr-1" />
-                                    Back
+                                    <span className="hidden sm:inline">Back to Manga</span>
                                 </Button>
                             </Link>
                             <Link to="/">
-                                <Button variant="ghost" size="sm" className="text-white hover:text-red-400">
+                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
                                     <Home className="w-4 h-4" />
                                 </Button>
                             </Link>
                         </div>
-                        {/* Chapter Title, Number, Dropdown, Arrows */}
+
+                        {/* Chapter Title & Selector */}
                         <div className="flex items-center gap-2">
-                            <span className="text-white font-semibold text-lg">{serverInfo?.mangaTitle}</span>
+                            <span className="text-foreground font-bold text-sm sm:text-base line-clamp-1 max-w-[200px] sm:max-w-md">{serverInfo?.mangaTitle}</span>
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 disabled={currentChapterIndex <= 0}
                                 onClick={() => goToChapter(currentChapterIndex - 1)}
-                                className="text-white hover:text-red-400"
+                                className="text-foreground hover:text-primary"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </Button>
                             <select
                                 value={currentChapterIndex}
                                 onChange={handleChapterSelect}
-                                className="bg-gray-800 text-white px-2 py-1 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                className="bg-card text-foreground px-3 py-1.5 rounded-xl border border-border text-xs sm:text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
                             >
                                 {chapterList.map((ch, idx) => (
                                     <option key={ch.id} value={idx}>
-                                        Chapter {ch.attributes?.chapter || idx + 1} - {ch.attributes?.title || ''}
+                                        Ch. {ch.attributes?.chapter || idx + 1} {ch.attributes?.title ? `- ${ch.attributes.title}` : ''}
                                     </option>
                                 ))}
                             </select>
@@ -250,61 +267,146 @@ const ChapterReaderPage: React.FC = () => {
                                 size="icon"
                                 disabled={currentChapterIndex >= chapterList.length - 1}
                                 onClick={() => goToChapter(currentChapterIndex + 1)}
-                                className="text-white hover:text-red-400"
+                                className="text-foreground hover:text-primary"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </Button>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="text-white hover:text-red-400">
-                                <List className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-white hover:text-red-400">
-                                <Settings className="w-4 h-4" />
+
+                        {/* Fit Modes & Drawer Toggle */}
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                            {/* Fit Mode Toggle */}
+                            <div className="hidden sm:flex bg-card border border-border rounded-xl p-1 text-xs">
+                                <button
+                                    onClick={() => setFitMode('fit-container')}
+                                    className={`px-2.5 py-1 rounded-lg transition-colors font-semibold ${fitMode === 'fit-container' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+                                >
+                                    Normal
+                                </button>
+                                <button
+                                    onClick={() => setFitMode('fit-width')}
+                                    className={`px-2.5 py-1 rounded-lg transition-colors font-semibold ${fitMode === 'fit-width' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+                                >
+                                    Full Width
+                                </button>
+                                <button
+                                    onClick={() => setFitMode('fit-height')}
+                                    className={`px-2.5 py-1 rounded-lg transition-colors font-semibold ${fitMode === 'fit-height' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+                                >
+                                    Fit Screen
+                                </button>
+                            </div>
+
+                            {/* Chapter List Drawer Toggle */}
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setShowDrawer(true)}
+                                className="text-foreground hover:text-primary"
+                                title="Open Chapter List Drawer"
+                            >
+                                <List className="w-5 h-5" />
                             </Button>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* Main Content */}
+
+            {/* In-Reader Chapter Drawer */}
+            {showDrawer && (
+                <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs">
+                    <div className="w-full max-w-sm bg-card border-l border-border h-full p-5 flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
+                            <h3 className="font-bold text-foreground text-lg flex items-center gap-2">
+                                <List className="w-5 h-5 text-primary" />
+                                Chapter Select
+                            </h3>
+                            <Button variant="ghost" size="sm" onClick={() => setShowDrawer(false)} className="rounded-full w-8 h-8 p-0">
+                                ✕
+                            </Button>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="mb-4">
+                            <input
+                                type="text"
+                                placeholder="Search chapter number or title..."
+                                value={drawerSearch}
+                                onChange={(e) => setDrawerSearch(e.target.value)}
+                                className="w-full px-3 py-2 bg-muted border border-border text-foreground rounded-xl text-sm focus:outline-none focus:border-primary"
+                            />
+                        </div>
+
+                        {/* Chapter List */}
+                        <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                            {filteredDrawerChapters.map((ch) => {
+                                const indexInList = chapterList.findIndex(c => c.id === ch.id);
+                                const isCurrent = ch.id === selectedChapter?.id;
+                                return (
+                                    <button
+                                        key={ch.id}
+                                        onClick={() => {
+                                            goToChapter(indexInList);
+                                            setShowDrawer(false);
+                                        }}
+                                        className={`w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold transition-all flex items-center justify-between ${
+                                            isCurrent
+                                                ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                                : 'bg-muted/40 hover:bg-muted text-foreground border-border'
+                                        }`}
+                                    >
+                                        <span className="line-clamp-1">
+                                            Ch. {ch.attributes?.chapter || '?'} {ch.attributes?.title ? `- ${ch.attributes.title}` : ''}
+                                        </span>
+                                        {isCurrent && <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Active</span>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Main Content Pages */}
             <div 
-                className="pt-20 pb-28 cursor-pointer"
+                className="pt-20 pb-28 cursor-pointer min-h-screen"
                 onClick={toggleControls}
             >
-                <div className="max-w-4xl mx-auto">
+                <div className={getFitClass()}>
                     {pages.map((pageUrl, index) => (
-                        <div key={index} className="mb-1">
+                        <div key={index} className="mb-1 flex justify-center">
                             <img
                                 src={pageUrl}
                                 alt={`Page ${index + 1}`}
-                                className="w-full h-auto block"
+                                className={`block ${fitMode === 'fit-height' ? 'max-h-[92vh] w-auto object-contain' : 'w-full h-auto'}`}
                                 loading="lazy"
                             />
                         </div>
                     ))}
                 </div>
+
                 {/* End of Chapter Navigation (Bottom Bar) */}
                 <div
                   className={`fixed bottom-0 left-0 right-0 z-50 transition-opacity duration-300 ${showBottomBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                   onMouseEnter={handleBottomBarMouseEnter}
                   onMouseLeave={handleBottomBarMouseLeave}
-                  style={{background: 'rgba(24,24,27,0.95)', borderTop: '1px solid #27272a'}}
+                  style={{background: 'rgba(15,23,42,0.95)', borderTop: '1px solid #1e293b'}}
                 >
                   <div className="container mx-auto px-4 py-3 flex items-center justify-between">
                     <Button
                         variant="outline"
                         disabled={currentChapterIndex <= 0}
                         onClick={() => goToChapter(currentChapterIndex - 1)}
-                        className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
+                        className="border-primary/40 text-primary hover:bg-primary hover:text-white font-bold disabled:opacity-50"
                     >
                         <ChevronLeft className="w-4 h-4 mr-1" />
                         Previous
                     </Button>
                     <div className="text-center flex-1 flex flex-col items-center">
-                        <span className="text-white text-lg font-semibold">Rate this Chapter</span>
-                        <div className="flex gap-1 mt-1">
+                        <span className="text-white text-base font-bold">Rate this Chapter</span>
+                        <div className="flex gap-1 mt-0.5">
                             {[1,2,3,4,5].map(star => (
-                                <Star key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" />
+                                <Star key={star} className="w-4 h-4 text-amber-400 fill-amber-400" />
                             ))}
                         </div>
                     </div>
@@ -312,7 +414,7 @@ const ChapterReaderPage: React.FC = () => {
                         variant="outline"
                         disabled={currentChapterIndex >= chapterList.length - 1}
                         onClick={() => goToChapter(currentChapterIndex + 1)}
-                        className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white disabled:opacity-50"
+                        className="border-primary/40 text-primary hover:bg-primary hover:text-white font-bold disabled:opacity-50"
                     >
                         Next
                         <ChevronRight className="w-4 h-4 ml-1" />
