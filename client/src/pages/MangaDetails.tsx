@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Eye, Calendar, User, BookOpen, Play } from 'lucide-react';
+import { Star, Eye, Calendar, User, BookOpen, Play, Bookmark } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getCompleteMangaInfo } from '../services/mangaApi';
 import { UIManga } from '../types';
+import { isBookmarked, toggleBookmark } from '../utils/bookmarks';
 
 const MangaDetail = () => {
   const { id } = useParams();
@@ -16,6 +17,7 @@ const MangaDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -23,6 +25,8 @@ const MangaDetail = () => {
     getCompleteMangaInfo(id)
       .then((data) => {
         setManga(data);
+        // Sync bookmark state from localStorage
+        setBookmarked(isBookmarked(data.id || id || ''));
         // Ensure chapters are sorted by chapter number ascending
         const sortedCh = (data.chapters || []).slice().sort((a: any, b: any) => {
           const aNum = parseFloat(a.attributes?.chapter || '0');
@@ -140,6 +144,14 @@ const MangaDetail = () => {
                   <div className="text-lg font-extrabold text-foreground truncate">{manga.author || 'N/A'}</div>
                 </div>
               </div>
+              {/* Genre Badges */}
+              {manga.genres && manga.genres.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {manga.genres.slice(0, 8).map((g: string) => (
+                    <Badge key={g} variant="secondary" className="bg-primary/10 text-primary border-primary/20 font-semibold text-xs px-3 py-1 rounded-full">{g}</Badge>
+                  ))}
+                </div>
+              )}
               {/* Action Buttons */}
               <div className="flex gap-4 pt-2">
                 {firstChapterId ? (
@@ -154,8 +166,27 @@ const MangaDetail = () => {
                     No Chapters Available
                   </Button>
                 )}
-                <Button variant="outline" className="bg-muted hover:bg-muted/80 border-border text-foreground font-bold px-6 py-2.5 rounded-xl transition-all">
-                  Add to Library
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const newState = toggleBookmark({
+                      mangaId: manga.id || id || '',
+                      title: manga.title,
+                      coverImage: manga.coverImage || manga.image,
+                      genres: manga.genres,
+                      status: manga.status,
+                      rating: manga.rating,
+                    });
+                    setBookmarked(newState);
+                  }}
+                  className={`font-bold px-6 py-2.5 rounded-xl transition-all border ${
+                    bookmarked
+                      ? 'bg-primary/10 border-primary text-primary hover:bg-primary/20'
+                      : 'bg-muted hover:bg-muted/80 border-border text-foreground'
+                  }`}
+                >
+                  <Bookmark className={`w-4 h-4 mr-2 ${bookmarked ? 'fill-current' : ''}`} />
+                  {bookmarked ? 'Bookmarked' : 'Add to Library'}
                 </Button>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Play, Bookmark } from 'lucide-react';
 import { Button } from './ui/button';
 import { getHeroManga, getMangaFeed } from '../services/mangaApi';
 import { useNavigate } from 'react-router-dom';
+import { isBookmarked, toggleBookmark } from '../utils/bookmarks';
 
 interface HeroManga {
   id: string;
@@ -26,6 +27,13 @@ const HeroSlider = () => {
   const [loadingReadNow, setLoadingReadNow] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const navigate = useNavigate();
+
+  // Sync bookmark state when current slide changes
+  useEffect(() => {
+    if (mangaList[currentSlide]) {
+      setBookmarked(isBookmarked(mangaList[currentSlide].id));
+    }
+  }, [currentSlide, mangaList]);
 
   useEffect(() => {
     let isMounted = true;
@@ -208,7 +216,17 @@ const HeroSlider = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setBookmarked(!bookmarked)}
+              onClick={() => {
+                const newState = toggleBookmark({
+                  mangaId: currentManga.id,
+                  title: currentManga.title,
+                  coverImage: currentManga.image,
+                  genres: currentManga.genres,
+                  status: currentManga.status,
+                  rating: currentManga.rating,
+                });
+                setBookmarked(newState);
+              }}
               className={`rounded-2xl border border-slate-200 dark:border-border p-3 h-auto transition-all shadow-xs ${bookmarked ? 'bg-primary/10 border-primary text-primary' : 'bg-white dark:bg-background hover:bg-slate-100 dark:hover:bg-muted text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
                 }`}
               title={bookmarked ? 'Bookmarked' : 'Add to Bookmark'}
