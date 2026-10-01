@@ -33,7 +33,7 @@ const TopMangaMiniList = ({ items, limit = 5 }: TopMangaMiniListProps) => {
           <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black ${getRankStyle(index + 1)}`}>
             {index + 1}
           </div>
-          <div className="w-11 h-15 flex-shrink-0 overflow-hidden rounded-lg border border-border shadow-md group-hover:scale-105 transition-transform duration-300">
+          <div className="w-12 h-16 flex-shrink-0 overflow-hidden rounded-lg border border-border shadow-md group-hover:scale-105 transition-transform duration-300">
             <img
               src={manga.image || '/placeholder.svg'}
               alt={manga.title}
@@ -42,9 +42,9 @@ const TopMangaMiniList = ({ items, limit = 5 }: TopMangaMiniListProps) => {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-0.5">Manga</p>
-            <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{manga.title}</p>
-            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-1">
+            <p className="text-[11px] font-bold text-primary uppercase tracking-wider mb-0.5">Manga</p>
+            <p className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{manga.title}</p>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
               <Eye className="w-3 h-3 text-primary" />
               <span>{manga.views ? manga.views.toLocaleString() : '—'} followers</span>
             </div>

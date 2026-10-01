@@ -464,12 +464,12 @@ const Browse = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-8">
                 <Button
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="bg-card border-border text-foreground hover:bg-muted"
+                  className="bg-card border-border text-foreground hover:bg-muted text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
                 >
                   Previous
                 </Button>
@@ -491,9 +491,9 @@ const Browse = () => {
                         key={pageNum}
                         variant={currentPage === pageNum ? "default" : "outline"}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`w-10 h-10 ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm p-0 ${
                           currentPage === pageNum 
-                            ? 'bg-primary hover:bg-primary/95 text-primary-foreground' 
+                            ? 'bg-primary hover:bg-primary/95 text-primary-foreground font-bold' 
                             : 'bg-card border-border text-foreground hover:bg-muted'
                         }`}
                       >
@@ -507,7 +507,7 @@ const Browse = () => {
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="bg-card border-border text-foreground hover:bg-muted"
+                  className="bg-card border-border text-foreground hover:bg-muted text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
                 >
                   Next
                 </Button>

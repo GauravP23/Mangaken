@@ -120,7 +120,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative w-full overflow-hidden py-4 sm:py-8 group/hero select-none rounded-[2.5rem] bg-gradient-to-b from-[#e3edf7] via-[#ebf3fa] to-[#e3edf7] dark:from-slate-950 dark:via-background dark:to-slate-950 border border-border/40 shadow-inner">
+    <div className="relative w-full overflow-hidden py-2 sm:py-6 group/hero select-none rounded-2xl sm:rounded-[2.5rem] bg-gradient-to-b from-[#e3edf7] via-[#ebf3fa] to-[#e3edf7] dark:from-slate-950 dark:via-background dark:to-slate-950 border border-border/40 shadow-inner">
       {/* Full-bleed Manga Panel Wallpaper Overlay (Desaturated dual-panel background framing the floating hero card) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 flex justify-between items-center opacity-30 dark:opacity-20 grayscale contrast-125">
         {/* Left background artwork panel */}
@@ -146,24 +146,24 @@ const HeroSlider = () => {
       </div>
 
       {/* Main Floating Hero Card */}
-      <div className="relative z-10 max-w-6xl mx-auto my-2 sm:my-4 bg-white/40 dark:bg-card/45 backdrop-blur-md border border-white/70 dark:border-border/60 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-5 sm:p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 min-h-[440px] overflow-hidden">
+      <div className="relative z-10 max-w-6xl mx-auto my-1 sm:my-4 bg-white/40 dark:bg-card/45 backdrop-blur-md border border-white/70 dark:border-border/60 rounded-2xl sm:rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-4 sm:p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 md:gap-8 min-h-[360px] sm:min-h-[440px] overflow-hidden">
         {/* Left Side Accent Line */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-20 bg-[#124d73] dark:bg-primary rounded-r-full shadow-md shadow-primary/40 hidden sm:block" />
 
         {/* Left Column: Info & Actions */}
-        <div className="w-full md:w-[55%] lg:w-[52%] flex flex-col justify-center space-y-4 text-left z-10">
+        <div className="w-full md:w-[55%] lg:w-[52%] flex flex-col justify-center space-y-3 sm:space-y-4 text-left z-10">
           {/* Badges Row */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="bg-[#124d73] dark:bg-primary text-white text-[11px] font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="bg-[#124d73] dark:bg-primary text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
               MANGA
             </span>
-            <span className="bg-slate-100/70 dark:bg-muted/70 text-slate-700 dark:text-muted-foreground border border-slate-200/60 dark:border-border/60 text-[11px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="bg-slate-100/70 dark:bg-muted/70 text-slate-700 dark:text-muted-foreground border border-slate-200/60 dark:border-border/60 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               {currentManga.status ? currentManga.status.toUpperCase() : 'ONGOING'}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-foreground leading-tight line-clamp-2 drop-shadow-xs">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-foreground leading-tight line-clamp-2 drop-shadow-xs">
             {currentManga.title}
           </h1>
 
@@ -172,30 +172,30 @@ const HeroSlider = () => {
             {truncateDescription(currentManga.description, 210)}
           </p>
 
-          {/* Stats Box (Animekai / Anilist style) */}
-          <div className="bg-white/35 dark:bg-muted/20 border border-white/60 dark:border-border/40 rounded-2xl p-3 sm:p-4 max-w-lg shadow-xs grid grid-cols-4 gap-2 text-left backdrop-blur-xs">
-            <div className="pr-2">
-              <span className="block text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider mb-0.5">RATING</span>
-              <div className="text-xs sm:text-sm md:text-base font-extrabold text-slate-800 dark:text-foreground flex items-center gap-1">
+          {/* Stats Box (Animekai / Anilist style) - 2 cols on mobile, 4 cols on tablet+ */}
+          <div className="bg-white/40 dark:bg-muted/30 border border-white/60 dark:border-border/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 max-w-lg shadow-xs grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 text-left backdrop-blur-xs">
+            <div className="pr-1 sm:pr-2">
+              <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mb-0.5">RATING</span>
+              <div className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-foreground flex items-center gap-1">
                 <span>{currentManga.rating && currentManga.rating > 0 ? currentManga.rating.toFixed(1) : '8.8'}</span>
                 <span className="text-amber-400 text-xs">★</span>
               </div>
             </div>
-            <div className="border-l border-slate-200 dark:border-border/60 pl-3 pr-2">
-              <span className="block text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider mb-0.5">RELEASE</span>
-              <div className="text-xs sm:text-sm md:text-base font-extrabold text-slate-800 dark:text-foreground truncate">
+            <div className="border-l border-slate-200 dark:border-border/60 pl-3 pr-1 sm:pr-2">
+              <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mb-0.5">RELEASE</span>
+              <div className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-foreground truncate">
                 {currentManga.year || '2023'}
               </div>
             </div>
-            <div className="border-l border-slate-200 dark:border-border/60 pl-3 pr-2">
-              <span className="block text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider mb-0.5">FORMAT</span>
-              <div className="text-xs sm:text-sm md:text-base font-extrabold text-slate-800 dark:text-foreground capitalize truncate">
+            <div className="sm:border-l sm:border-slate-200 sm:dark:border-border/60 sm:pl-3 pr-1 sm:pr-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-border/40">
+              <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mb-0.5">FORMAT</span>
+              <div className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-foreground capitalize truncate">
                 {currentManga.type || 'Manga'}
               </div>
             </div>
-            <div className="border-l border-slate-200 dark:border-border/60 pl-3">
-              <span className="block text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider mb-0.5">TYPE</span>
-              <div className="text-xs sm:text-xs font-bold text-slate-800 dark:text-foreground truncate capitalize" title={formatGenreList()}>
+            <div className="border-l border-slate-200 dark:border-border/60 pl-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-border/40">
+              <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mb-0.5">TYPE</span>
+              <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-foreground truncate capitalize" title={formatGenreList()}>
                 {formatGenreList()}
               </div>
             </div>
@@ -206,7 +206,7 @@ const HeroSlider = () => {
             <Button
               onClick={handleReadNow}
               disabled={loadingReadNow}
-              className="bg-[#3880a3] hover:bg-[#2b6582] dark:bg-primary dark:hover:bg-primary/90 text-white font-bold rounded-full px-8 py-3 text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-2 border-none h-auto"
+              className="bg-[#3880a3] hover:bg-[#2b6582] dark:bg-primary dark:hover:bg-primary/90 text-white font-bold rounded-full px-6 sm:px-8 py-3 text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-2 border-none h-auto flex-1 sm:flex-initial"
             >
               {loadingReadNow ? (
                 <span>LOADING...</span>
@@ -227,7 +227,7 @@ const HeroSlider = () => {
                 });
                 setBookmarked(newState);
               }}
-              className={`rounded-2xl border border-slate-200 dark:border-border p-3 h-auto transition-all shadow-xs ${bookmarked ? 'bg-primary/10 border-primary text-primary' : 'bg-white dark:bg-background hover:bg-slate-100 dark:hover:bg-muted text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
+              className={`rounded-2xl border border-slate-200 dark:border-border p-3 h-auto transition-all shadow-xs shrink-0 ${bookmarked ? 'bg-primary/10 border-primary text-primary' : 'bg-white dark:bg-background hover:bg-slate-100 dark:hover:bg-muted text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
                 }`}
               title={bookmarked ? 'Bookmarked' : 'Add to Bookmark'}
             >
@@ -237,11 +237,11 @@ const HeroSlider = () => {
         </div>
 
         {/* Right Column: Character Artwork & Watermark */}
-        <div className="w-full md:w-[45%] lg:w-[48%] relative flex items-center justify-center min-h-[260px] sm:min-h-[320px] md:min-h-[360px] overflow-hidden rounded-2xl">
+        <div className="w-full md:w-[45%] lg:w-[48%] relative flex items-center justify-center min-h-[220px] sm:min-h-[320px] md:min-h-[360px] overflow-hidden rounded-2xl">
           {/* Kanji Typography Watermark */}
           <div className="absolute inset-0 flex flex-col justify-center items-center select-none pointer-events-none opacity-[0.08] dark:opacity-[0.14] z-0 font-serif leading-none tracking-widest text-slate-900 dark:text-foreground text-center">
-            <span className="text-6xl sm:text-7xl md:text-8xl font-black">東京</span>
-            <span className="text-5xl sm:text-6xl md:text-7xl font-bold mt-1">喰種</span>
+            <span className="text-5xl sm:text-7xl md:text-8xl font-black">東京</span>
+            <span className="text-4xl sm:text-6xl md:text-7xl font-bold mt-1">喰種</span>
             <span className="text-xs sm:text-sm tracking-widest font-sans uppercase mt-2 opacity-80">{currentManga.title}</span>
           </div>
 
@@ -251,7 +251,7 @@ const HeroSlider = () => {
               key={currentManga.id}
               src={currentManga.image}
               alt={currentManga.title}
-              className="max-h-[280px] sm:max-h-[340px] md:max-h-[380px] w-auto object-contain rounded-2xl drop-shadow-2xl transition-all duration-700 hover:scale-[1.02]"
+              className="max-h-[240px] sm:max-h-[340px] md:max-h-[380px] w-auto object-contain rounded-2xl drop-shadow-2xl transition-all duration-700 hover:scale-[1.02]"
               onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
             />
           </div>

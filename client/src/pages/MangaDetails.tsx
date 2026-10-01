@@ -78,47 +78,47 @@ const MangaDetail = () => {
     <div className="main-content-frame bg-background text-foreground min-h-screen flex flex-col">
       <Header />
       <div className="flex-1">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
           {/* Manga Header */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10 mb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10 mb-8 sm:mb-10">
             {/* Cover Image */}
             <div className="lg:col-span-1 flex justify-center">
               <img
                 src={manga.coverImage || manga.image || '/placeholder.svg'}
                 alt={manga.title}
-                className="w-full max-w-xs sm:max-w-sm rounded-2xl shadow-2xl border border-border"
+                className="w-48 sm:w-64 lg:w-full max-w-xs sm:max-w-sm rounded-2xl shadow-2xl border border-border object-cover aspect-[2/3]"
               />
             </div>
             {/* Manga Info */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-5 sm:space-y-6">
               {/* Manga Title */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight tracking-tight">{manga.title}</h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight tracking-tight text-center sm:text-left">{manga.title}</h1>
               {/* Stats Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <Star className="w-5 h-5 text-primary fill-primary mx-auto mb-2" />
-                  <div className="text-xl sm:text-2xl font-black text-foreground">{manga.rating !== undefined && manga.rating > 0 ? manga.rating.toFixed(1) : '—'}</div>
-                  <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mt-0.5">Rating</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <Star className="w-5 h-5 text-primary fill-primary mx-auto mb-1.5 sm:mb-2" />
+                  <div className="text-lg sm:text-2xl font-black text-foreground">{manga.rating !== undefined && manga.rating > 0 ? manga.rating.toFixed(1) : '—'}</div>
+                  <div className="text-muted-foreground text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">Rating</div>
                 </div>
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <Eye className="w-5 h-5 text-primary mx-auto mb-2" />
-                  <div className="text-xl sm:text-2xl font-black text-foreground">{typeof manga.follows === 'number' ? manga.follows.toLocaleString() : '—'}</div>
-                  <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mt-0.5">Views</div>
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <Eye className="w-5 h-5 text-primary mx-auto mb-1.5 sm:mb-2" />
+                  <div className="text-lg sm:text-2xl font-black text-foreground">{typeof manga.follows === 'number' ? manga.follows.toLocaleString() : '—'}</div>
+                  <div className="text-muted-foreground text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">Views</div>
                 </div>
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <BookOpen className="w-5 h-5 text-primary mx-auto mb-2" />
-                  <div className="text-xl sm:text-2xl font-black text-foreground">{chapterCount !== null ? chapterCount : '—'}</div>
-                  <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mt-0.5">Chapters</div>
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <BookOpen className="w-5 h-5 text-primary mx-auto mb-1.5 sm:mb-2" />
+                  <div className="text-lg sm:text-2xl font-black text-foreground">{chapterCount !== null ? chapterCount : '—'}</div>
+                  <div className="text-muted-foreground text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">Chapters</div>
                 </div>
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <Calendar className="w-5 h-5 text-primary mx-auto mb-2" />
-                  <div className="text-xl sm:text-2xl font-black text-foreground capitalize">{manga.status || '—'}</div>
-                  <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mt-0.5">Status</div>
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <Calendar className="w-5 h-5 text-primary mx-auto mb-1.5 sm:mb-2" />
+                  <div className="text-lg sm:text-2xl font-black text-foreground capitalize">{manga.status || '—'}</div>
+                  <div className="text-muted-foreground text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">Status</div>
                 </div>
               </div>
               {/* Description/Synopsis */}
-              <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <h3 className="text-md font-bold uppercase tracking-wider text-foreground mb-2 flex items-center gap-2">
+              <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm">
+                <h3 className="text-sm sm:text-md font-bold uppercase tracking-wider text-foreground mb-2 flex items-center gap-2">
                   <span className="w-1 h-4 bg-primary rounded"></span>
                   Synopsis
                 </h3>
@@ -134,14 +134,14 @@ const MangaDetail = () => {
                 </p>
               </div>
               {/* Type and Author Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Type</span>
-                  <div className="text-lg font-extrabold text-foreground capitalize">Manga</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <span className="block text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Type</span>
+                  <div className="text-base sm:text-lg font-extrabold text-foreground capitalize">Manga</div>
                 </div>
-                <div className="bg-card border border-border p-4 rounded-2xl text-center shadow-sm">
-                  <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Author</span>
-                  <div className="text-lg font-extrabold text-foreground truncate">{manga.author || 'N/A'}</div>
+                <div className="bg-card border border-border p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center shadow-sm">
+                  <span className="block text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Author</span>
+                  <div className="text-base sm:text-lg font-extrabold text-foreground truncate">{manga.author || 'N/A'}</div>
                 </div>
               </div>
               {/* Genre Badges */}
@@ -153,16 +153,16 @@ const MangaDetail = () => {
                 </div>
               )}
               {/* Action Buttons */}
-              <div className="flex gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
                 {firstChapterId ? (
-                  <Link to={`/manga/${manga.id}/chapter/${firstChapterId}`}>
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground border-none font-bold px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-primary/25">
+                  <Link to={`/manga/${manga.id}/chapter/${firstChapterId}`} className="w-full sm:w-auto">
+                    <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground border-none font-bold px-7 py-3 rounded-xl transition-all shadow-lg shadow-primary/25 text-sm h-11">
                       <Play className="w-4 h-4 mr-2 fill-current" />
                       Start Reading
                     </Button>
                   </Link>
                 ) : (
-                  <Button disabled className="bg-muted text-muted-foreground font-bold px-6 py-2.5 rounded-xl">
+                  <Button disabled className="w-full sm:w-auto bg-muted text-muted-foreground font-bold px-7 py-3 rounded-xl text-sm h-11">
                     No Chapters Available
                   </Button>
                 )}
@@ -179,7 +179,7 @@ const MangaDetail = () => {
                     });
                     setBookmarked(newState);
                   }}
-                  className={`font-bold px-6 py-2.5 rounded-xl transition-all border ${
+                  className={`w-full sm:w-auto font-bold px-7 py-3 rounded-xl transition-all border text-sm h-11 ${
                     bookmarked
                       ? 'bg-primary/10 border-primary text-primary hover:bg-primary/20'
                       : 'bg-muted hover:bg-muted/80 border-border text-foreground'

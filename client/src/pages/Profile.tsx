@@ -47,34 +47,35 @@ const Profile: React.FC = () => {
 
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar Navigation */}
+          {/* Sidebar Navigation - 2x2 Grid on Mobile, Vertical on Tablet/Desktop */}
           <aside className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm p-2 space-y-1">
+            <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm p-1.5 sm:p-2 grid grid-cols-2 md:grid-cols-1 gap-1">
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === 'profile'
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <User className="h-4 w-4" />
-                <span className="flex-1 text-left">Profile & Stats</span>
+                <User className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-left truncate">Profile & Stats</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('continue-reading')}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center justify-between gap-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === 'continue-reading'
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-4 w-4" />
-                  <span className="text-left">Continue Reading</span>
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <BookOpen className="h-4 w-4 shrink-0" />
+                  <span className="text-left truncate">History</span>
                 </div>
                 {readingList.length > 0 && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                  <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-bold shrink-0 ${
                     activeTab === 'continue-reading' ? 'bg-white/20 text-white' : 'bg-muted text-foreground'
                   }`}>
                     {readingList.length}
@@ -84,18 +85,18 @@ const Profile: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab('bookmarks')}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center justify-between gap-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === 'bookmarks'
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <BookMarked className="h-4 w-4" />
-                  <span className="text-left">Bookmarks</span>
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <BookMarked className="h-4 w-4 shrink-0" />
+                  <span className="text-left truncate">Bookmarks</span>
                 </div>
                 {bookmarksList.length > 0 && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                  <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-bold shrink-0 ${
                     activeTab === 'bookmarks' ? 'bg-white/20 text-white' : 'bg-muted text-foreground'
                   }`}>
                     {bookmarksList.length}
@@ -105,14 +106,14 @@ const Profile: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab('settings')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === 'settings'
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <Settings className="h-4 w-4" />
-                <span className="flex-1 text-left">Settings</span>
+                <Settings className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-left truncate">Settings</span>
               </button>
             </div>
           </aside>

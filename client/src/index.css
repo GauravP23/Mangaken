@@ -115,17 +115,18 @@
     @apply bg-background text-foreground;
     font-family: 'Poppins', Arial, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-size: 14px;
-    line-height: 1.5em;
+    font-size: 15px;
+    line-height: 1.55em;
     font-weight: 400;
     margin: 0;
     padding: 0;
-    -webkit-text-size-adjust: none;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   /* Main content frame/container */
   .main-content-frame {
-    max-width: 1366px;
+    max-width: 1536px;
     margin: 0 auto;
     background-color: hsl(var(--background));
     min-height: 100vh;

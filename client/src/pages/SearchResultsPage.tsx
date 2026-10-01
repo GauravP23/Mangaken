@@ -79,14 +79,14 @@ const SearchResultsPage: React.FC = () => {
     <div className="main-content-frame bg-background min-h-screen flex flex-col">
       <Header />
       <div className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Search Results for "{query}"</h1>
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 lg:py-10">
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6">Search Results for "{query}"</h1>
           {loading && <div className="text-foreground text-sm sm:text-base py-4"><span className="loading mr-2"></span>Loading...</div>}
           {error && <div className="text-red-400 text-sm sm:text-base py-4">{error}</div>}
           {!loading && !error && results.length === 0 && (
             <div className="text-muted-foreground text-sm sm:text-base py-4">No results found.</div>
           )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
             {results.map((manga) => {
               const coverRel = manga.relationships?.find((r: Relationship) => r.type === 'cover_art');
               const coverFileName = (coverRel?.attributes as { fileName?: string })?.fileName;

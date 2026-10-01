@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw, Trophy, User, BookMarked, Bell, Settings, LogOut, BookOpen, Download, Sun, Moon } from 'lucide-react';
+import { Search, Menu, X, Filter, Grid3X3, Shuffle, Star, Clock, TrendingUp, RotateCcw, Trophy, User, BookMarked, Bell, Settings, LogOut, BookOpen, Download, Sun, Moon, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
@@ -94,6 +94,10 @@ const Header: React.FC = () => {
   };
   const handleTop = () => {
     navigate('/top');
+  };
+
+  const handleAniList = () => {
+    navigate('/anilist');
   };
 
   const openAuthModal = (mode: 'login' | 'register') => {
@@ -215,6 +219,16 @@ const Header: React.FC = () => {
               <Trophy className="h-3.5 w-3.5 mr-1" />
               TOP
             </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs font-semibold tracking-wider bg-blue-600/15 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg uppercase transition-all border border-blue-600/30"
+              onClick={handleAniList}
+            >
+              <BarChart3 className="h-3.5 w-3.5 mr-1" />
+              AniList
+            </Button>
           </nav>
 
           {/* User / Theme Toggle / Auth Links */}
@@ -323,23 +337,43 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button & Mobile Theme Toggle */}
-          <div className="flex items-center space-x-2 lg:hidden">
+          {/* Mobile Menu Button, Mobile Avatar & Mobile Theme Toggle */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 lg:hidden">
             {mounted && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="text-muted-foreground hover:text-primary hover:bg-transparent"
+                className="text-muted-foreground hover:text-primary hover:bg-transparent p-2"
+                aria-label="Toggle theme"
               >
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
             )}
+
+            {user ? (
+              <button
+                onClick={() => navigate('/profile')}
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-primary/20"
+                title="My Profile"
+              >
+                {user.username.charAt(0).toUpperCase()}
+              </button>
+            ) : (
+              <button
+                onClick={() => openAuthModal('login')}
+                className="text-xs font-bold text-primary px-2.5 py-1 rounded-lg border border-primary/30 hover:bg-primary/10 transition-colors"
+              >
+                Sign In
+              </button>
+            )}
+
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground flex-shrink-0"
+              className="text-foreground flex-shrink-0 p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Open menu"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -348,93 +382,114 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border">
+          <div className="lg:hidden py-4 border-t border-border animate-in slide-in-from-top-2 duration-200">
+            {/* User Info / Auth Prompt on Mobile */}
+            {user ? (
+              <div className="mb-4 p-3 bg-muted/40 rounded-xl border border-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{user.username}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs h-8 px-2.5"
+                    onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
+                  >
+                    Profile
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs h-8 px-2 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button
+                  onClick={() => { openAuthModal('login'); setIsMenuOpen(false); }}
+                  className="w-full text-center py-2.5 px-3 rounded-xl border border-border bg-card hover:bg-muted text-foreground font-bold text-xs transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => { openAuthModal('register'); setIsMenuOpen(false); }}
+                  className="w-full text-center py-2.5 px-3 rounded-xl bg-primary text-white font-bold text-xs shadow-md shadow-primary/25 transition-all"
+                >
+                  Register
+                </button>
+              </div>
+            )}
+
             {/* Mobile Search */}
             <form onSubmit={handleSearch} className="mb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   type="text"
                   placeholder="Search manga..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-full"
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 bg-muted/80 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl text-base h-11"
                 />
               </div>
             </form>
 
             {/* Mobile Navigation */}
-            <nav className="flex flex-col space-y-2">
+            <nav className="flex flex-col space-y-1 font-medium">
               <Button
                 variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
+                className="justify-start text-foreground hover:text-primary hover:bg-muted/50 h-11 text-sm font-semibold rounded-xl"
+                onClick={() => { handleGenres(); setIsMenuOpen(false); }}
               >
-                <Filter className="h-4 w-4 mr-2" />
-                FILTER
+                <Grid3X3 className="h-4 w-4 mr-3 text-primary" />
+                BROWSE & GENRES
               </Button>
               
               <Button
                 variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
+                className="justify-start text-foreground hover:text-primary hover:bg-muted/50 h-11 text-sm font-semibold rounded-xl"
+                onClick={() => { handleNew(); setIsMenuOpen(false); }}
               >
-                <Grid3X3 className="h-4 w-4 mr-2" />
-                GENRES
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Shuffle className="h-4 w-4 mr-2" />
-                TYPES
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Star className="h-4 w-4 mr-2" />
+                <Star className="h-4 w-4 mr-3 text-amber-500" />
                 NEW RELEASES
               </Button>
               
               <Button
                 variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
+                className="justify-start text-foreground hover:text-primary hover:bg-muted/50 h-11 text-sm font-semibold rounded-xl"
+                onClick={() => { handleOngoing(); setIsMenuOpen(false); }}
               >
-                <Clock className="h-4 w-4 mr-2" />
-                UPDATES
+                <TrendingUp className="h-4 w-4 mr-3 text-emerald-500" />
+                ONGOING SERIES
               </Button>
               
               <Button
                 variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <TrendingUp className="h-4 w-4 mr-2" />
-                ONGOING
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
+                className="justify-start text-foreground hover:text-primary hover:bg-muted/50 h-11 text-sm font-semibold rounded-xl"
                 onClick={() => { handleTop(); setIsMenuOpen(false); }}
               >
-                <Trophy className="h-4 w-4 mr-2" />
-                TOP MANGA
+                <Trophy className="h-4 w-4 mr-3 text-amber-500" />
+                TOP RANKED MANGA
               </Button>
-              
+
               <Button
                 variant="ghost"
-                className="justify-start text-clickable hover:text-primary hover:bg-muted/50"
-                onClick={() => setIsMenuOpen(false)}
+                className="justify-start text-blue-500 hover:text-white hover:bg-blue-600 h-11 text-sm font-semibold rounded-xl border border-blue-500/20 bg-blue-500/10"
+                onClick={() => { handleAniList(); setIsMenuOpen(false); }}
               >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                RECENT
+                <BarChart3 className="h-4 w-4 mr-3" />
+                ANILIST STATS HUB
               </Button>
             </nav>
           </div>

@@ -62,7 +62,7 @@ const ContinueReadingSection = () => {
               className="block bg-card hover:bg-muted border border-border hover:border-primary/30 rounded-2xl p-4 transition-all duration-300 shadow-md group"
             >
               <div className="flex gap-4">
-                <div className="w-16 h-22 flex-shrink-0 overflow-hidden rounded-lg border border-border">
+                <div className="w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg border border-border">
                   <img
                     src={ui.image || '/placeholder.svg'}
                     alt={ui.title}
@@ -71,10 +71,10 @@ const ContinueReadingSection = () => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-bold text-primary uppercase tracking-wider mb-0.5">Manga</div>
-                  <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-2">{ui.title}</h3>
+                  <div className="text-[11px] font-bold text-primary uppercase tracking-wider mb-0.5">Manga</div>
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-2">{ui.title}</h3>
                   <div className="text-xs text-muted-foreground font-medium">
-                    {pageLabel} <span className="text-muted-foreground/30">•</span> <span className="text-primary">{chapterLabel}</span>
+                    {pageLabel} <span className="text-muted-foreground/30">•</span> <span className="text-primary font-semibold">{chapterLabel}</span>
                   </div>
                 </div>
               </div>

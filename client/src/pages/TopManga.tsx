@@ -252,7 +252,7 @@ const TopManga = () => {
                           </div>
 
                           {/* Cover Image */}
-                          <div className="w-12 h-16 sm:w-16 sm:h-22 flex-shrink-0 overflow-hidden rounded-xl border border-border shadow-xs">
+                          <div className="w-14 h-20 sm:w-16 sm:h-24 flex-shrink-0 overflow-hidden rounded-xl border border-border shadow-xs">
                             <img
                               src={manga.image || '/placeholder.svg'}
                               alt={manga.title}
@@ -269,10 +269,10 @@ const TopManga = () => {
                             
                             {/* Genre Badges */}
                             <div className="flex flex-wrap gap-1.5 mb-2">
-                              {manga.genres.slice(0, 4).map((genre) => (
+                              {manga.genres.slice(0, 3).map((genre) => (
                                 <Badge
                                   key={genre}
-                                  className={`${GENRE_COLORS[genre] || 'bg-slate-600'} text-white text-[10px] px-2 py-0.5 rounded-md border-none font-semibold`}
+                                  className={`${GENRE_COLORS[genre] || 'bg-slate-600'} text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-md border-none font-semibold`}
                                 >
                                   {genre}
                                 </Badge>

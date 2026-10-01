@@ -223,38 +223,39 @@ const ChapterReaderPage: React.FC = () => {
         <div className="chapter-reader-page min-h-screen bg-slate-950 text-foreground relative">
             {/* Top Header Controls */}
             <div className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-transform duration-300 ${showControls ? 'translate-y-0' : '-translate-y-full'}`}>
-                <div className="container mx-auto px-4 py-3">
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 sm:gap-4">
+                <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+                    <div className="flex items-center justify-between gap-1.5 sm:gap-4">
+                        <div className="flex items-center gap-1 sm:gap-3">
                             <Link to={`/manga/${serverInfo.mangaId}`}>
-                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
-                                    <ChevronLeft className="w-4 h-4 mr-1" />
-                                    <span className="hidden sm:inline">Back to Manga</span>
+                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary px-2 sm:px-3">
+                                    <ChevronLeft className="w-4 h-4 mr-0.5 sm:mr-1" />
+                                    <span className="hidden sm:inline">Back</span>
                                 </Button>
                             </Link>
                             <Link to="/">
-                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+                                <Button variant="ghost" size="sm" className="text-foreground hover:text-primary px-2">
                                     <Home className="w-4 h-4" />
                                 </Button>
                             </Link>
                         </div>
 
                         {/* Chapter Title & Selector */}
-                        <div className="flex items-center gap-2">
-                            <span className="text-foreground font-bold text-sm sm:text-base line-clamp-1 max-w-[200px] sm:max-w-md">{serverInfo?.mangaTitle}</span>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <span className="hidden md:inline text-foreground font-bold text-sm sm:text-base line-clamp-1 max-w-[150px] sm:max-w-xs">{serverInfo?.mangaTitle}</span>
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 disabled={currentChapterIndex <= 0}
                                 onClick={() => goToChapter(currentChapterIndex - 1)}
-                                className="text-foreground hover:text-primary"
+                                className="text-foreground hover:text-primary h-8 w-8 sm:h-9 sm:w-9"
+                                aria-label="Previous chapter"
                             >
-                                <ChevronLeft className="w-5 h-5" />
+                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                             </Button>
                             <select
                                 value={currentChapterIndex}
                                 onChange={handleChapterSelect}
-                                className="bg-card text-foreground px-3 py-1.5 rounded-xl border border-border text-xs sm:text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                                className="bg-card text-foreground px-2 sm:px-3 py-1.5 rounded-xl border border-border text-xs sm:text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary max-w-[125px] sm:max-w-[180px] md:max-w-[220px] truncate"
                             >
                                 {chapterList.map((ch, idx) => (
                                     <option key={ch.id} value={idx}>
@@ -267,9 +268,10 @@ const ChapterReaderPage: React.FC = () => {
                                 size="icon"
                                 disabled={currentChapterIndex >= chapterList.length - 1}
                                 onClick={() => goToChapter(currentChapterIndex + 1)}
-                                className="text-foreground hover:text-primary"
+                                className="text-foreground hover:text-primary h-8 w-8 sm:h-9 sm:w-9"
+                                aria-label="Next chapter"
                             >
-                                <ChevronRight className="w-5 h-5" />
+                                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             </Button>
                         </div>
 

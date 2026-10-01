@@ -30,9 +30,9 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
   const navigate = useNavigate();
   const [loadingReadNow, setLoadingReadNow] = React.useState(false);
   const sizeClasses = {
-    small: 'w-24 h-32 sm:w-28 sm:h-40 md:w-32 md:h-44',
-    medium: 'w-32 h-44 sm:w-36 sm:h-52 md:w-40 md:h-60',
-    large: 'w-36 h-52 sm:w-44 sm:h-60 md:w-48 md:h-68'
+    small: 'aspect-[2/3] min-h-[140px] sm:min-h-[160px]',
+    medium: 'aspect-[2/3] min-h-[210px] sm:min-h-[240px] md:min-h-[270px]',
+    large: 'aspect-[2/3] min-h-[250px] sm:min-h-[290px] md:min-h-[330px]'
   };
 
   const textSizes = {
@@ -85,9 +85,9 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
   }, [uiManga.genres]);
 
   return (
-    <div className="group cursor-pointer transition-transform duration-300 hover:scale-[1.03] block">
+    <div className="group cursor-pointer transition-transform duration-300 hover:scale-[1.03] block w-full">
       <Link to={`/manga/${uiManga.id}`} className="block">
-        <div className="relative overflow-hidden shadow-2xl rounded-xl border border-border bg-card">
+        <div className="relative overflow-hidden shadow-xl sm:shadow-2xl rounded-xl border border-border bg-card">
           <img
             src={imgSrc}
             alt={uiManga.title}
@@ -96,7 +96,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
           />
           {/* Status Badge - Glassmorphic pills matching status */}
           <Badge 
-            className={`absolute top-2 right-2 rounded-lg px-2.5 py-0.5 text-[10px] font-extrabold uppercase border-none tracking-wider ${
+            className={`absolute top-2 right-2 rounded-lg px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-extrabold uppercase border-none tracking-wider ${
               uiManga.status === 'completed' ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-md shadow-emerald-600/20' : 
               uiManga.status === 'hiatus' ? 'bg-amber-500 text-white' :
               uiManga.status === 'cancelled' ? 'bg-red-600 text-white' :
@@ -110,13 +110,13 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
           </Badge>
           
           {/* Origin Badge */}
-          <Badge className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-extrabold rounded-md px-1.5 py-0.5 border border-white/10 z-10 flex items-center gap-1">
+          <Badge className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-[10px] sm:text-xs font-extrabold rounded-md px-2 py-0.5 border border-white/10 z-10 flex items-center gap-1">
             <span>{originFormat.flag}</span>
             <span>{originFormat.label}</span>
           </Badge>
           
           {/* Rating */}
-          <div className="absolute top-8 left-2 bg-black/70 backdrop-blur-md rounded-md border border-white/10 px-1.5 py-0.5 flex items-center gap-1 text-white text-[10px] font-bold z-10">
+          <div className="absolute top-8 sm:top-9 left-2 bg-black/70 backdrop-blur-md rounded-md border border-white/10 px-2 py-0.5 flex items-center gap-1 text-white text-[11px] sm:text-xs font-bold z-10">
             <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
             <span>{uiManga.rating && uiManga.rating > 0 ? Number(uiManga.rating).toFixed(1) : '—'}</span>
           </div>
@@ -151,7 +151,7 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             
             {/* Simple Stats at bottom */}
             <div className="text-white mt-auto z-10">
-              <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-gray-300">
+              <div className="grid grid-cols-2 gap-2 text-xs font-medium text-gray-300">
                 <div className="flex items-center gap-1">
                   <Eye className="w-3 h-3 text-primary" />
                   <span>{uiManga.views ? formatNumber(uiManga.views) : '—'}</span>
@@ -167,19 +167,19 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
         </div>
       </Link>
       {/* Title and Genres below the card */}
-      <div className="mt-3.5 space-y-1 px-1">
+      <div className="mt-2.5 sm:mt-3 space-y-1 px-0.5">
         <h3 className={`${textSizes[size]} font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1`}>
           {uiManga.title}
         </h3>
-        <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
           {uiManga.year && (
-            <span className="text-primary">{uiManga.year}</span>
+            <span className="text-primary font-semibold">{uiManga.year}</span>
           )}
           {uiManga.year && uiManga.genres.length > 0 && <span>•</span>}
           <span className="line-clamp-1">{uiManga.genres.slice(0, 2).join(', ')}</span>
         </div>
         {uiManga.author && (
-          <div className="text-[11px] text-muted-foreground/80 line-clamp-1">
+          <div className="text-xs text-muted-foreground/80 line-clamp-1">
             {uiManga.author}
           </div>
         )}
