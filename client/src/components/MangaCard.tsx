@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Star, Eye, BookOpen, Info, BookOpen as ReadIcon } from 'lucide-react';
+import { Star, Eye, BookOpen, Info, BookOpen as ReadIcon, Sparkles } from 'lucide-react';
 
 import { UIManga, Manga as ApiManga } from '../types';
 import { mapApiMangaToUICard } from '../utils';
@@ -13,6 +13,7 @@ export interface MangaCardProps {
   manga: UIManga | ApiManga;
   size?: 'small' | 'medium' | 'large';
   showLanguageBadge?: boolean;
+  onShowRelated?: (manga: UIManga) => void;
 }
 
 // Helper to format large numbers with K/M suffixes
@@ -25,7 +26,7 @@ const formatNumber = (num: number): string => {
   return num.toString();
 };
 
-const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaCardProps) => {
+const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false, onShowRelated }: MangaCardProps) => {
   const uiManga = mapApiMangaToUICard(manga);
   const navigate = useNavigate();
   const [loadingReadNow, setLoadingReadNow] = React.useState(false);
@@ -120,11 +121,18 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
             <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
             <span>{uiManga.rating && uiManga.rating > 0 ? Number(uiManga.rating).toFixed(1) : '—'}</span>
           </div>
+
+          {/* Franchise Relation Badge if available */}
+          {uiManga.relation && (
+            <Badge className="absolute bottom-2 left-2 bg-primary/95 text-primary-foreground text-[10px] sm:text-xs font-extrabold rounded-md px-2 py-0.5 border border-primary/30 z-10 shadow-md">
+              {uiManga.relation}
+            </Badge>
+          )}
  
           {/* Overlay on Hover - Glass blur overlay */}
           <div className="absolute inset-0 bg-black/70 backdrop-blur-[3px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-4">
             {/* Action Buttons in Center - Stacked vertically */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 z-10 px-3">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10 px-3">
               <Button
                 size="sm"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold shadow-lg shadow-primary/30 transition-transform hover:scale-105 w-full text-xs py-2 rounded-lg border-none"
@@ -147,6 +155,21 @@ const MangaCard = ({ manga, size = 'medium', showLanguageBadge = false }: MangaC
                 <Info className="w-3.5 h-3.5 mr-1.5" />
                 <span>Info</span>
               </Button>
+              {onShowRelated && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="bg-primary/20 hover:bg-primary/30 text-white font-bold border-primary/40 transition-transform hover:scale-105 w-full text-xs py-1.5 rounded-lg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onShowRelated(uiManga);
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5 text-primary" />
+                  <span>Related</span>
+                </Button>
+              )}
             </div>
             
             {/* Simple Stats at bottom */}

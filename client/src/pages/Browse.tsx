@@ -7,10 +7,11 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
-import { X, Search, Filter, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { X, Search, Filter, ChevronDown, ChevronUp, Loader2, Sparkles } from 'lucide-react';
 import { browseManga, getMangaStatisticsBatch, BrowseParams } from '../services/mangaApi';
 import { mapApiMangaToUICard } from '../utils';
 import { Manga, UIManga } from '../types';
+import RelatedMangaDrawer from '../components/RelatedMangaDrawer';
 
 // Genre list with colors for badges
 const GENRES_WITH_COLORS: { name: string; color: string }[] = [
@@ -119,6 +120,7 @@ const Browse = () => {
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedForRelated, setSelectedForRelated] = useState<UIManga | null>(null);
   
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
@@ -436,11 +438,15 @@ const Browse = () => {
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="mb-4 flex items-center justify-between">
+        {/* Results Count & Quick Discovery Tip */}
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <p className="text-muted-foreground text-sm">
-            {loading ? 'Loading...' : `Showing ${mangaList.length} of ${totalResults} results`}
+            {loading ? 'Loading...' : `Showing ${mangaList.length} of ${totalResults.toLocaleString()} results`}
           </p>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-card border border-border px-3 py-1.5 rounded-xl shadow-xs self-start sm:self-auto">
+            <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span>Click <strong className="text-foreground">"Related"</strong> on any card to see sequels, prequels & similar manga</span>
+          </div>
         </div>
 
         {/* Manga Grid */}
@@ -458,6 +464,7 @@ const Browse = () => {
                   manga={manga} 
                   size="medium"
                   showLanguageBadge={index % 5 === 0}
+                  onShowRelated={(m) => setSelectedForRelated(m)}
                 />
               ))}
             </div>
@@ -527,6 +534,12 @@ const Browse = () => {
           </div>
         )}
       </div>
+
+      {/* Slide-over Drawer for Related Manga while browsing */}
+      <RelatedMangaDrawer
+        manga={selectedForRelated}
+        onClose={() => setSelectedForRelated(null)}
+      />
 
       <Footer />
     </div>

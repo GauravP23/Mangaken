@@ -498,3 +498,158 @@ export const getMangaTags = async () => {
         throw error;
     }
 };
+
+export interface FormattedRelatedManga {
+    id: string;
+    title: string;
+    description: string;
+    coverImage: string;
+    rating: number;
+    follows: number;
+    status: string;
+    genres: string[];
+    year?: number | null;
+    relation?: string;
+    relationType?: string;
+}
+
+export interface RelatedMangaResult {
+    franchise: FormattedRelatedManga[];
+    recommendations: FormattedRelatedManga[];
+}
+
+export const getRelatedManga = async (mangaId: string): Promise<RelatedMangaResult> => {
+    try {
+        const mangaDetails = await getMangaDetails(mangaId);
+        const manga = mangaDetails.data;
+        if (!manga) return { franchise: [], recommendations: [] };
+
+        const RELATION_LABELS: Record<string, string> = {
+            main_story: 'Main Story',
+            adapted_from: 'Adapted From',
+            based_on: 'Based On',
+            prequel: 'Prequel',
+            sequel: 'Sequel',
+            side_story: 'Side Story',
+            spin_off: 'Spin-off',
+            alternate_story: 'Alternate Story',
+            alternate_version: 'Alternate Version',
+            colored: 'Colored Edition',
+            preserialization: 'Pre-serialization',
+            serialization: 'Serialization',
+            doujinshi: 'Doujinshi'
+        };
+
+        const mangaRels = (manga.relationships || []).filter((r: any) => r.type === 'manga' && r.id !== mangaId);
+        const officialRels = mangaRels.filter((r: any) => r.related && r.related !== 'doujinshi');
+        const candidateRels = officialRels.length > 0 ? officialRels : mangaRels.slice(0, 8);
+
+        const franchiseMap = new Map<string, { type: string; label: string }>();
+        for (const rel of candidateRels.slice(0, 10)) {
+            const relType = rel.related || 'related';
+            franchiseMap.set(rel.id, {
+                type: relType,
+                label: RELATION_LABELS[relType] || relType.replace(/_/g, ' ')
+            });
+        }
+
+        const franchiseIds = Array.from(franchiseMap.keys());
+        let franchiseMangaList: Manga[] = [];
+        if (franchiseIds.length > 0) {
+            try {
+                const franchiseRes = await getMangaByIds(franchiseIds);
+                franchiseMangaList = franchiseRes.data || [];
+            } catch (err) {
+                console.error('Error fetching franchise relations:', err);
+            }
+        }
+
+        const tagIds = (manga.attributes.tags || [])
+            .map((t: any) => t.id)
+            .filter(Boolean);
+
+        let recMangaList: Manga[] = [];
+        if (tagIds.length > 0) {
+            try {
+                await rateLimit();
+                const queryTags = tagIds.slice(0, 2);
+                const recRes = await apiClient.get<MangaDexResponse<Manga>>('/manga', {
+                    params: {
+                        limit: 16,
+                        "includedTags[]": queryTags,
+                        "includes[]": ["cover_art", "author", "artist"],
+                        "order[followedCount]": "desc",
+                        "contentRating[]": ["safe", "suggestive"],
+                        "availableTranslatedLanguage[]": "en"
+                    }
+                });
+                const excludedIds = new Set([mangaId, ...franchiseIds]);
+                recMangaList = (recRes.data.data || [])
+                    .filter(m => !excludedIds.has(m.id))
+                    .slice(0, 12);
+            } catch (err) {
+                console.error('Error fetching genre recommendations:', err);
+            }
+        }
+
+        if (recMangaList.length < 4) {
+            try {
+                const popularRes = await getTrendingManga(12, 0);
+                const excludedIds = new Set([mangaId, ...franchiseIds, ...recMangaList.map(m => m.id)]);
+                const filler = (popularRes.data || []).filter(m => !excludedIds.has(m.id));
+                recMangaList = [...recMangaList, ...filler].slice(0, 12);
+            } catch {
+                // ignore
+            }
+        }
+
+        const allTargetIds = [...franchiseMangaList.map(m => m.id), ...recMangaList.map(m => m.id)];
+        let statsMap: Record<string, { rating: number; follows: number }> = {};
+        if (allTargetIds.length > 0) {
+            try {
+                statsMap = await getMangaStatisticsBatch(allTargetIds);
+            } catch (err) {
+                console.error('Error fetching stats for related manga:', err);
+            }
+        }
+
+        const formatItem = (m: Manga, relation?: { type: string; label: string }): FormattedRelatedManga => {
+            let coverFileName = '';
+            const coverRel = (m.relationships || []).find((rel: any) => rel.type === 'cover_art');
+            if (coverRel?.attributes?.fileName) {
+                coverFileName = coverRel.attributes.fileName;
+            }
+            const coverImage = coverFileName
+                ? `/api/manga/cover/${m.id}/${encodeURIComponent(coverFileName)}?size=256`
+                : '';
+
+            const genres = (m.attributes.tags || []).map((tag: any) =>
+                tag.attributes.name.en || Object.values(tag.attributes.name)[0] || ''
+            );
+
+            const st = statsMap[m.id];
+
+            return {
+                id: m.id,
+                title: (m.attributes.title as any)?.en || Object.values(m.attributes.title)[0] || 'No Title',
+                description: (m.attributes.description as any)?.en || Object.values(m.attributes.description)[0] || '',
+                coverImage,
+                rating: st?.rating ?? 0,
+                follows: st?.follows ?? 0,
+                status: m.attributes.status || 'ongoing',
+                genres,
+                year: m.attributes.year,
+                relation: relation?.label,
+                relationType: relation?.type,
+            };
+        };
+
+        const franchise = franchiseMangaList.map(m => formatItem(m, franchiseMap.get(m.id)));
+        const recommendations = recMangaList.map(m => formatItem(m));
+
+        return { franchise, recommendations };
+    } catch (error) {
+        console.error(`Error in getRelatedManga for ${mangaId}:`, error);
+        return { franchise: [], recommendations: [] };
+    }
+};

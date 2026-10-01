@@ -369,3 +369,27 @@ export const getMangaTagsController: RequestHandler = async (req, res, next) => 
         next(error);
     }
 };
+
+// Get related and recommended manga (franchise relations + genre recommendations)
+export const getRelatedMangaController: RequestHandler = async (req, res, next) => {
+    try {
+        const mangaId = req.params.id;
+        if (!mangaId) {
+            res.status(400).json({ message: 'Manga ID is required' });
+            return;
+        }
+
+        const cacheKey = `related-${mangaId}`;
+        const cached = categoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CATEGORY_CACHE_TTL) {
+            res.json(cached.data);
+            return;
+        }
+
+        const data = await mangadexService.getRelatedManga(mangaId);
+        categoryCache.set(cacheKey, { data, timestamp: Date.now() });
+        res.json(data);
+    } catch (error) {
+        next(error);
+    }
+};

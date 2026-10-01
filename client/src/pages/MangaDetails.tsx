@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import { getCompleteMangaInfo } from '../services/mangaApi';
 import { UIManga } from '../types';
 import { isBookmarked, toggleBookmark } from '../utils/bookmarks';
+import RelatedMangaSection from '../components/RelatedMangaSection';
 
 const MangaDetail = () => {
   const { id } = useParams();
@@ -222,6 +223,15 @@ const MangaDetail = () => {
               )}
             </div>
           </div>
+
+          {/* Related & Recommended Manga Section */}
+          {manga.id && (
+            <RelatedMangaSection
+              mangaId={manga.id}
+              currentTitle={manga.title}
+              genres={manga.genres}
+            />
+          )}
         </div>
       </div>
       <Footer />

@@ -309,3 +309,38 @@ export const getHeroManga = async (): Promise<{
     };
     return tryFetch();
 };
+
+export interface FormattedRelatedManga {
+    id: string;
+    title: string;
+    description: string;
+    coverImage: string;
+    rating: number;
+    follows: number;
+    status: string;
+    genres: string[];
+    year?: number | null;
+    relation?: string;
+    relationType?: string;
+}
+
+export interface RelatedMangaResult {
+    franchise: FormattedRelatedManga[];
+    recommendations: FormattedRelatedManga[];
+}
+
+// Get related manga (franchise + genre recommendations)
+export const getRelatedManga = async (mangaId: string): Promise<RelatedMangaResult> => {
+    const cacheKey = getCacheKey(`/manga/${mangaId}/related`);
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached as RelatedMangaResult;
+
+    try {
+        const response = await apiClient.get<RelatedMangaResult>(`/manga/${mangaId}/related`);
+        setCachedData(cacheKey, response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch related manga:', error);
+        return { franchise: [], recommendations: [] };
+    }
+};

@@ -7,7 +7,8 @@ import { getMangaDetails, searchManga, getMangaFeed, getMangaChapterCount, getMa
 import { Star, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import axios from 'axios';
-import { Manga, Relationship } from '../types';
+import { Manga, Relationship, UIManga } from '../types';
+import RelatedMangaDrawer from '../components/RelatedMangaDrawer';
 
 const SearchResultsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -15,6 +16,7 @@ const SearchResultsPage: React.FC = () => {
   const [results, setResults] = useState<(Manga & { chapters: number; author: string; rating: number; follows: number })[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedForRelated, setSelectedForRelated] = useState<UIManga | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -115,12 +117,19 @@ const SearchResultsPage: React.FC = () => {
                   key={manga.id}
                   manga={uiManga}
                   size="medium"
+                  onShowRelated={(m) => setSelectedForRelated(m)}
                 />
               );
             })}
           </div>
         </div>
       </div>
+
+      <RelatedMangaDrawer
+        manga={selectedForRelated}
+        onClose={() => setSelectedForRelated(null)}
+      />
+
       <Footer />
     </div>
   );

@@ -71,6 +71,8 @@ export interface UIManga {
     contentRating?: string;
     demographic?: string;
     japaneseTitle?: string;
+    relation?: string;
+    relationType?: string;
 }
 
 // Hybrid API Types (AniList + MangaDex combined)

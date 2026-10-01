@@ -37,6 +37,9 @@ router.get('/latest', mangaController.getLatestMangaController);
 // New: cover proxy - must be defined before '/:id' to avoid being treated as manga id
 router.get('/cover/:id/:fileName', mangaController.getCoverProxyController);
 
+// GET /api/manga/:id/related
+router.get('/:id/related', mangaController.getRelatedMangaController);
+
 // GET /api/manga/:id
 router.get('/:id', mangaController.getMangaDetailsController);
 

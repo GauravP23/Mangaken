@@ -62,6 +62,8 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
       id: manga.id,
       lastUpdate: manga.lastUpdate ?? '',
       type: manga.type ?? 'manga',
+      relation: (manga as any).relation,
+      relationType: (manga as any).relationType,
     };
   }
 
@@ -167,6 +169,8 @@ export function mapApiMangaToUICard(manga: UIManga | ApiManga): UIManga {
       demographic,
       japaneseTitle,
       originalTitle: attributes.title,
+      relation: (manga as any).relation,
+      relationType: (manga as any).relationType,
     };
   }
   
